@@ -1,0 +1,7 @@
+import java.rmi.*;
+import java.util.HashSet;
+
+public interface MetodosRMI extends Remote {
+	void indexarURL(String url) throws java.rmi.RemoteException;
+	HashSet<URLRecord> pesquisar(String palavras) throws java.rmi.RemoteException;
+}
