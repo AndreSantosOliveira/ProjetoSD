@@ -38,4 +38,9 @@ public class ServidorRMI extends UnicastRemoteObject implements MetodosRMI {
         listaPesquisas.add(palavras);
         return null;
     }
+
+    @Override
+    public String sayHello() throws RemoteException {
+        return null;
+    }
 }

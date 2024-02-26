@@ -5,7 +5,6 @@ public class ClienteRMI {
         /* This might be necessary if you ever need to download classes:
         System.getProperties().put("java.security.policy", "policy.all");
         System.setSecurityManager(new RMISecurityManager()); */
-
         try {
             MetodosRMI h = (MetodosRMI) LocateRegistry.getRegistry(1000).lookup("benfica");
             String message = h.sayHello();

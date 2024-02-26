@@ -2,7 +2,6 @@ import java.net.URL;
 import java.util.List;
 
 public class URLRecord {
-
     private String url;
     private String pageTitle, textCitation;
     private List<String> words;
