@@ -41,6 +41,7 @@ public class ServidorRMI extends UnicastRemoteObject implements MetodosRMI {
 
     @Override
     public String sayHello() throws RemoteException {
-        return null;
+        System.out.println("print do lado do servidor...!.");
+        return "josé gay";
     }
 }
