@@ -21,10 +21,10 @@ public class ServidorRMI extends UnicastRemoteObject implements MetodosRMI {
         try {
             ServidorRMI h = new ServidorRMI();
             Registry r = LocateRegistry.createRegistry(1000);
-            r.rebind("benfica", h);
-            System.out.println("Hello Server ready.");
+            r.rebind("test", h);
+            System.out.println("Server ready.");
         } catch (RemoteException re) {
-            System.out.println("Exception in HelloImpl.main: " + re);
+            System.out.println("Exception in ServidorRMI.main: " + re);
         }
     }
 
@@ -41,7 +41,7 @@ public class ServidorRMI extends UnicastRemoteObject implements MetodosRMI {
 
     @Override
     public String sayHello() throws RemoteException {
-        System.out.println("print do lado do servidor...!.");
-        return "josé gay";
+        System.out.println("Message received from client!");
+        return "Hello!";
     }
 }
