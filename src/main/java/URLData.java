@@ -1,10 +1,8 @@
-import java.util.List;
-
-public class URLRecord {
+public class URLData {
     private String url;
     private String pageTitle;
 
-    public URLRecord(String url, String pageTitle) {
+    public URLData(String url, String pageTitle) {
         this.url = url;
         this.pageTitle = pageTitle;
     }

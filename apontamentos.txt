@@ -1,0 +1,21 @@
+Cliente faz o pedido através do terminal (ex: cmd + url -> index www.youtube.com))
+
+A gateway insere o url na fila (FIFO)
+
+O downloader faz o fetch do url da fila
+
+Buscar resultados da WWW
+
+Guardar os resultados num HashMap<String, Hashset<URLData>> não pode ser uma lista: Bloom filter -> Pesquisar
+
+Guardar a URLData nos ISBs
+
+Implementar um mecanismo de fault tolerance (um retry é suficiente)
+
+Professor recomendou usar Maven -> mvnrepository.com -> jsoup (analisar vulnerabilidades do própio jsoup) -> baixar jar (1.17.2) -> wget dentro da dir "Jars" + link de dependecias bla bla bla já está feito
+
+Dica para obter as palavras: o html tem um atributo "bold", podemos sacar as palavras mais importantes daí
+
+Separar tudo por packages -> Parte de "organização de código" da avaliação
+
+Fazer um javaDoc também entra na avaliação

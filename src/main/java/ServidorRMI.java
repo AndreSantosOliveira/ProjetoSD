@@ -9,7 +9,7 @@ import java.util.HashSet;
 public class ServidorRMI extends UnicastRemoteObject implements MetodosRMI {
     private static final long serialVersionUID = 1L;
 
-    HashMap<String, HashSet<URLRecord>> index;
+    HashMap<String, HashSet<URLData>> index;
     ArrayList<String> toBeIndexed;
     ArrayList<String> listaPesquisas;
 
@@ -34,7 +34,7 @@ public class ServidorRMI extends UnicastRemoteObject implements MetodosRMI {
     }
 
     @Override
-    public HashSet<URLRecord> pesquisar(String palavras) throws RemoteException {
+    public HashSet<URLData> pesquisar(String palavras) throws RemoteException {
         listaPesquisas.add(palavras);
         return null;
     }

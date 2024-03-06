@@ -4,21 +4,23 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Downloader {
 
-    static Map<String, List<URLRecord>> index = new HashMap<>();
+    /*
+     * Classe que faz o download de uma página web e indexa as palavras chave
+     * para posterior pesquisa.
+     */
 
-    public static void main (String[] args) {
+    static HashMap<String, HashSet<URLData>> index = new HashMap<>();
+
+    public static void main(String[] args) {
+
+        // TODO 1: Fetch url from URL queue
+        // TODO 2: URL -> new thread -> Donwloader.crawl(url) -> URLData
+
         String url = "https://www.sapo.pt";
         try {
             Document doc = Jsoup.connect(url).get();
@@ -34,17 +36,16 @@ public class Downloader {
                     if (titulo.length() > 3 && link.startsWith("http")) {
                         //System.out.println(titulo + "\n" + link + "\n");
 
+                        // TODO 3: o título pode não conter o conteúdo essencial da página, encontrar uma maneira mais otimizada de o procurar
                         for (String s : titulo.split(" ")) {
-
                             s = s.toLowerCase();
                             if (s.length() > 3) {
                                 if (index.containsKey(s) && !doesIndexHaveURL(s, link)) {
-                                    URLRecord r = new URLRecord(link, titulo);
+                                    URLData r = new URLData(link, titulo);
                                     index.get(s).add(r);
                                 } else {
-                                    List<URLRecord> a = new ArrayList<>();
-                                    a.add(new URLRecord(link, titulo));
-                                    index.put(s, a);
+                                    HashSet<URLData> newHashSet = new HashSet<>(Collections.singletonList(new URLData(link, titulo)));
+                                    index.put(s, newHashSet);
                                 }
                             }
                         }
@@ -67,7 +68,6 @@ public class Downloader {
         }
 
         System.out.println();
-
          */
 
         //pesquisar("SAPO");
@@ -95,12 +95,14 @@ public class Downloader {
             System.out.println("\nPesquisar:");
         }
 
+        // TODO 4: Send to ISB via multicast
+
         // Close the scanner
         scanner.close();
     }
 
     public static Boolean doesIndexHaveURL(String chave, String url) {
-        return index.get(chave).stream().anyMatch(urlRecord -> urlRecord.getURL().equalsIgnoreCase(url));
+        return index.get(chave).stream().anyMatch(urlData -> urlData.getURL().equalsIgnoreCase(url));
     }
 
     public static void pesquisar(String pesquisa) {
@@ -111,7 +113,7 @@ public class Downloader {
 
         pesquisa = pesquisa.toLowerCase();
         System.out.println("Pesquisa para a query: " + pesquisa);
-        List<URLRecord> intersecao = new ArrayList<>();
+        List<URLData> intersecao = new ArrayList<>();
         boolean isFirstWord = true;
 
         String[] palavras = pesquisa.split(" ");
@@ -130,16 +132,17 @@ public class Downloader {
             System.out.println("Sem resultados para essa query.");
         } else {
             System.out.println(intersecao.size() + " resultados:");
-            intersecao.forEach(urlRecord -> System.out.println(urlRecord.toString()));
+            intersecao.forEach(urlData -> System.out.println(urlData.toString()));
         }
     }
 
-    public static Map<String, List<URLRecord>> sortIndexByListCountAsc() {
+    public static HashMap<String, HashSet<URLData>> sortIndexByListCountAsc() {
         // Create a stream from the entrySet of the map
-        // Sort it by comparing the size of the List<URLRecord> for each entry
+        // Sort it by comparing the size of the HashSet<URLData> for each entry
         // Then collect the results into a new LinkedHashMap to preserve the sorted order
+
         return index.entrySet().stream()
-                .sorted(Comparator.comparingInt((Map.Entry<String, List<URLRecord>> entry) -> entry.getValue().size()).reversed())
+                .sorted(Comparator.comparingInt(entry -> entry.getValue().size()))
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         Map.Entry::getValue,
