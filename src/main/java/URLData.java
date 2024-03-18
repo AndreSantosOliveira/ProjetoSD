@@ -1,4 +1,6 @@
-public class URLData {
+import java.io.Serializable;
+
+public class URLData implements Serializable {
     private String url;
     private String pageTitle;
 
@@ -9,7 +11,10 @@ public class URLData {
 
     @Override
     public String toString() {
-        return pageTitle + "\n> " + url;
+        return "URLData{" +
+                "url='" + url + '\'' +
+                ", pageTitle='" + pageTitle + '\'' +
+                '}';
     }
 
     public String getURL() {

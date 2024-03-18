@@ -1,47 +1,61 @@
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
-public class Gateway extends UnicastRemoteObject implements MetodosRMI {
-    private static final long serialVersionUID = 1L;
-
-    HashMap<String, HashSet<URLData>> index;
-    ArrayList<String> toBeIndexed;
-    ArrayList<String> listaPesquisas;
-
+public class Gateway extends UnicastRemoteObject implements MetodosGateway, Serializable {
+    // Gateway constructor
     public Gateway() throws RemoteException {
         super();
     }
 
-    public static void main(String args[]) {
+    HashMap<String, HashSet<URLData>> index;
+    List<String> toBeIndexed = new ArrayList<String>();
+    List<String> listaPesquisas = new ArrayList<String>();
+
+    // Main
+    public static void main(String[] args) {
         try {
-            Gateway h = new Gateway();
-            Registry r = LocateRegistry.createRegistry(1000);
-            r.rebind("test", h);
-            System.out.println("Server ready.");
+            Gateway gateway = new Gateway();
+            LocateRegistry.createRegistry(5000).rebind("Gateway", gateway);
+            System.out.println("Gateway ready.");
         } catch (RemoteException re) {
-            System.out.println("Exception in ServidorRMI.main: " + re);
+            System.out.println("Exception in Gateway.main: " + re);
         }
     }
 
+
+    // Indexar novo URL
     @Override
-    public void indexarURL(String url) throws RemoteException {
+    public String indexarURL(String url) throws RemoteException {
         toBeIndexed.add(url);
+        // TODO: Enviar URL para o downloader
+        //...
+        System.out.println(url + " adicionado à lista de indexação.");
+        return url + " adicionado à lista de indexação.";
     }
 
+    // Pesquisar páginas que contenham um conjunto de termos
     @Override
     public HashSet<URLData> pesquisar(String palavras) throws RemoteException {
         listaPesquisas.add(palavras);
-        return null;
+        HashSet<URLData> resultado = new HashSet<>();
+
+        resultado.add(new URLData("www.google.com", "Google"));
+        resultado.add(new URLData("www.facebook.com", "Facebook"));
+        resultado.add(new URLData("www.twitter.com", "Twitter"));
+        resultado.add(new URLData("www.instagram.com", "Instagram"));
+        resultado.add(new URLData("www.linkedin.com", "LinkedIn"));
+
+        // TODO: Enviar resultado para o downloader
+        //...
+
+        System.out.println("Pesquisa por '" + palavras + "' realizada.");
+        return resultado;
     }
 
-    @Override
-    public String sayHello() throws RemoteException {
-        System.out.println("Message received from client!");
-        return "Hello!";
-    }
 }
