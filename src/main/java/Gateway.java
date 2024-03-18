@@ -6,20 +6,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class GatewayRMI extends UnicastRemoteObject implements MetodosRMI {
+public class Gateway extends UnicastRemoteObject implements MetodosRMI {
     private static final long serialVersionUID = 1L;
 
     HashMap<String, HashSet<URLData>> index;
     ArrayList<String> toBeIndexed;
     ArrayList<String> listaPesquisas;
 
-    public GatewayRMI() throws RemoteException {
+    public Gateway() throws RemoteException {
         super();
     }
 
     public static void main(String args[]) {
         try {
-            GatewayRMI h = new GatewayRMI();
+            Gateway h = new Gateway();
             Registry r = LocateRegistry.createRegistry(1000);
             r.rebind("test", h);
             System.out.println("Server ready.");

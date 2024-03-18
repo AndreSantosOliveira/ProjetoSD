@@ -1,13 +1,15 @@
-import javax.swing.*;
+
+import static java.lang.System.exit;
+
+import java.io.Serializable;
+import java.rmi.NotBoundException;
+import java.rmi.Remote;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.util.Scanner;
 
-public class ClienteRMI {
+public class ClienteRMI implements Serializable, Remote {
     public static void main(String[] args) {
-        /* This might be necessary if you ever need to download classes:
-        System.getProperties().put("java.security.policy", "policy.all");
-        System.setSecurityManager(new RMISecurityManager()); */
-
         /*
         // Interface
         SwingUtilities.invokeLater(new Runnable() {
@@ -19,7 +21,7 @@ public class ClienteRMI {
 
         Scanner scanner = new Scanner(System.in);
         String option;
-        System.out.println("Welcome to Googol, your favourite search engine.");
+        System.out.println("Welcome to Googol, your favourite search engine. For additional information type 'help'.");
 
         do {
             System.out.println("Enter an option:");
@@ -28,7 +30,7 @@ public class ClienteRMI {
             option = scanner.nextLine().toLowerCase();
 
             if (option.length() <= 1) {
-                System.out.println("Invalid option. For additional help type 'help'");
+                System.out.println("Invalid option. For additional information type 'help'");
                 continue;
             }
 
