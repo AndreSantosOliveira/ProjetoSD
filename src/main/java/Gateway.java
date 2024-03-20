@@ -45,10 +45,16 @@ public class Gateway extends UnicastRemoteObject implements MetodosGateway, Seri
         listaPesquisas.add(palavras);
         HashSet<URLData> resultado = new HashSet<>();
 
+        // 10 no maximo
         resultado.add(new URLData("www.google.com", "Google"));
         resultado.add(new URLData("www.facebook.com", "Facebook"));
         resultado.add(new URLData("www.twitter.com", "Twitter"));
         resultado.add(new URLData("www.instagram.com", "Instagram"));
+        resultado.add(new URLData("www.linkedin.com", "LinkedIn"));
+        resultado.add(new URLData("www.linkedin.com", "LinkedIn"));
+        resultado.add(new URLData("www.linkedin.com", "LinkedIn"));
+        resultado.add(new URLData("www.linkedin.com", "LinkedIn"));
+        resultado.add(new URLData("www.linkedin.com", "LinkedIn"));
         resultado.add(new URLData("www.linkedin.com", "LinkedIn"));
 
         // TODO: Enviar resultado para o downloader
