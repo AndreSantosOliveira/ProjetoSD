@@ -25,6 +25,8 @@ public class ClienteRMI implements Serializable, Remote {
     public static void main(String[] args) {
         try (Scanner scanner = new Scanner(System.in)) {
 
+
+            // TODO: temos que ter multiple clients
             // Remote Method Invocation (RMI)
             ClienteRMI clienteRMI = new ClienteRMI();
             LocateRegistry.createRegistry(4000).rebind("Client", clienteRMI);
@@ -93,6 +95,7 @@ public class ClienteRMI implements Serializable, Remote {
             } while (!command.equals("exit"));
 
         } catch (NotBoundException | RemoteException e) {
+            // TODO: Implementar um sistema de retry connections com um contador limite. Limpar o contador no final.
             System.out.println("Exception in RMI client: " + e.getMessage());
         }
     }

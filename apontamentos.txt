@@ -19,3 +19,20 @@ Dica para obter as palavras: o html tem um atributo "bold", podemos sacar as pal
 Separar tudo por packages -> Parte de "organização de código" da avaliação
 
 Fazer um javaDoc também entra na avaliação
+
+
+RMI failover:
+Retry connection quando falha (retry com limites no catch)
+
+A queue é um componente á parte. A gateway e os downloader comunicam com a queue através de TCP.
+
+QUEUE:
+classe simples que tem uma lista de urls
+método para adicionar uma url
+método para remover uma url
+
+Os downloaders podem ser multi threaded
+O downloader faz o fetch do url da queue e guarda o resultado num hashmap
+
+Failover: se o downloader falhar, a queue tem de tentar novamente
+
