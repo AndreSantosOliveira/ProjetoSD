@@ -19,7 +19,7 @@ public class Downloader {
     static Set<String> alreadyCrawled = new HashSet<>();
 
 
-    public static void crawl(String url) {
+    public static void crawlDownloader(String url) {
         if (alreadyCrawled.contains(url)) {
             return;
         }
@@ -51,7 +51,7 @@ public class Downloader {
                                     HashSet<URLData> newHashSet = new HashSet<>(Collections.singletonList(new URLData(link, titulo)));
                                     index.put(s, newHashSet);
                                 }
-                               // queueLinks.offer(link); //TODO: Enviar para a queue
+                                // queueLinks.offer(link); //TODO: Enviar para a queue
                             }
                         }
                     }

@@ -35,7 +35,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosGateway, Seri
 
         try {
             // Ligar ao QueueManager via TCP
-            socket = new Socket("127.0.0.1", 5001);
+            socket = new Socket("127.0.0.1", 3569);
             System.out.println("Ligação ao QueueManager de sucesso!");
 
             dataOut = new DataOutputStream(socket.getOutputStream());
@@ -46,6 +46,9 @@ public class Gateway extends UnicastRemoteObject implements MetodosGateway, Seri
         } catch (IOException re) {
             System.out.println("Exception in Gateway Socket: " + re);
         }
+
+
+
 
         System.out.println("Gateway ready.");
     }
