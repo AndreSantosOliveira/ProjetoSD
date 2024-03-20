@@ -1,42 +1,47 @@
-Cliente faz o pedido através do terminal (ex: cmd + url -> index www.youtube.com))
+OVERALL:
+    Cliente faz o pedido através do terminal (ex: cmd + url -> index www.youtube.com))
 
-A gateway insere o url na fila (FIFO)
+    A gateway insere o url na fila (FIFO)
 
-O downloader faz o fetch do url da fila
+    O downloader faz o fetch do url da fila
 
-Buscar resultados da WWW
+    Buscar resultados da WWW
 
-Guardar os resultados num HashMap<String, Hashset<URLData>> não pode ser uma lista: Bloom filter -> Pesquisar
+    Guardar os resultados num HashMap<String, Hashset<URLData>> não pode ser uma lista: Bloom filter -> Pesquisar
 
-Guardar a URLData nos ISBs
+    Guardar a URLData nos ISBs
 
-Implementar um mecanismo de fault tolerance (um retry é suficiente)
+    Implementar um mecanismo de fault tolerance (um retry é suficiente)
 
-Professor recomendou usar Maven -> mvnrepository.com -> jsoup (analisar vulnerabilidades do própio jsoup) -> baixar jar (1.17.2) -> wget dentro da dir "Jars" + link de dependecias bla bla bla já está feito
+    Professor recomendou usar Maven -> mvnrepository.com -> jsoup (analisar vulnerabilidades do própio jsoup) -> baixar jar (1.17.2) -> wget dentro da dir "Jars" + link de dependecias bla bla bla já está feito
 
-Dica para obter as palavras: o html tem um atributo "bold", podemos sacar as palavras mais importantes daí
+    Dica para obter as palavras: o html tem um atributo "bold", podemos sacar as palavras mais importantes daí
 
-Separar tudo por packages -> Parte de "organização de código" da avaliação
+    Separar tudo por packages -> Parte de "organização de código" da avaliação
 
-Fazer um javaDoc também entra na avaliação
+    Fazer um javaDoc também entra na avaliação
 
 
 RMI:
-Retry connection quando falha (retry com limites no catch)
+    Retry connection quando falha (retry com limites no catch)
+
+CLIENT:
+    Permitir mais do que um cliente na mesma máquina
+    Range de portas aceitáveis para os clientes. Ex: 7000-7010
+    Informar o cliente que está a ser usada e as portas disponíveis
 
 Verificar se a url é válida conforme regex, Já estamos a ignorar .onions. Existe uma exceção que o downloader pode lançar se a url não for válida. Descartar esses urls inválidos.
 
-
 QUEUE:
-A queue é um componente á parte. A gateway e os downloader comunicam com a queue através de TCP.
-classe simples que tem uma lista de urls
-método para adicionar uma url
-método para remover uma url
+    A queue é um componente á parte. A gateway e os downloader comunicam com a queue através de TCP.
+    classe simples que tem uma lista de urls
+    método para adicionar uma url
+    método para remover uma url
 
 
 DOWNLOADER:
-Os downloaders podem ser multi threaded
-O downloader faz o fetch do url da queue e guarda o resultado num hashmap
-Failover: se o downloader falhar, a queue tem de tentar novamente
-Failover: se o downloader lançar uma exceção de bad format url, a queue tem de descartar a url e é ignorado
-
+    Os downloaders podem ser multi threaded
+    O downloader faz o fetch do url da queue e guarda o resultado num hashmap
+    Failover: se o downloader falhar, a queue tem de tentar novamente
+    Failover: se o downloader lançar uma exceção de bad format url, a queue tem de descartar a url e é ignorado
+    Tem que ser Thread Safe -> ver na documentação do Java o que é thread safe e o que não é

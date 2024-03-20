@@ -1,49 +1,63 @@
-
 import java.io.Serializable;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.Scanner;
 
-// Interface
-        /*
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                new Googol();
-            }
-        });
-        */
 public class ClienteRMI implements Serializable, Remote {
 
-    // Client constructor
     protected ClienteRMI() throws RemoteException {
         super();
     }
 
-    // Main
     public static void main(String[] args) {
+        int startPort = 4000;
+        int endPort = 4010;
+        int currentPort = startPort;
+        int maxRetries = 3; // Maximum number of retry attempts
+        int retryCount = 0; // Counter for retry attempts
+        boolean portFound = false;
+
         try (Scanner scanner = new Scanner(System.in)) {
+            Registry registry = null;
 
+            while (currentPort <= endPort && retryCount < maxRetries) {
+                try {
+                    registry = LocateRegistry.createRegistry(currentPort);
+                    portFound = true;
+                    break; // If the port is successfully bound, break the loop
+                } catch (RemoteException e) {
+                    // If the port is already in use, try the next one
+                    currentPort++;
+                    retryCount++;
+                }
+            }
 
-            // TODO: temos que ter multiple clients
-            // Remote Method Invocation (RMI)
+            if (!portFound) {
+                System.out.println("Maximum capacity reached. Cannot start the client.");
+                return;
+            }
+
+            if (retryCount == maxRetries) {
+                System.out.println("Maximum retry attempts reached. Cannot start the client.");
+                return;
+            }
+
             ClienteRMI clienteRMI = new ClienteRMI();
-            LocateRegistry.createRegistry(4000).rebind("Client", clienteRMI);
+            registry.rebind("Client", clienteRMI);
 
             MetodosGateway metodosGateway = (MetodosGateway) LocateRegistry.getRegistry(2000).lookup("Gateway");
 
             String command;
             System.out.println("Welcome to Googol, your favourite search engine. For additional information type 'help'.");
 
-
-            // Menu
             do {
                 System.out.println("Enter an option:");
                 System.out.print("> ");
 
                 command = scanner.nextLine().toLowerCase();
-
 
                 if (command.length() <= 1) {
                     System.out.println("Invalid option. For additional information type 'help'");
@@ -51,7 +65,6 @@ public class ClienteRMI implements Serializable, Remote {
                 }
 
                 String[] splitOption = command.split(" ");
-
 
                 switch (splitOption[0]) {
                     case "index":
@@ -61,7 +74,6 @@ public class ClienteRMI implements Serializable, Remote {
                     case "search":
                         StringBuilder pesquisa = new StringBuilder();
                         for (int i = 1; i < splitOption.length; i++) {
-                            // If last element, don't add space
                             if (i == splitOption.length - 1) {
                                 pesquisa.append(splitOption[i]);
                                 break;
@@ -95,7 +107,6 @@ public class ClienteRMI implements Serializable, Remote {
             } while (!command.equals("exit"));
 
         } catch (NotBoundException | RemoteException e) {
-            // TODO: Implementar um sistema de retry connections com um contador limite. Limpar o contador no final.
             System.out.println("Exception in RMI client: " + e.getMessage());
         }
     }
