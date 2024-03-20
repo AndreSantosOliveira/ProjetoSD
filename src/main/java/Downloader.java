@@ -16,12 +16,16 @@ public class Downloader {
 
     static HashMap<String, HashSet<URLData>> index = new HashMap<>();
 
-    public static void main(String[] args) {
+    static Set<String> alreadyCrawled = new HashSet<>();
 
-        // TODO 1: Fetch url from URL queue
-        // TODO 2: URL -> new thread -> Donwloader.crawl(url) -> URLData
+    static UniqueQueue<String> queueLinks = new UniqueQueue<>(50);
 
-        String url = "https://www.sapo.pt";
+    public static void crawl(String url) {
+        if (alreadyCrawled.contains(url)) {
+            return;
+        }
+        System.out.println("Crawling: " + url + " - Na queue: " + queueLinks.size());
+        alreadyCrawled.add(url);
         try {
             Document doc = Jsoup.connect(url).get();
             StringTokenizer tokens = new StringTokenizer(doc.text());
@@ -32,6 +36,7 @@ public class Downloader {
                 for (Element elementoLink : links) {
                     String titulo = elementoLink.text();
                     String link = elementoLink.attr("abs:href");
+                    if (link.endsWith(".onion")) continue; //ignorar links da dark web xD
 
                     if (titulo.length() > 3 && link.startsWith("http")) {
                         //System.out.println(titulo + "\n" + link + "\n");
@@ -47,14 +52,29 @@ public class Downloader {
                                     HashSet<URLData> newHashSet = new HashSet<>(Collections.singletonList(new URLData(link, titulo)));
                                     index.put(s, newHashSet);
                                 }
+                                queueLinks.offer(link);
                             }
                         }
                     }
                 }
             }
         } catch (IOException e) {
+            System.out.println("Ocorreu um erro no Downloader!");
             throw new RuntimeException(e);
         }
+    }
+
+    public static void main(String[] args) {
+
+        // TODO 1: Fetch url from URL queue
+        // TODO 2: URL -> new thread -> Donwloader.crawl(url) -> URLData
+
+        queueLinks.offer("https://www.sapo.pt/");
+
+        while (!queueLinks.isEmpty()) {
+            crawl(queueLinks.poll());
+        }
+
 
         /*
         index = sortIndexByListCountAsc();

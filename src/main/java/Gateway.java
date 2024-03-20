@@ -14,14 +14,14 @@ public class Gateway extends UnicastRemoteObject implements MetodosGateway, Seri
     }
 
     HashMap<String, HashSet<URLData>> index;
-    List<String> toBeIndexed = new ArrayList<String>();
-    List<String> listaPesquisas = new ArrayList<String>();
+    List<String> toBeIndexed = new ArrayList<>();
+    List<String> listaPesquisas = new ArrayList<>();
 
     // Main
     public static void main(String[] args) {
         try {
             Gateway gateway = new Gateway();
-            LocateRegistry.createRegistry(5000).rebind("Gateway", gateway);
+            LocateRegistry.createRegistry(2000).rebind("Gateway", gateway);
             System.out.println("Gateway ready.");
         } catch (RemoteException re) {
             System.out.println("Exception in Gateway.main: " + re);

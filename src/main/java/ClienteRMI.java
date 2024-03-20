@@ -23,16 +23,13 @@ public class ClienteRMI implements Serializable, Remote {
 
     // Main
     public static void main(String[] args) {
-
-
         try (Scanner scanner = new Scanner(System.in)) {
 
             // Remote Method Invocation (RMI)
             ClienteRMI clienteRMI = new ClienteRMI();
             LocateRegistry.createRegistry(4000).rebind("Client", clienteRMI);
 
-            MetodosGateway metodosGateway = (MetodosGateway) LocateRegistry.getRegistry(5000).lookup("Gateway");
-
+            MetodosGateway metodosGateway = (MetodosGateway) LocateRegistry.getRegistry(2000).lookup("Gateway");
 
             String command;
             System.out.println("Welcome to Googol, your favourite search engine. For additional information type 'help'.");
