@@ -7,34 +7,36 @@ public class QueueManager {
 
     static ServerSocket serverSocket = null;
 
-    public static void main(String[] args) throws IOException {
-        receive();
-    }
-
     static UniqueQueue<String> queueLinks = new UniqueQueue<>(50);
 
-    // Set up receive socket
-    public static void receive() throws IOException {
-        ServerSocket serverSocket = new ServerSocket(5001);
-        System.out.println("Server Listening on port 5001...");
+    public static void main(String[] args) throws IOException {
+        try {
+            ServerSocket serverSocket = new ServerSocket(5001);
+            System.out.println("Server Listening on port 5001...");
 
-        while (true) {
-            Socket connectionSocket = serverSocket.accept();
-            new Thread(() -> {
+            while (true) {
+                Socket connectionSocket = serverSocket.accept();
+                new Thread(() -> {
 
-                try {
-                    DataInputStream dataIn = new DataInputStream(connectionSocket.getInputStream());
+                    try {
+                        DataInputStream dataIn = new DataInputStream(connectionSocket.getInputStream());
 
-                    String operator = dataIn.readUTF();
+                        while (dataIn.available() > 0) {
+                            String url = dataIn.readUTF();
 
-                    System.out.println(operator);
+                            queueLinks.offer(url);
+                            System.out.println("QueueManager recebeu para indexação: " + url + " | " + queueLinks.size() + " links na fila.");
+                        }
 
-                    connectionSocket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                        connectionSocket.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
-            }).start();
+                }).start();
+            }
+        } catch (IOException e) {
+            System.out.println("Erro ao criar socket de receção Gateway->QueueManager: " + e.getMessage());
         }
     }
 }

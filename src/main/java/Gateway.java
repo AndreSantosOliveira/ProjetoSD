@@ -41,6 +41,8 @@ public class Gateway extends UnicastRemoteObject implements MetodosGateway, Seri
 
             // Send calculation details to the server
             dataOut.writeUTF("loles");
+            dataOut.writeUTF("uc.pt");
+            dataOut.flush();
 
         } catch (IOException re) {
             System.out.println("Exception in Gateway Socket: " + re);
