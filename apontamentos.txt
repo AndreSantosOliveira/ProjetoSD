@@ -21,18 +21,22 @@ Separar tudo por packages -> Parte de "organização de código" da avaliação
 Fazer um javaDoc também entra na avaliação
 
 
-RMI failover:
+RMI:
 Retry connection quando falha (retry com limites no catch)
 
-A queue é um componente á parte. A gateway e os downloader comunicam com a queue através de TCP.
+Verificar se a url é válida conforme regex, Já estamos a ignorar .onions. Existe uma exceção que o downloader pode lançar se a url não for válida. Descartar esses urls inválidos.
+
 
 QUEUE:
+A queue é um componente á parte. A gateway e os downloader comunicam com a queue através de TCP.
 classe simples que tem uma lista de urls
 método para adicionar uma url
 método para remover uma url
 
+
+DOWNLOADER:
 Os downloaders podem ser multi threaded
 O downloader faz o fetch do url da queue e guarda o resultado num hashmap
-
 Failover: se o downloader falhar, a queue tem de tentar novamente
+Failover: se o downloader lançar uma exceção de bad format url, a queue tem de descartar a url e é ignorado
 
