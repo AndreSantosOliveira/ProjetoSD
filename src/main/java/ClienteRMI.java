@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.io.Serializable;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
@@ -40,7 +41,7 @@ public class ClienteRMI implements Serializable, Remote {
         // Tentar encontrar um porto disponível para o cliente
         try (Scanner scanner = new Scanner(System.in)) {
             Registry registry = null;
-            while (currentPort <= endPort) {
+            while (currentPort < endPort) {
                 try {
                     registry = LocateRegistry.createRegistry(currentPort);
                     portFound = true;
@@ -64,7 +65,7 @@ public class ClienteRMI implements Serializable, Remote {
             MetodosGateway metodosGateway = null;
             while (metodosGateway == null && retryCount < maxRetries) {
                 try {
-                    metodosGateway = (MetodosGateway) LocateRegistry.getRegistry(2000).lookup("Gateway");
+                    metodosGateway = (MetodosGateway) LocateRegistry.getRegistry(1000).lookup("Gateway");
                 } catch (RemoteException | NotBoundException e) {
                     retryCount++;
                     if (retryCount < maxRetries) {
@@ -146,6 +147,8 @@ public class ClienteRMI implements Serializable, Remote {
 
         } catch (RemoteException e) {
             System.out.println("Exception in RMI client: " + e.getMessage());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
