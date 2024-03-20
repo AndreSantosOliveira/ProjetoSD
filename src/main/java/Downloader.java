@@ -18,13 +18,12 @@ public class Downloader {
 
     static Set<String> alreadyCrawled = new HashSet<>();
 
-    static UniqueQueue<String> queueLinks = new UniqueQueue<>(50);
 
     public static void crawl(String url) {
         if (alreadyCrawled.contains(url)) {
             return;
         }
-        System.out.println("Crawling: " + url + " - Na queue: " + queueLinks.size());
+        System.out.println("Crawling: " + url);
         alreadyCrawled.add(url);
         try {
             Document doc = Jsoup.connect(url).get();
@@ -52,7 +51,7 @@ public class Downloader {
                                     HashSet<URLData> newHashSet = new HashSet<>(Collections.singletonList(new URLData(link, titulo)));
                                     index.put(s, newHashSet);
                                 }
-                                queueLinks.offer(link);
+                               // queueLinks.offer(link); //TODO: Enviar para a queue
                             }
                         }
                     }
@@ -69,11 +68,11 @@ public class Downloader {
         // TODO 1: Fetch url from URL queue
         // TODO 2: URL -> new thread -> Donwloader.crawl(url) -> URLData
 
-        queueLinks.offer("https://www.sapo.pt/");
+        //queueLinks.offer("https://www.sapo.pt/");
 
-        while (!queueLinks.isEmpty()) {
-            crawl(queueLinks.poll());
-        }
+        //while (!queueLinks.isEmpty()) {
+        //    crawl(queueLinks.poll());
+        //}
 
 
         /*

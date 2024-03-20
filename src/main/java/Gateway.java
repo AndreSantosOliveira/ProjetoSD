@@ -1,4 +1,7 @@
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.Serializable;
+import java.net.Socket;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
@@ -17,25 +20,46 @@ public class Gateway extends UnicastRemoteObject implements MetodosGateway, Seri
     List<String> toBeIndexed = new ArrayList<>();
     List<String> listaPesquisas = new ArrayList<>();
 
+    private static Socket socket;
+    private static DataOutputStream dataOut;
+
+
     // Main
     public static void main(String[] args) {
         try {
             Gateway gateway = new Gateway();
-            LocateRegistry.createRegistry(2000).rebind("Gateway", gateway);
-            System.out.println("Gateway ready.");
-        } catch (RemoteException re) {
-            System.out.println("Exception in Gateway.main: " + re);
+            LocateRegistry.createRegistry(1000).rebind("Gateway", gateway);
+        } catch (IOException re) {
+            System.out.println("Exception in Gateway RMI: " + re);
         }
+
+        try {
+            socket = new Socket("127.0.0.1", 5001);
+            System.out.println("Connection Successful!");
+
+            dataOut = new DataOutputStream(socket.getOutputStream());
+
+            // Send calculation details to the server
+            dataOut.writeUTF("loles");
+
+        } catch (IOException re) {
+            System.out.println("Exception in Gateway Socket: " + re);
+        }
+
+        System.out.println("Gateway ready.");
     }
 
 
     // Indexar novo URL
     @Override
-    public String indexarURL(String url) throws RemoteException {
+    public String indexarURL(String url) throws IOException {
         toBeIndexed.add(url);
-        // TODO: Enviar URL para o downloader
-        //...
+
         System.out.println(url + " adicionado à lista de indexação.");
+
+        dataOut.writeUTF(url);
+        dataOut.flush();
+
         return url + " adicionado à lista de indexação.";
     }
 

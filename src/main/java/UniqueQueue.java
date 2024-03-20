@@ -17,15 +17,12 @@ public class UniqueQueue<E> {
 
     public boolean offer(E e) {
         if (set.contains(e)) {
-            // Element is a duplicate, do not add
             return false;
         } else if (queue.size() < maxSize) {
-            // Space is available, and element is unique
             set.add(e);
             queue.offer(e);
             return true;
         }
-        // Queue is at max size
         return false;
     }
 

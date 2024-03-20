@@ -40,6 +40,12 @@ QUEUE:
 
 
 DOWNLOADER:
+Os downloaders podem ser multi threaded
+O downloader faz o fetch do url da queue e guarda o resultado num hashmap
+Failover: se o downloader falhar, a queue tem de tentar novamente
+Failover: se o downloader lançar uma exceção de bad format url, a queue tem de descartar a url e é ignorado
+
+Agrupar de 10 em 10 urls para fazer o fetch, nao devolver mais que 10 urls, devolvemos apeans o primeiro grupo de resultados
     Os downloaders podem ser multi threaded
     O downloader faz o fetch do url da queue e guarda o resultado num hashmap
     Failover: se o downloader falhar, a queue tem de tentar novamente
