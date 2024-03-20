@@ -36,13 +36,11 @@ public class Gateway extends UnicastRemoteObject implements MetodosGateway, Seri
         try {
             // Ligar ao QueueManager via TCP
             socket = new Socket("127.0.0.1", 5001);
-            System.out.println("Ligação Successful!");
+            System.out.println("Ligação ao QueueManager de sucesso!");
 
             dataOut = new DataOutputStream(socket.getOutputStream());
 
-            // Send calculation details to the server
-            dataOut.writeUTF("loles");
-            dataOut.writeUTF("uc.pt");
+            dataOut.writeUTF("testeTop");
             dataOut.flush();
 
         } catch (IOException re) {
@@ -57,8 +55,6 @@ public class Gateway extends UnicastRemoteObject implements MetodosGateway, Seri
     @Override
     public String indexarURL(String url) throws IOException {
         toBeIndexed.add(url);
-
-        System.out.println(url + " adicionado à lista de indexação.");
 
         dataOut.writeUTF(url);
         dataOut.flush();
