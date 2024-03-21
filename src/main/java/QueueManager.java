@@ -6,7 +6,6 @@ import java.io.Serializable;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 
 public class QueueManager extends UnicastRemoteObject implements Serializable {
@@ -18,13 +17,6 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
     private static PrintWriter textOut;
 
     public static void main(String[] args) {
-        try {
-            QueueManager queueManager = new QueueManager();
-            LocateRegistry.createRegistry(3500).rebind("queuemanager", queueManager);
-        } catch (IOException re) {
-            System.out.println("Exception in Gateway RMI: " + re);
-        }
-
         try {
             // Ligar ao DownlaoderManager via TCP
             Socket socket = new Socket("127.0.0.1", 3570);
