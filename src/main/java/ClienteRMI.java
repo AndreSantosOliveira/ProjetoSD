@@ -106,7 +106,7 @@ public class ClienteRMI implements Serializable, Remote {
                     continue;
                 }
                 switch (splitOption[0]) {
-                    case "index":
+                    case "index": //index https://sapo.pt
                         System.out.println(metodosGateway.indexarURL(splitOption[1]));
                         break;
 

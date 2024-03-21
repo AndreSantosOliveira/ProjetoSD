@@ -19,7 +19,6 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
     public static void main(String[] args) {
         try {
             // Criar socket de receção Gateway->QueueManager
-
             ServerSocket serverSocket = new ServerSocket(3569);
             System.out.println("QueueManager a escutar na porta 3569");
 
@@ -49,6 +48,7 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
                             System.out.println("Recebido da Gateway para indexar: " + dados);
                             downloadManager.println(dados);
                             System.out.println("QueueManager enviou para crawl: " + dados);
+
                         }
 
                         //connectionSocket.close();
@@ -63,10 +63,10 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
     }
 
     private static boolean connectToDownloadManager() {
-        final int MAX_RETRIES = 10; // Maximum number of retries
-        int attempt = 0; // Current attempt counter
+        final int maxTentativa = 10;
+        int tentativa = 0;
 
-        while (attempt < MAX_RETRIES) {
+        while (tentativa < 10) {
             try {
                 // Attempt to connect to DownloadManager via TCP
                 Socket socket = new Socket("127.0.0.1", 3570);
@@ -75,21 +75,16 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
                 downloadManager = new PrintWriter(socket.getOutputStream(), true);
                 return true;
             } catch (IOException re) {
-                System.out.println("Exception in Gateway Socket on attempt " + (attempt + 1) + ": " + re);
-
-                attempt++; // Increment attempt counter
-
-                if (attempt < MAX_RETRIES) {
+                System.out.println("Erro ao ligar ao DownloadManager - tentativa nº" + (tentativa + 1) + ": " + re);
+                ++tentativa;
+                if (tentativa < maxTentativa) {
                     try {
-                        // Wait for 1 second before retrying
                         Thread.sleep(1000);
                     } catch (InterruptedException ie) {
-                        System.out.println("An interruption occurred while waiting to retry: " + ie);
-                        // Optional: handle the InterruptedException, for example, restore the interrupted status
-                        Thread.currentThread().interrupt();
+                        System.out.println("Ocorreu um problema no sleep: " + ie);
                     }
                 } else {
-                    System.out.println("Failed to connect to DownloadManager after " + MAX_RETRIES + " attempts.");
+                    System.out.println("Falha ao ligar ao DownloadManager após " + tentativa + " tentativas.");
                 }
             }
         }
