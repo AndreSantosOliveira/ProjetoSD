@@ -14,18 +14,10 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
         super();
     }
 
-    private static PrintWriter textOut;
+    private static PrintWriter downloadManager;
 
     public static void main(String[] args) {
-        try {
-            // Ligar ao DownlaoderManager via TCP
-            Socket socket = new Socket("127.0.0.1", 3570);
-            System.out.println("Ligação ao DownloadManager de sucesso!");
-
-            textOut = new PrintWriter(socket.getOutputStream(), true);
-        } catch (IOException re) {
-            System.out.println("Exception in Gateway Socket: " + re);
-        }
+        connectToDownloadManager();
 
         try {
             // Criar socket de receção Gateway->QueueManager
@@ -52,7 +44,7 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
                         String dados;
                         while ((dados = inFromClient.readLine()) != null) { // Continuously read lines sent from client
                             System.out.println("Recebido da Gateway para indexar: " + dados);
-                            textOut.println(dados);
+                            downloadManager.println(dados);
                             System.out.println("QueueManager enviou para crawl: " + dados);
                         }
 
@@ -66,4 +58,38 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
             System.out.println("Erro ao criar socket de receção Gateway->QueueManager: " + e.getMessage());
         }
     }
+
+    private static void connectToDownloadManager() {
+        final int MAX_RETRIES = 5; // Maximum number of retries
+        int attempt = 0; // Current attempt counter
+
+        while (attempt < MAX_RETRIES) {
+            try {
+                // Attempt to connect to DownloadManager via TCP
+                Socket socket = new Socket("127.0.0.1", 3570);
+                System.out.println("Ligação ao DownloadManager de sucesso!");
+
+                downloadManager = new PrintWriter(socket.getOutputStream(), true);
+                break; // Exit loop if connection is successful
+            } catch (IOException re) {
+                System.out.println("Exception in Gateway Socket on attempt " + (attempt + 1) + ": " + re);
+
+                attempt++; // Increment attempt counter
+
+                if (attempt < MAX_RETRIES) {
+                    try {
+                        // Wait for 1 second before retrying
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ie) {
+                        System.out.println("An interruption occurred while waiting to retry: " + ie);
+                        // Optional: handle the InterruptedException, for example, restore the interrupted status
+                        Thread.currentThread().interrupt();
+                    }
+                } else {
+                    System.out.println("Failed to connect to DownloadManager after " + MAX_RETRIES + " attempts.");
+                }
+            }
+        }
+    }
+
 }

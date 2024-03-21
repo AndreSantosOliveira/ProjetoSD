@@ -20,7 +20,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosGateway, Seri
     List<String> toBeIndexed = new ArrayList<>();
     List<String> listaPesquisas = new ArrayList<>();
 
-    private static PrintWriter textOut;
+    private static PrintWriter downloadManager;
 
 
     // Main
@@ -35,7 +35,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosGateway, Seri
         try {
             // Ligar ao QueueManager via TCP
             Socket socket = new Socket("127.0.0.1", 3569);
-            textOut = new PrintWriter(socket.getOutputStream(), true);
+            downloadManager = new PrintWriter(socket.getOutputStream(), true);
 
             System.out.println("Ligação ao QueueManager de sucesso!");
         } catch (Exception re) {
@@ -51,7 +51,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosGateway, Seri
     public String indexarURL(String url) throws IOException {
         toBeIndexed.add(url);
 
-        textOut.println(url);
+        downloadManager.println(url);
 
         String txt = url + " enviado para o QueueManager.";
         System.out.println(txt);
