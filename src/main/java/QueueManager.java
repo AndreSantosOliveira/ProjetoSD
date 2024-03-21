@@ -19,64 +19,61 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
 
     public static void main(String[] args) throws IOException {
         try {
+            QueueManager queueManager = new QueueManager();
+            LocateRegistry.createRegistry(3500).rebind("queuemanager", queueManager);
+        } catch (IOException re) {
+            System.out.println("Exception in Gateway RMI: " + re);
+        }
 
-            RMIDownloaderMGR ci = null;
-
-            try {
-                QueueManager queueManager = new QueueManager();
-                LocateRegistry.createRegistry(3500).rebind("queuemanager", queueManager);
-            } catch (IOException re) {
-                System.out.println("Exception in Gateway RMI: " + re);
-            }
-
-            try {
-                ci = (RMIDownloaderMGR) Naming.lookup("rmi://localhost:3510/downloaderManager");
-            } catch (IOException | NotBoundException e) {
-                System.out.println("Exception in Gateway RMI: " + e);
-            }
-
+        try {
             // Criar socket de receção Gateway->QueueManager
-            ServerSocket serverSocket = new ServerSocket(3569);
-            System.out.println("QueueManager TCP a escutar na porta 3003");
+            socketGatewayToQueueManager();
 
-            RMIDownloaderMGR finalCi = ci;
-            new Thread(() -> {
+            /*
+             new Thread(() -> {
                 try {
                     while (!queueLinks.isEmpty()) {
-                        finalCi.receberLinkParaDownloadManager(queueLinks.poll());
+                       // finalCi.receberLinkParaDownloadManager(queueLinks.poll());
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }).start();
+             */
 
 
-
-            // Aceitar ligações
-            while (true) {
-                // Aceitar ligação
-                Socket connectionSocket = serverSocket.accept();
-                // Criar thread para tratar a conexão
-                new Thread(() -> {
-                    try {
-                        // Criar stream de entrada
-                        DataInputStream dataIn = new DataInputStream(connectionSocket.getInputStream());
-
-                        // Enquanto houver dados para ler
-                        while (dataIn.available() > 0) {
-                            String url = dataIn.readUTF(); // Ler URL
-
-                            queueLinks.offer(url); // Adicionar URL à fila
-                            System.out.println("QueueManager recebeu para indexação: " + url + " | " + queueLinks.size() + " links na fila.");
-                        }
-                        connectionSocket.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }).start();
-            }
+            System.out.println("QueueManager ready.");
         } catch (IOException e) {
             System.out.println("Erro ao criar socket de receção Gateway->QueueManager: " + e.getMessage());
+        }
+    }
+
+    private static void socketGatewayToQueueManager() throws IOException {
+        ServerSocket serverSocket = new ServerSocket(3569);
+        System.out.println("QueueManager a escutar na porta 3569");
+
+        // Aceitar ligações
+        while (true) {
+            // Aceitar ligação
+            Socket connectionSocket = serverSocket.accept();
+            // Criar thread para tratar a conexão
+            new Thread(() -> {
+                try {
+                    // Criar stream de entrada
+                    DataInputStream dataIn = new DataInputStream(connectionSocket.getInputStream());
+
+                    // Enquanto houver dados para ler
+                    while (dataIn.available() > 0) {
+                        String url = dataIn.readUTF(); // Ler URL
+
+                        queueLinks.offer(url); // Adicionar URL à fila
+                        System.out.println("QueueManager recebeu para indexação: " + url + " | " + queueLinks.size() + " links na fila.");
+                    }
+                    connectionSocket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }).start();
         }
     }
 }
