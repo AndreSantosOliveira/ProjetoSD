@@ -7,14 +7,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
+/*--------------------------------------------DOWNLOADERMANAGER--------------------------------------------*/
 public class DownloaderManager {
 
     private static PrintWriter queueManager;
@@ -25,6 +26,7 @@ public class DownloaderManager {
         System.out.println("DownloadManager ready.");
     }
 
+    // Receive from QueueManager and crawl
     private static void socketQueueManagerToDownloadManager() throws IOException {
         ServerSocket serverSocket = new ServerSocket(3570);
         System.out.println("DownloadManager a escutar na porta 3570");
@@ -64,6 +66,7 @@ public class DownloaderManager {
         }
     }
 
+    // Send to QueueManager
     private static boolean socketDownloadManagerToQueue() {
         final int maxTentativa = 10; // Maximum number of retries
         int tentativa = 0; // Current attempt counter
@@ -93,10 +96,18 @@ public class DownloaderManager {
         return false;
     }
 
-    // PARTE DO DOWNLOADER ABAIXO
+    /*--------------------------------------------DOWNLOADER--------------------------------------------*/
 
     static HashMap<String, HashSet<URLData>> index = new HashMap<>();
     static Set<String> alreadyCrawled = new HashSet<>();
+
+    // Define the multicast address and port
+    static String multicastAddress = "230.0.0.1";
+    static int multicastPort = 6900;
+
+    public static Boolean doesIndexHaveURL(String chave, String url) {
+        return index.get(chave).stream().anyMatch(urlData -> urlData.getURL().equalsIgnoreCase(url));
+    }
 
     public static void crawlDownloader(String url) {
         System.out.println("Crawling: " + url);
@@ -141,6 +152,9 @@ public class DownloaderManager {
 
             alreadyCrawled.forEach(s -> queueManager.println(s));
 
+            // Send dummy results via multicas
+            sendResultToISBviaMulticast(alreadyCrawled.stream().map(s -> new URLData(s, "Dummy")).collect(Collectors.toCollection(HashSet::new)));
+            
             System.out.println("Crawling done! - " + alreadyCrawled.size() + " unique URLs sent to QueueManager.");
             alreadyCrawled.clear();
         } catch (IOException e) {
@@ -149,7 +163,39 @@ public class DownloaderManager {
         }
     }
 
-    public static Boolean doesIndexHaveURL(String chave, String url) {
-        return index.get(chave).stream().anyMatch(urlData -> urlData.getURL().equalsIgnoreCase(url));
+    // Send the result to ISB via multicast
+    public static void sendResultToISBviaMulticast(HashSet<URLData> resultado) {
+
+        try {
+            // Create a multicast socket
+            MulticastSocket multicastSocket = new MulticastSocket();
+
+            // Convert the message to bytes
+            StringBuilder messageBuilder = new StringBuilder();
+            for (URLData data : resultado) {
+                messageBuilder.append(data.toString()).append("\n");
+            }
+            String mensagem = messageBuilder.toString();
+            byte[] buffer = mensagem.getBytes();
+
+            // Get the multicast address
+            InetAddress group = InetAddress.getByName(multicastAddress);
+
+            // Create a datagram packet to send
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, multicastPort);
+
+            // Send the packet
+            multicastSocket.send(packet);
+
+            // Close the socket
+            multicastSocket.close();
+
+            System.out.println("Multicast message sent successfully.");
+
+        } catch (IOException e) {
+            System.out.println("Error sending multicast message: " + e.getMessage());
+        }
     }
+
+
 }

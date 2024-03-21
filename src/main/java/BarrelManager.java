@@ -3,16 +3,15 @@ import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 
-public class Barrel implements MetodosBarrel, Serializable {
+public class BarrelManager implements MetodosBarrel, Serializable {
     // Define the multicast address and port
     static String multicastAddress = "230.0.0.1";
     static int multicastPort = 6900;
 
     // Constructor
-    public Barrel() throws RemoteException {
+    public BarrelManager() throws RemoteException {
         super();
     }
 
