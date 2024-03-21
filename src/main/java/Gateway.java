@@ -23,7 +23,6 @@ public class Gateway extends UnicastRemoteObject implements MetodosGateway, Seri
     private static PrintWriter downloadManager;
 
 
-    // Main
     public static void main(String[] args) {
         try {
             Gateway gateway = new Gateway();

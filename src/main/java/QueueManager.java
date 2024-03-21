@@ -17,13 +17,16 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
     private static PrintWriter downloadManager;
 
     public static void main(String[] args) {
-        connectToDownloadManager();
-
         try {
             // Criar socket de receção Gateway->QueueManager
 
             ServerSocket serverSocket = new ServerSocket(3569);
             System.out.println("QueueManager a escutar na porta 3569");
+
+            if (!connectToDownloadManager()) {
+                System.out.println("Failed to connect to DownloadManager.");
+                return;
+            }
 
             //fim carregamento do QueueManager
             System.out.println("QueueManager ready.");
@@ -59,8 +62,8 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
         }
     }
 
-    private static void connectToDownloadManager() {
-        final int MAX_RETRIES = 5; // Maximum number of retries
+    private static boolean connectToDownloadManager() {
+        final int MAX_RETRIES = 10; // Maximum number of retries
         int attempt = 0; // Current attempt counter
 
         while (attempt < MAX_RETRIES) {
@@ -70,7 +73,7 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
                 System.out.println("Ligação ao DownloadManager de sucesso!");
 
                 downloadManager = new PrintWriter(socket.getOutputStream(), true);
-                break; // Exit loop if connection is successful
+                return true;
             } catch (IOException re) {
                 System.out.println("Exception in Gateway Socket on attempt " + (attempt + 1) + ": " + re);
 
@@ -90,6 +93,7 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
                 }
             }
         }
-    }
 
+        return false;
+    }
 }

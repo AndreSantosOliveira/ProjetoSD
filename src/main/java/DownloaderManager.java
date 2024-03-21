@@ -10,14 +10,7 @@ public class DownloaderManager {
     private static PrintWriter queueManager;
 
     public static void main(String[] args) throws IOException {
-        if (!socketDownloadManagerToQueue()) {
-            System.out.println("Failed to connect to QueueManager.");
-            return;
-        }
         socketQueueManagerToDownloadManager();
-
-        // download manager ready
-        System.out.println("DownloaderManager ready.");
 
 
         // TODO 1: Fetch url from URL queue
@@ -31,7 +24,7 @@ public class DownloaderManager {
     }
 
     private static boolean socketDownloadManagerToQueue() {
-        final int MAX_RETRIES = 5; // Maximum number of retries
+        final int MAX_RETRIES = 10; // Maximum number of retries
         int attempt = 0; // Current attempt counter
 
         while (attempt < MAX_RETRIES) {
@@ -66,6 +59,14 @@ public class DownloaderManager {
     private static void socketQueueManagerToDownloadManager() throws IOException {
         ServerSocket serverSocket = new ServerSocket(3570);
         System.out.println("DownloadManager a escutar na porta 3570");
+
+        if (!socketDownloadManagerToQueue()) {
+            System.out.println("Failed to connect to QueueManager.");
+            return;
+        }
+
+        // download manager ready
+        System.out.println("DownloaderManager ready.");
 
         // Aceitar ligações
         while (true) {
