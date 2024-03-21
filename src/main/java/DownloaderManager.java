@@ -100,15 +100,10 @@ public class DownloaderManager {
     // PARTE DO DOWNLOADER ABAIXO
 
     static HashMap<String, HashSet<URLData>> index = new HashMap<>();
-
     static Set<String> alreadyCrawled = new HashSet<>();
 
     public static void crawlDownloader(String url) {
-        if (alreadyCrawled.contains(url)) {
-            return;
-        }
         System.out.println("Crawling: " + url);
-        alreadyCrawled.add(url);
         try {
             Document doc = Jsoup.connect(url).get();
             StringTokenizer tokens = new StringTokenizer(doc.text());
@@ -137,8 +132,11 @@ public class DownloaderManager {
                                 }
                                 // queueLinks.offer(link); //TODO: Enviar para a queue
 
-                                queueManager.println(link);
-                                System.out.println("DownloadManager enviou para QueueManager: " + link);
+                                if (!alreadyCrawled.contains(link)) {
+                                    alreadyCrawled.add(link);
+                                    queueManager.println(link);
+                                    System.out.println("DownloadManager enviou para QueueManager: " + link);
+                                }
                             }
                         }
                     }

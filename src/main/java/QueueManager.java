@@ -7,6 +7,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashSet;
+import java.util.Set;
 
 public class QueueManager extends UnicastRemoteObject implements Serializable {
 
@@ -15,6 +17,11 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
     }
 
     private static PrintWriter downloadManager;
+
+    // queue manager
+    static final UniqueQueue<String> queue = new UniqueQueue<>(50);
+
+    static Set<String> alreadyCrawled = new HashSet<>();
 
     public static void main(String[] args) {
         try {
@@ -26,6 +33,24 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
                 System.out.println("Failed to connect to DownloadManager.");
                 return;
             }
+
+            new Thread(() -> {
+                try {
+                    while (true) {
+                        synchronized (queue) {
+                            String url = queue.poll();
+                            if (url != null) {
+                                downloadManager.println(url);
+                                System.out.println("QueueManager enviou para DownloadManager: " + url);
+                                Thread.sleep(1000);
+                            }
+                        }
+                    }
+
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }).start();
 
             //fim carregamento do QueueManager
             System.out.println("QueueManager ready.");
@@ -45,10 +70,18 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
                         // ler mensagens do cliente
                         String dados;
                         while ((dados = inFromClient.readLine()) != null) { // Continuously read lines sent from client
-                            System.out.println("Recebido da Gateway para indexar: " + dados);
-                            downloadManager.println(dados);
-                            System.out.println("QueueManager enviou para crawl: " + dados);
-
+                            //System.out.println("Recebido da Gateway para indexar: " + dados);
+                            synchronized (alreadyCrawled) {
+                                if (alreadyCrawled.contains(dados)) {
+                                    continue;
+                                }
+                                alreadyCrawled.add(dados);
+                                synchronized (queue) {
+                                    queue.offer(dados);
+                                }
+                                //queue size
+                                System.out.println("URLs para indexar: " + queue.size());
+                            }
                         }
 
                         //connectionSocket.close();
