@@ -22,14 +22,11 @@ public class DownloaderManager {
 
     public static void main(String[] args) throws IOException {
         socketQueueManagerToDownloadManager();
-
-        System.out.println("DownloadManager ready.");
     }
 
     // Receive from QueueManager and crawl
     private static void socketQueueManagerToDownloadManager() throws IOException {
-        ServerSocket serverSocket = new ServerSocket(3570);
-        System.out.println("DownloadManager a escutar na porta 3570");
+        ServerSocket serverSocket = new ServerSocket(PortasEIPs.PORTA_DOWNLOAD_MANAGER.getPorta());
 
         if (!socketDownloadManagerToQueue()) {
             System.out.println("Failed to connect to QueueManager.");
@@ -37,7 +34,7 @@ public class DownloaderManager {
         }
 
         // download manager ready
-        System.out.println("DownloaderManager ready.");
+        System.out.println("[" + PortasEIPs.PORTA_DOWNLOAD_MANAGER + "] DownloadManager ready.");
 
         // Aceitar ligações
         while (true) {
@@ -74,10 +71,10 @@ public class DownloaderManager {
         while (tentativa < maxTentativa) {
             try {
                 // Attempt to connect to QueueManager via TCP
-                Socket socket = new Socket("127.0.0.1", 3569);
+                Socket socket = new Socket(PortasEIPs.PORTA_QUEUE_MANAGER.getIP(), PortasEIPs.PORTA_QUEUE_MANAGER.getPorta());
                 queueManager = new PrintWriter(socket.getOutputStream(), true);
 
-                System.out.println("Ligação ao QueueManager de sucesso!");
+                System.out.println("Ligação ao QueueManager de sucesso! IP: " + PortasEIPs.PORTA_QUEUE_MANAGER);
                 return true;
             } catch (Exception re) {
                 System.out.println("Erro ao ligar ao QueueManager - tentativa nº" + (tentativa + 1) + ": " + re);
@@ -137,13 +134,9 @@ public class DownloaderManager {
                                     HashSet<URLData> newHashSet = new HashSet<>(Collections.singletonList(new URLData(link, titulo)));
                                     index.put(s, newHashSet);
                                 }
-                                // queueLinks.offer(link); //TODO: Enviar para a queue
 
-                                if (!alreadyCrawled.contains(link)) {
-                                    alreadyCrawled.add(link);
-                                    //
-                                    //System.out.println("DownloadManager enviou para QueueManager: " + link);
-                                }
+                                //System.out.println("DownloadManager enviou para QueueManager: " + link);
+                                alreadyCrawled.add(link);
                             }
                         }
                     }

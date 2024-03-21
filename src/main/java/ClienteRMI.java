@@ -37,7 +37,6 @@ public class ClienteRMI implements Serializable, Remote {
         int maxRetries = 3; // Número máximo de tentativas de ligação ao Gateway
         int retryCount = 0; // Contador de tentativas de ligação ao Gateway
 
-
         // Tentar encontrar um porto disponível para o cliente
         try (Scanner scanner = new Scanner(System.in)) {
             Registry registry = null;
@@ -65,7 +64,7 @@ public class ClienteRMI implements Serializable, Remote {
             MetodosGateway metodosGateway = null;
             while (metodosGateway == null && retryCount < maxRetries) {
                 try {
-                    metodosGateway = (MetodosGateway) LocateRegistry.getRegistry(1000).lookup("Gateway");
+                    metodosGateway = (MetodosGateway) LocateRegistry.getRegistry(PortasEIPs.PORTA_GATEWAY.getPorta()).lookup(PortasEIPs.PORTA_GATEWAY.getRMIName());
                 } catch (RemoteException | NotBoundException e) {
                     retryCount++;
                     if (retryCount < maxRetries) {
@@ -107,7 +106,7 @@ public class ClienteRMI implements Serializable, Remote {
                 }
                 switch (splitOption[0]) {
 
-                    case "index": // index https://sapo.pt
+                    case "index": //     index https://sapo.pt
                         //System.out.println(metodosGateway.indexarURL(splitOption[1]));
                         System.out.println(metodosGateway.indexarURL("https://sapo.pt"));
                         System.out.println(metodosGateway.indexarURL("https://google.com"));

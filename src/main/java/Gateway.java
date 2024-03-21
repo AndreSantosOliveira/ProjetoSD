@@ -6,7 +6,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -16,38 +15,36 @@ public class Gateway extends UnicastRemoteObject implements MetodosGateway, Seri
         super();
     }
 
-    HashMap<String, HashSet<URLData>> index;
     List<String> toBeIndexed = new ArrayList<>();
     List<String> listaPesquisas = new ArrayList<>();
 
     private static PrintWriter downloadManager;
 
-
     public static void main(String[] args) {
         try {
             Gateway gateway = new Gateway();
-            LocateRegistry.createRegistry(1000).rebind("Gateway", gateway);
+            LocateRegistry.createRegistry(PortasEIPs.PORTA_GATEWAY.getPorta()).rebind(PortasEIPs.PORTA_GATEWAY.getRMIName(), gateway);
         } catch (IOException re) {
             System.out.println("Exception in Gateway RMI: " + re);
         }
 
         try {
             // Ligar ao QueueManager via TCP
-            Socket socket = new Socket("127.0.0.1", 3569);
+            Socket socket = new Socket(PortasEIPs.PORTA_QUEUE_MANAGER.getIP(), PortasEIPs.PORTA_QUEUE_MANAGER.getPorta());
             downloadManager = new PrintWriter(socket.getOutputStream(), true);
 
-            System.out.println("Ligação ao QueueManager de sucesso!");
+            System.out.println("Ligação ao QueueManager de sucesso! IP: " + PortasEIPs.PORTA_QUEUE_MANAGER);
         } catch (Exception re) {
             System.out.println("Exception in Gateway Socket: " + re);
         }
 
-        System.out.println("Gateway ready.");
+        PortasEIPs.PORTA_GATEWAY.printINIT("Gateway");
     }
 
 
     // Indexar novo URL
     @Override
-    public String indexarURL(String url) throws IOException {
+    public String indexarURL(String url) {
         toBeIndexed.add(url);
 
         downloadManager.println(url);
