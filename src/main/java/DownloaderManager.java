@@ -1,10 +1,8 @@
-import java.io.DataInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.server.UnicastRemoteObject;
 
 public class DownloaderManager {
 
@@ -36,16 +34,17 @@ public class DownloaderManager {
             // Criar thread para tratar a conexão
             new Thread(() -> {
                 try {
-                    // Criar stream de entrada
-                    DataInputStream dataIn = new DataInputStream(connectionSocket.getInputStream());
+                    // setup bufferedreader para ler mensagens de clientes
+                    BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
 
-                    // Enquanto houver dados para ler
-                    while (dataIn.available() > 0) {
-                        String url = dataIn.readUTF(); // Ler URL
+                    // ler mensagens do cliente
+                    String clientSentence;
+                    while ((clientSentence = inFromClient.readLine()) != null) {
+                        System.out.println("Recebido novo URL para Crawl: " + clientSentence);
 
-                        System.out.println("DownloadManager recebeu para crawl: " + url);
                     }
-                    connectionSocket.close();
+
+                    //connectionSocket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
