@@ -7,8 +7,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.HashSet;
-import java.util.Set;
 
 public class QueueManager extends UnicastRemoteObject implements Serializable {
 
@@ -20,8 +18,6 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
 
     // queue manager
     static final UniqueQueue<String> queue = new UniqueQueue<>(50);
-
-    static Set<String> alreadyCrawled = new HashSet<>();
 
     public static void main(String[] args) {
         try {
@@ -35,21 +31,23 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
             }
 
             new Thread(() -> {
-                try {
-                    while (true) {
-                        synchronized (queue) {
+                while (true) {
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    synchronized (queue) {
+                        if (!queue.isEmpty()) {
                             String url = queue.poll();
                             if (url != null) {
                                 downloadManager.println(url);
                                 System.out.println("QueueManager enviou para DownloadManager: " + url);
-                                Thread.sleep(1000);
                             }
                         }
                     }
-
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
+
             }).start();
 
             //fim carregamento do QueueManager
@@ -69,18 +67,13 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
 
                         // ler mensagens do cliente
                         String dados;
-                        while ((dados = inFromClient.readLine()) != null) { // Continuously read lines sent from client
-                            //System.out.println("Recebido da Gateway para indexar: " + dados);
-                            synchronized (alreadyCrawled) {
-                                if (alreadyCrawled.contains(dados)) {
-                                    continue;
+                        while ((dados = inFromClient.readLine()) != null) {
+                            synchronized (queue) {
+                                if (queue.offer(dados)) {
+                                    System.out.println("Recebido novo URL para indexar: " + dados);
+                                    //queue size
+                                    System.out.println("URLs para indexar: " + queue.size());
                                 }
-                                alreadyCrawled.add(dados);
-                                synchronized (queue) {
-                                    queue.offer(dados);
-                                }
-                                //queue size
-                                System.out.println("URLs para indexar: " + queue.size());
                             }
                         }
 
@@ -112,7 +105,7 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
                 ++tentativa;
                 if (tentativa < maxTentativa) {
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(1001);
                     } catch (InterruptedException ie) {
                         System.out.println("Ocorreu um problema no sleep: " + ie);
                     }

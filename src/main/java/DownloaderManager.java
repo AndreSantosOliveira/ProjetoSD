@@ -50,19 +50,15 @@ public class DownloaderManager {
                     // ler mensagens do cliente
                     String urlParaCrawl;
                     while ((urlParaCrawl = inFromClient.readLine()) != null) {
-                        System.out.println("Recebido novo URL para Crawl: " + urlParaCrawl);
                         //queueManager.println(clientSentence);
                         //System.out.println("DownloadManager enviou para QueueManager: " + urlParaCrawl);
 
-                        Thread.sleep(1000);
                         crawlDownloader(urlParaCrawl);
                     }
 
                     //connectionSocket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
                 }
             }).start();
         }
@@ -85,7 +81,7 @@ public class DownloaderManager {
                 ++tentativa;
                 if (tentativa < maxTentativa) {
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(1001);
                     } catch (InterruptedException ie) {
                         System.out.println("Ocorreu um problema no sleep: " + ie);
                     }
@@ -134,14 +130,19 @@ public class DownloaderManager {
 
                                 if (!alreadyCrawled.contains(link)) {
                                     alreadyCrawled.add(link);
-                                    queueManager.println(link);
-                                    System.out.println("DownloadManager enviou para QueueManager: " + link);
+                                    //
+                                    //System.out.println("DownloadManager enviou para QueueManager: " + link);
                                 }
                             }
                         }
                     }
                 }
             }
+
+            alreadyCrawled.forEach(s -> queueManager.println(s));
+
+            System.out.println("Crawling done! - " + alreadyCrawled.size() + " unique URLs sent to QueueManager.");
+            alreadyCrawled.clear();
         } catch (IOException e) {
             System.out.println("Ocorreu um erro no Downloader!");
             throw new RuntimeException(e);

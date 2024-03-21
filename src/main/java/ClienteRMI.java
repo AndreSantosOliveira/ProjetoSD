@@ -72,7 +72,7 @@ public class ClienteRMI implements Serializable, Remote {
                         System.out.println("Failed to connect to Gateway. Retrying...");
                         // Sleep para evitar tentativas de ligação consecutivas
                         try {
-                            Thread.sleep(1000);
+                            Thread.sleep(1001);
                         } catch (InterruptedException ex) {
                             Thread.currentThread().interrupt();
                         }
@@ -108,7 +108,9 @@ public class ClienteRMI implements Serializable, Remote {
                 switch (splitOption[0]) {
 
                     case "index": // index https://sapo.pt
-                        System.out.println(metodosGateway.indexarURL(splitOption[1]));
+                        //System.out.println(metodosGateway.indexarURL(splitOption[1]));
+                        System.out.println(metodosGateway.indexarURL("https://sapo.pt"));
+                        System.out.println(metodosGateway.indexarURL("https://google.com"));
                         break;
 
                     case "search":
