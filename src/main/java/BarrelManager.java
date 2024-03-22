@@ -5,7 +5,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.rmi.RemoteException;
 
-public class BarrelManager implements MetodosBarrel, Serializable {
+public class BarrelManager implements MetodosRMIBarrel, Serializable {
     // Define the multicast address and port
     static String multicastAddress = "230.0.0.1";
     static int multicastPort = 6900;

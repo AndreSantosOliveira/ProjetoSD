@@ -8,6 +8,9 @@ import java.io.PrintWriter;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,26 +20,44 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.stream.Collectors;
 
-public class DownloaderThread extends Thread {
-    private String url;
-    private PrintWriter queueManager;
-
-    public DownloaderThread(String url, PrintWriter queueManager) {
-        this.url = url;
-        this.queueManager = queueManager;
-    }
+public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloader {
 
     static HashMap<String, HashSet<URLData>> index = new HashMap<>();
     static Set<String> alreadyScraped = new HashSet<>();
+
+    private boolean busy = false;
+
+    protected Downloader() throws RemoteException {
+        super();
+    }
 
     public static Boolean doesIndexHaveURL(String chave, String url) {
         List<URLData> urlList = new ArrayList<>(index.get(chave)); // Create a copy
         return urlList.stream().anyMatch(urlData -> urlData.getURL().equalsIgnoreCase(url));
     }
 
-    @Override
-    public void run() {
+    public static void main(String[] args) {
         try {
+            if (args.length < 2) {
+                System.out.println("Downloader <PORTA> <ID>");
+                System.exit(1);
+            }
+            int porta = Integer.parseInt(args[0]);
+            String dlID = args[1];
+
+            Downloader gateway = new Downloader();
+            LocateRegistry.createRegistry(porta).rebind(dlID, gateway);
+
+            System.out.println("Downloader " + dlID + " ready: 127.0.0.1:" + porta);
+        } catch (IOException re) {
+            System.out.println("Exception in Gateway RMI: " + re);
+        }
+    }
+
+    @Override
+    public String crawlURL(String url, PrintWriter queueManager) throws RemoteException {
+        try {
+            busy = true;
             Document doc = Jsoup.connect(url).get();
             StringTokenizer tokens = new StringTokenizer(doc.text());
             int countTokens = 0;
@@ -70,16 +91,23 @@ public class DownloaderThread extends Thread {
                 }
             }
 
-            alreadyScraped.forEach(s -> queueManager.println(s));
+            alreadyScraped.forEach(queueManager::println);
 
             // Send dummy results via multicas
             sendResultToISBviaMulticast(alreadyScraped.stream().map(s -> new URLData(s, "Dummy")).collect(Collectors.toCollection(HashSet::new)));
 
-            System.out.println("Scraping done! " + this.url + "\n " + alreadyScraped.size() + " -> unique URLs sent to QueueManager.");
+            System.out.println("Scraping done! " + url + "\n " + alreadyScraped.size() + " -> unique URLs sent to QueueManager.");
             alreadyScraped.clear();
+            busy = false;
         } catch (IOException e) {
-            System.out.println("Error while trying to scrape data from: " + this.url + " -> " + e.getMessage());
+            System.out.println("Error while trying to scrape data from: " + url + " -> " + e.getMessage());
         }
+        return "Sucesso!";
+    }
+
+    @Override
+    public boolean isBusy() throws RemoteException {
+        return busy;
     }
 
 

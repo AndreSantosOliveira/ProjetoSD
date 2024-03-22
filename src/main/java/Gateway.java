@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-public class Gateway extends UnicastRemoteObject implements MetodosGateway, Serializable {
+public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, Serializable {
     // Gateway constructor
     public Gateway() throws RemoteException {
         super();
@@ -23,7 +23,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosGateway, Seri
     public static void main(String[] args) {
         try {
             Gateway gateway = new Gateway();
-            LocateRegistry.createRegistry(PortasEIPs.PORTA_GATEWAY.getPorta()).rebind(PortasEIPs.PORTA_GATEWAY.getRMIName(), gateway);
+            LocateRegistry.createRegistry(PortasEIPs.PORTA_GATEWAY.getPorta()).rebind("gateway", gateway);
         } catch (IOException re) {
             System.out.println("Exception in Gateway RMI: " + re);
         }

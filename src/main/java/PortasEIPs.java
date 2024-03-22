@@ -1,29 +1,22 @@
 public enum PortasEIPs {
 
     // Portas
-    PORTA_GATEWAY("127.0.0.1", 1000, "gateway"),
-    PORTA_QUEUE_MANAGER("127.0.0.1", 3300, ""),
-    PORTA_DOWNLOAD_MANAGER("127.0.0.1", 3570, "");
+    PORTA_GATEWAY(new DescritorIPPorta("127.0.0.1", 1000)),
+    PORTA_QUEUE_MANAGER(new DescritorIPPorta("127.0.0.1", 3300)),
+    PORTA_DOWNLOAD_MANAGER(new DescritorIPPorta("127.0.0.1", 3570));
 
-    private final String ip, rmiName;
-    private final int portaFinal;
+    private final DescritorIPPorta descritor;
 
-    PortasEIPs(String ip, int porta, String rmiName) {
-        this.ip = ip;
-        this.portaFinal = porta;
-        this.rmiName = rmiName;
+    PortasEIPs(DescritorIPPorta descritor) {
+        this.descritor = descritor;
     }
 
     public String getIP() {
-        return ip;
+        return descritor.getIP();
     }
 
     public int getPorta() {
-        return portaFinal;
-    }
-
-    public String getRMIName() {
-        return rmiName;
+        return descritor.getPorta();
     }
 
     public void printINIT(String name) {
@@ -32,6 +25,6 @@ public enum PortasEIPs {
 
     @Override
     public String toString() {
-        return ip + ':' + portaFinal;
+        return descritor.toString();
     }
 }

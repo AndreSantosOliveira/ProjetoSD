@@ -61,12 +61,12 @@ public class ClienteRMI implements Serializable, Remote {
             registry.rebind("Client", clienteRMI);
 
             // Tentar conectar ao Gateway por RMI
-            MetodosGateway metodosGateway = null;
+            MetodosRMIGateway metodosGateway = null;
             while (metodosGateway == null && retryCount < maxRetries) {
                 try {
-                    metodosGateway = (MetodosGateway) LocateRegistry.getRegistry(PortasEIPs.PORTA_GATEWAY.getPorta()).lookup(PortasEIPs.PORTA_GATEWAY.getRMIName());
+                    metodosGateway = (MetodosRMIGateway) LocateRegistry.getRegistry(PortasEIPs.PORTA_GATEWAY.getPorta()).lookup("gateway");
                 } catch (RemoteException | NotBoundException e) {
-                    retryCount++;
+                    ++retryCount;
                     if (retryCount < maxRetries) {
                         System.out.println("Failed to connect to Gateway. Retrying...");
                         // Sleep para evitar tentativas de ligação consecutivas

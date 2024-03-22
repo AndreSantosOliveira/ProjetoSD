@@ -4,14 +4,57 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.util.HashMap;
+import java.util.Map;
 
 /*--------------------------------------------DOWNLOADERMANAGER--------------------------------------------*/
 public class DownloaderManager {
 
+    //definir IPs e Portas dos Downloaders com base no DescritorIPPorta
+
+    private static Map<DescritorIPPorta, MetodosRMIDownloader> downloaders = new HashMap<>();
+
     private static PrintWriter queueManager;
 
     public static void main(String[] args) throws IOException {
+        downloaders.put(new DescritorIPPorta("127.0.0.1", 5432, "dl1"), null);
+
+        for (DescritorIPPorta descritorIPPorta : downloaders.keySet()) {
+            MetodosRMIDownloader res = tentarLigarADownloader(descritorIPPorta);
+            if (res != null) {
+                downloaders.put(descritorIPPorta, res);
+            }
+        }
+
         socketQueueManagerToDownloadManager();
+    }
+
+    private static MetodosRMIDownloader tentarLigarADownloader(DescritorIPPorta descritorIPPorta) {
+        MetodosRMIDownloader metodosGateway = null;
+        int retryCount = 0;
+        int maxRetries = 5;
+        while (metodosGateway == null && retryCount < maxRetries) {
+            try {
+                metodosGateway = (MetodosRMIDownloader) LocateRegistry.getRegistry(descritorIPPorta.getPorta()).lookup("gatewau");
+                return metodosGateway;
+            } catch (RemoteException | NotBoundException e) {
+                ++retryCount;
+                if (retryCount < maxRetries) {
+                    System.out.println("Failed to connect to Downloader: " + descritorIPPorta.getRMIName() + ". Retrying...");
+                    // Sleep para evitar tentativas de ligação consecutivas
+                    try {
+                        Thread.sleep(1001);
+                    } catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
+        }
+        System.out.println("Failed to connect to Downloader: " + descritorIPPorta.getRMIName() + ". :(");
+        return null;
     }
 
     // Receive from QueueManager and scrape
@@ -40,8 +83,16 @@ public class DownloaderManager {
                     String urlParaScrape;
                     while ((urlParaScrape = inFromClient.readLine()) != null) {
 
+                        synchronized (downloaders) {
+                            for (Map.Entry<DescritorIPPorta, MetodosRMIDownloader> downloader : downloaders.entrySet()) {
+                                if (downloader.getValue() != null && !downloader.getValue().isBusy()) {
+                                    downloader.getValue().crawlURL(urlParaScrape, queueManager);
+                                }
+                            }
+                        }
+
                         // thread para cada link recebido pelo download manager
-                        new DownloaderThread(urlParaScrape, queueManager).start();
+                        //new Downloader(urlParaScrape, queueManager).start();
                     }
 
                 } catch (IOException e) {
