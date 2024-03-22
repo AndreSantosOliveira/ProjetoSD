@@ -34,7 +34,7 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
             new Thread(() -> {
                 while (true) {
                     try {
-                        Thread.sleep(10000);
+                        Thread.sleep(400);
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -43,7 +43,7 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
                             String url = queue.poll();
                             if (url != null) {
                                 downloadManager.println(url);
-                                System.out.println("QueueManager enviou para DownloadManager: " + url);
+                                System.out.println("QueueManager enviou para Scraping: " + url);
                             }
                         }
                     }

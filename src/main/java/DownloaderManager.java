@@ -1,19 +1,9 @@
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.*;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.stream.Collectors;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 /*--------------------------------------------DOWNLOADERMANAGER--------------------------------------------*/
 public class DownloaderManager {
@@ -24,7 +14,7 @@ public class DownloaderManager {
         socketQueueManagerToDownloadManager();
     }
 
-    // Receive from QueueManager and crawl
+    // Receive from QueueManager and scrape
     private static void socketQueueManagerToDownloadManager() throws IOException {
         ServerSocket serverSocket = new ServerSocket(PortasEIPs.PORTA_DOWNLOAD_MANAGER.getPorta());
 
@@ -47,15 +37,13 @@ public class DownloaderManager {
                     BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
 
                     // ler mensagens do cliente
-                    String urlParaCrawl;
-                    while ((urlParaCrawl = inFromClient.readLine()) != null) {
-                        //queueManager.println(clientSentence);
-                        //System.out.println("DownloadManager enviou para QueueManager: " + urlParaCrawl);
+                    String urlParaScrape;
+                    while ((urlParaScrape = inFromClient.readLine()) != null) {
 
-                        crawlDownloader(urlParaCrawl);
+                        // thread para cada link recebido pelo download manager
+                        new DownloaderThread(urlParaScrape, queueManager).start();
                     }
 
-                    //connectionSocket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -92,103 +80,5 @@ public class DownloaderManager {
         }
         return false;
     }
-
-    /*--------------------------------------------DOWNLOADER--------------------------------------------*/
-
-    static HashMap<String, HashSet<URLData>> index = new HashMap<>();
-    static Set<String> alreadyCrawled = new HashSet<>();
-
-    // Define the multicast address and port
-    static String multicastAddress = "230.0.0.1";
-    static int multicastPort = 6900;
-
-    public static Boolean doesIndexHaveURL(String chave, String url) {
-        return index.get(chave).stream().anyMatch(urlData -> urlData.getURL().equalsIgnoreCase(url));
-    }
-
-    public static void crawlDownloader(String url) {
-        System.out.println("Crawling: " + url);
-        try {
-            Document doc = Jsoup.connect(url).get();
-            StringTokenizer tokens = new StringTokenizer(doc.text());
-            int countTokens = 0;
-            while (tokens.hasMoreElements() && countTokens++ < 100) {
-                //System.out.println(tokens.nextToken().toLowerCase());
-                Elements links = doc.select("a[href]");
-                for (Element elementoLink : links) {
-                    String titulo = elementoLink.text();
-                    String link = elementoLink.attr("abs:href");
-                    if (link.endsWith(".onion")) continue; //ignorar links da dark web xD
-
-                    if (titulo.length() > 3 && link.startsWith("http")) {
-                        //System.out.println(titulo + "\n" + link + "\n");
-
-                        // TODO 3: o título pode não conter o conteúdo essencial da página, encontrar uma maneira mais otimizada de o procurar
-                        for (String s : titulo.split(" ")) {
-                            s = s.toLowerCase();
-                            if (s.length() > 3) {
-                                if (index.containsKey(s) && !doesIndexHaveURL(s, link)) {
-                                    URLData r = new URLData(link, titulo);
-                                    index.get(s).add(r);
-                                } else {
-                                    HashSet<URLData> newHashSet = new HashSet<>(Collections.singletonList(new URLData(link, titulo)));
-                                    index.put(s, newHashSet);
-                                }
-
-                                //System.out.println("DownloadManager enviou para QueueManager: " + link);
-                                alreadyCrawled.add(link);
-                            }
-                        }
-                    }
-                }
-            }
-
-            alreadyCrawled.forEach(s -> queueManager.println(s));
-
-            // Send dummy results via multicas
-            sendResultToISBviaMulticast(alreadyCrawled.stream().map(s -> new URLData(s, "Dummy")).collect(Collectors.toCollection(HashSet::new)));
-            
-            System.out.println("Crawling done! - " + alreadyCrawled.size() + " unique URLs sent to QueueManager.");
-            alreadyCrawled.clear();
-        } catch (IOException e) {
-            System.out.println("Ocorreu um erro no Downloader!");
-            throw new RuntimeException(e);
-        }
-    }
-
-    // Send the result to ISB via multicast
-    public static void sendResultToISBviaMulticast(HashSet<URLData> resultado) {
-
-        try {
-            // Create a multicast socket
-            MulticastSocket multicastSocket = new MulticastSocket();
-
-            // Convert the message to bytes
-            StringBuilder messageBuilder = new StringBuilder();
-            for (URLData data : resultado) {
-                messageBuilder.append(data.toString()).append("\n");
-            }
-            String mensagem = messageBuilder.toString();
-            byte[] buffer = mensagem.getBytes();
-
-            // Get the multicast address
-            InetAddress group = InetAddress.getByName(multicastAddress);
-
-            // Create a datagram packet to send
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, multicastPort);
-
-            // Send the packet
-            multicastSocket.send(packet);
-
-            // Close the socket
-            multicastSocket.close();
-
-            System.out.println("Multicast message sent successfully.");
-
-        } catch (IOException e) {
-            System.out.println("Error sending multicast message: " + e.getMessage());
-        }
-    }
-
 
 }
