@@ -18,7 +18,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     List<String> toBeIndexed = new ArrayList<>();
     List<String> listaPesquisas = new ArrayList<>();
 
-    private static PrintWriter downloadManager;
+    private static PrintWriter queueManager;
 
     public static void main(String[] args) {
         try {
@@ -31,7 +31,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         try {
             // Ligar ao QueueManager via TCP
             Socket socket = new Socket(PortasEIPs.PORTA_QUEUE_MANAGER.getIP(), PortasEIPs.PORTA_QUEUE_MANAGER.getPorta());
-            downloadManager = new PrintWriter(socket.getOutputStream(), true);
+            queueManager = new PrintWriter(socket.getOutputStream(), true);
 
             System.out.println("Ligação ao QueueManager de sucesso! IP: " + PortasEIPs.PORTA_QUEUE_MANAGER);
         } catch (Exception re) {
@@ -47,7 +47,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     public String indexarURL(String url) {
         toBeIndexed.add(url);
 
-        downloadManager.println(url);
+        queueManager.println(url);
 
         String txt = url + " enviado para o QueueManager.";
         System.out.println(txt);

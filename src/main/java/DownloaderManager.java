@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -20,7 +21,30 @@ public class DownloaderManager {
     private static PrintWriter queueManager;
 
     public static void main(String[] args) throws IOException {
-        downloaders.put(new DescritorIPPorta("127.0.0.1", 5432, "dl1"), null);
+        // Carregar downloaders do ficheiro de texto downloaders.txt (IP, porta, rmiName)
+        try (BufferedReader br = new BufferedReader(new FileReader("/Users/joserod/IdeaProjects/ProjetoSD/src/main/java/downloaders.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(":");
+                if (parts.length == 3) {
+                    try {
+                        String ip = parts[0];
+                        int porta = Integer.parseInt(parts[1]);
+                        String rmiName = parts[2];
+
+                        downloaders.put(new DescritorIPPorta(ip, porta, rmiName), null);
+                        System.out.println("Downloader adicionado: " + rmiName + " (" + ip + ":" + porta + ")");
+                    } catch (NumberFormatException e) {
+                        System.err.println("Erro ao processar a porta para um downloader: " + line);
+                    }
+                } else {
+                    System.err.println("Linha em formato inválido: " + line);
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Erro ao ler o arquivo de downloaders.");
+            e.printStackTrace();
+        }
 
         for (DescritorIPPorta descritorIPPorta : downloaders.keySet()) {
             MetodosRMIDownloader res = tentarLigarADownloader(descritorIPPorta);
@@ -38,7 +62,8 @@ public class DownloaderManager {
         int maxRetries = 5;
         while (metodosGateway == null && retryCount < maxRetries) {
             try {
-                metodosGateway = (MetodosRMIDownloader) LocateRegistry.getRegistry(descritorIPPorta.getPorta()).lookup("gatewau");
+                metodosGateway = (MetodosRMIDownloader) LocateRegistry.getRegistry(descritorIPPorta.getPorta()).lookup(descritorIPPorta.getRMIName());
+                System.out.println("Ligado ao Downloader " + descritorIPPorta.getRMIName() + "!");
                 return metodosGateway;
             } catch (RemoteException | NotBoundException e) {
                 ++retryCount;
@@ -86,7 +111,7 @@ public class DownloaderManager {
                         synchronized (downloaders) {
                             for (Map.Entry<DescritorIPPorta, MetodosRMIDownloader> downloader : downloaders.entrySet()) {
                                 if (downloader.getValue() != null && !downloader.getValue().isBusy()) {
-                                    downloader.getValue().crawlURL(urlParaScrape, queueManager);
+                                    downloader.getValue().crawlURL(urlParaScrape);
                                 }
                             }
                         }
