@@ -54,7 +54,7 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
 
             if (!socketDownloadManagerToQueue()) {
                 System.out.println("Failed to connect to QueueManager.");
-                return;
+                System.exit(1);
             }
 
             System.out.println("Downloader " + dlID + " ready: 127.0.0.1:" + porta);

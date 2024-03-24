@@ -110,8 +110,12 @@ public class DownloaderManager {
 
                         synchronized (downloaders) {
                             for (Map.Entry<DescritorIPPorta, MetodosRMIDownloader> downloader : downloaders.entrySet()) {
-                                if (downloader.getValue() != null && !downloader.getValue().isBusy()) {
-                                    downloader.getValue().crawlURL(urlParaScrape);
+                                if (downloader.getValue() != null) {
+                                    System.out.println("Downloader: " + downloader.getKey().getRMIName() + " - " + downloader.getValue().isBusy());
+                                    if (!downloader.getValue().isBusy()) {
+                                        downloader.getValue().crawlURL(urlParaScrape);
+                                        break;
+                                    }
                                 }
                             }
                         }
