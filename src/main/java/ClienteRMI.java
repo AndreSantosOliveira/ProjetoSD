@@ -127,7 +127,9 @@ public class ClienteRMI implements Serializable, Remote {
                         break;
 
                     case "list":
-                        System.out.println("Listar páginas indexadas");
+                        for (URLData urlData : metodosGateway.listarPaginasIndexadas()) {
+                            System.out.println(urlData.toString());
+                        }
                         break;
 
                     case "admin":

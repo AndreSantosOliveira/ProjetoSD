@@ -6,5 +6,5 @@ public interface MetodosRMIBarrel extends Remote {
 
     void arquivarURL(URLData data) throws RemoteException;
 
-    List<URLData> searchUrl(String url) throws RemoteException;
+    List<URLData> searchInput(String url) throws RemoteException;
 }

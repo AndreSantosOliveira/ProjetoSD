@@ -2,11 +2,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.net.Socket;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, Serializable {
@@ -16,9 +16,9 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     }
 
     List<String> toBeIndexed = new ArrayList<>();
-    List<String> listaPesquisas = new ArrayList<>();
 
     private static PrintWriter queueManager;
+    private static MetodosRMIBarrel metodosBarrelManager = null;
 
     public static void main(String[] args) {
         try {
@@ -28,17 +28,38 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
             System.out.println("Exception in Gateway RMI: " + re);
         }
 
-        try {
-            // Ligar ao QueueManager via TCP
-            Socket socket = new Socket(PortasEIPs.QUEUE_MANAGER.getIP(), PortasEIPs.QUEUE_MANAGER.getPorta());
-            queueManager = new PrintWriter(socket.getOutputStream(), true);
+        int retryCount = 0;
+        int maxRetries = 5;
+        while (metodosBarrelManager == null && retryCount < maxRetries) {
+            try {
+                metodosBarrelManager = (MetodosRMIBarrel) LocateRegistry.getRegistry(PortasEIPs.BARREL_MANAGER.getPorta()).lookup("barrelmanager");
+                System.out.println("Ligado ao BarrelManager!");
 
-            System.out.println("Ligação ao QueueManager de sucesso! IP: " + PortasEIPs.QUEUE_MANAGER);
-        } catch (Exception re) {
-            System.out.println("Exception in Gateway Socket: " + re);
+                try {
+                    // Ligar ao QueueManager via TCP
+                    Socket socket = new Socket(PortasEIPs.QUEUE_MANAGER.getIP(), PortasEIPs.QUEUE_MANAGER.getPorta());
+                    queueManager = new PrintWriter(socket.getOutputStream(), true);
+
+                    System.out.println("Ligação ao QueueManager de sucesso! IP: " + PortasEIPs.QUEUE_MANAGER);
+                } catch (Exception re) {
+                    System.out.println("Exception in Gateway Socket: " + re);
+                }
+
+                PortasEIPs.GATEWAY.printINIT("Gateway");
+
+            } catch (RemoteException | NotBoundException e) {
+                ++retryCount;
+                if (retryCount < maxRetries) {
+                    System.out.println("Failed to connect to BarrelManager (" + retryCount + "/" + maxRetries + "). Retrying...");
+                    // Sleep para evitar tentativas de ligação consecutivas
+                    try {
+                        Thread.sleep(1001);
+                    } catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+            }
         }
-
-        PortasEIPs.GATEWAY.printINIT("Gateway");
     }
 
 
@@ -56,27 +77,13 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
 
     // Pesquisar páginas que contenham um conjunto de termos
     @Override
-    public HashSet<URLData> pesquisar(String palavras) throws RemoteException {
-        listaPesquisas.add(palavras);
-        HashSet<URLData> resultado = new HashSet<>();
+    public List<URLData> pesquisar(String palavras) throws RemoteException {
+        return metodosBarrelManager.searchInput(palavras);
+    }
 
-        // 10 no maximo
-        resultado.add(new URLData("www.google.com", "Google"));
-        resultado.add(new URLData("www.facebook.com", "Facebook"));
-        resultado.add(new URLData("www.twitter.com", "Twitter"));
-        resultado.add(new URLData("www.instagram.com", "Instagram"));
-        resultado.add(new URLData("www.linkedin.com", "LinkedIn"));
-        resultado.add(new URLData("www.linkedin.com", "LinkedIn"));
-        resultado.add(new URLData("www.linkedin.com", "LinkedIn"));
-        resultado.add(new URLData("www.linkedin.com", "LinkedIn"));
-        resultado.add(new URLData("www.linkedin.com", "LinkedIn"));
-        resultado.add(new URLData("www.linkedin.com", "LinkedIn"));
-
-        // TODO: Enviar resultado para o downloader
-        //...
-
-        System.out.println("Pesquisa por '" + palavras + "' realizada.");
-        return resultado;
+    @Override
+    public List<URLData> listarPaginasIndexadas() {
+        return null;
     }
 
 }

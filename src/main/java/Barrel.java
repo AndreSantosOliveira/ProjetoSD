@@ -3,6 +3,7 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -42,6 +43,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
         System.out.println("Recieved " + data + " to index :D");
 
         for (String palavra : data.getPageTitle().split(" ")) {
+            palavra = palavra.toLowerCase();
             if (index.containsKey(palavra)) {
                 index.get(palavra).add(data);
             } else {
@@ -53,7 +55,17 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     }
 
     @Override
-    public List<URLData> searchUrl(String url) throws RemoteException {
-        return null;
+    public List<URLData> searchInput(String palavras) throws RemoteException {
+        List<URLData> dadosBarrel = new ArrayList<>();
+
+        for (String s : palavras.split(" ")) {
+            for (String chaves : index.keySet()) {
+                if (chaves.toLowerCase().contains(s.toLowerCase())) {
+                    dadosBarrel.addAll(index.get(chaves));
+                }
+            }
+        }
+
+        return dadosBarrel;
     }
 }

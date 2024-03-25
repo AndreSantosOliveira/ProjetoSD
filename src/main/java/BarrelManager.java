@@ -9,6 +9,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,13 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
     }
 
     public static void main(String args[]) throws RemoteException {
+        try {
+            BarrelManager gateway = new BarrelManager();
+            LocateRegistry.createRegistry(PortasEIPs.BARREL_MANAGER.getPorta()).rebind("barrelmanager", gateway);
+        } catch (IOException re) {
+            System.out.println("Exception in Gateway RMI: " + re);
+        }
+
         // Carregar barrels do ficheiro de texto barrels.txt (IP, porta, rmiName)
         try (BufferedReader br = new BufferedReader(new FileReader("/Users/joserod/IdeaProjects/ProjetoSD/src/main/java/barrels.txt"))) {
             String line;
@@ -68,14 +76,14 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
     }
 
     private static MetodosRMIBarrel tentarLigarABarrel(DescritorIPPorta descritorIPPorta) {
-        MetodosRMIBarrel metodosGateway = null;
+        MetodosRMIBarrel metodosBarrel = null;
         int retryCount = 0;
         int maxRetries = 5;
-        while (metodosGateway == null && retryCount < maxRetries) {
+        while (metodosBarrel == null && retryCount < maxRetries) {
             try {
-                metodosGateway = (MetodosRMIBarrel) LocateRegistry.getRegistry(5430).lookup("br1");
+                metodosBarrel = (MetodosRMIBarrel) LocateRegistry.getRegistry(5430).lookup("br1");
                 System.out.println("Ligado à Barrel " + descritorIPPorta.getRMIName() + "!");
-                return metodosGateway;
+                return metodosBarrel;
             } catch (RemoteException | NotBoundException e) {
                 ++retryCount;
                 if (retryCount < maxRetries) {
@@ -117,7 +125,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                     String url = parts[0];
                     String title = parts[1];
                     gerirArquivamentoURLs(new URLData(url, title));
-                    System.out.println("Sucesso ao mandar arquivar URL: " + url + " com título: " + title);
+                    //System.out.println("Sucesso ao mandar arquivar URL: " + url + " com título: " + title);
                 } else { //há strings q chegam cortadas..
                     System.err.println("Received invalid message: " + message);
                 }
@@ -146,18 +154,17 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
     }
 
     @Override
-    public List<URLData> searchUrl(String url) throws RemoteException {
+    public List<URLData> searchInput(String pesquisa) throws RemoteException {
         List<URLData> dados = new ArrayList<>();
         for (MetodosRMIBarrel value : barrels.values()) {
             if (value != null) {
                 try {
-                    List<URLData> dadosDownloader = value.searchUrl(url);
+                    List<URLData> dadosDownloader = value.searchInput(pesquisa);
                     if (dadosDownloader != null) {
                         dados.addAll(dadosDownloader);
                     }
                 } catch (RemoteException e) {
-                    System.err.println("Erro ao pesquisar URL no barrel.");
-                    e.printStackTrace();
+                    return Collections.singletonList(new URLData("?", "Erro ao procurar: " + pesquisa));
                 }
             }
         }

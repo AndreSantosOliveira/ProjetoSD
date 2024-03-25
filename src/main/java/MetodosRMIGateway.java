@@ -1,9 +1,11 @@
 import java.io.IOException;
 import java.rmi.Remote;
-import java.util.HashSet;
+import java.util.List;
 
 public interface MetodosRMIGateway extends Remote {
     String indexarURL(String url) throws IOException;
 
-    HashSet<URLData> pesquisar(String palavras) throws java.rmi.RemoteException;
+    List<URLData> pesquisar(String palavras) throws java.rmi.RemoteException;
+
+    List<URLData> listarPaginasIndexadas() throws java.rmi.RemoteException;
 }
