@@ -16,6 +16,7 @@ public class DownloaderManager {
     //definir IPs e Portas dos Downloaders com base no DescritorIPPorta
 
     private static Map<DescritorIPPorta, MetodosRMIDownloader> downloaders = new HashMap<>();
+    private static int downloadersON;
 
     public static void main(String[] args) throws IOException {
         // Carregar downloaders do ficheiro de texto downloaders.txt (IP, porta, rmiName)
@@ -47,7 +48,13 @@ public class DownloaderManager {
             MetodosRMIDownloader res = tentarLigarADownloader(descritorIPPorta);
             if (res != null) {
                 downloaders.put(descritorIPPorta, res);
+                ++downloadersON;
             }
+        }
+
+        if (downloadersON == 0) {
+            System.err.println("No barrel has been connected. Exiting...");
+            System.exit(1);
         }
 
         socketQueueManagerToDownloadManager();
@@ -65,7 +72,7 @@ public class DownloaderManager {
             } catch (RemoteException | NotBoundException e) {
                 ++retryCount;
                 if (retryCount < maxRetries) {
-                    System.out.println("Failed to connect to Downloader: " + descritorIPPorta.getRMIName() + ". Retrying...");
+                    System.out.println("Failed to connect to Downloader: " + descritorIPPorta.getRMIName() + " (" + retryCount + "/" + maxRetries + "). Retrying...");
                     // Sleep para evitar tentativas de ligação consecutivas
                     try {
                         Thread.sleep(1001);

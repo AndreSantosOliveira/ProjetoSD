@@ -13,8 +13,9 @@ import java.net.Socket;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -117,7 +118,7 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
             urlData.keySet().forEach(queueManager::println);
 
             // Send dummy results via multicas
-            sendResultToISBviaMulticast(urlData.values());
+            sendResultToISBviaMulticast(new ArrayList<>(urlData.values()));
 
             System.out.println("Scraping done! " + url + "\n " + urlData.size() + " -> unique URLs sent to QueueManager.");
             urlData.clear();
@@ -136,34 +137,28 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
 
 
     // Send the result to ISB via multicast
-    public static void sendResultToISBviaMulticast(Collection<URLData> resultado) {
-
+    public static void sendResultToISBviaMulticast(List<URLData> resultado) {
         try {
             // Create a multicast socket
             MulticastSocket multicastSocket = new MulticastSocket();
 
             // Convert the message to bytes
-            StringBuilder messageBuilder = new StringBuilder();
             for (URLData data : resultado) {
-                messageBuilder.append(data.toString()).append("\n");
+                byte[] buffer = data.toStringDataPacket().getBytes();
+
+                // Get the multicast address
+                InetAddress group = InetAddress.getByName(PortasEIPs.MULTICAST.getIP());
+
+                // Create a datagram packet to send
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, PortasEIPs.MULTICAST.getPorta());
+                // Send the packet
+                multicastSocket.send(packet);
             }
-            String mensagem = messageBuilder.toString();
-            byte[] buffer = mensagem.getBytes();
-
-            // Get the multicast address
-            InetAddress group = InetAddress.getByName(PortasEIPs.MULTICAST.getIP());
-
-            // Create a datagram packet to send
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, PortasEIPs.MULTICAST.getPorta());
-
-            // Send the packet
-            multicastSocket.send(packet);
 
             // Close the socket
             multicastSocket.close();
 
             System.out.println("Multicast message sent successfully.");
-
         } catch (IOException e) {
             System.out.println("Error sending multicast message: " + e.getMessage());
         }

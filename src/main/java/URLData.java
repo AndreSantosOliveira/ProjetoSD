@@ -17,6 +17,10 @@ public class URLData implements Serializable {
                 '}';
     }
 
+    public String toStringDataPacket() {
+        return url + "|" + pageTitle;
+    }
+
     public String getURL() {
         return this.url;
     }
