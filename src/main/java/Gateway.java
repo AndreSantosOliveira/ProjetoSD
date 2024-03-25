@@ -23,22 +23,22 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     public static void main(String[] args) {
         try {
             Gateway gateway = new Gateway();
-            LocateRegistry.createRegistry(PortasEIPs.PORTA_GATEWAY.getPorta()).rebind("gateway", gateway);
+            LocateRegistry.createRegistry(PortasEIPs.GATEWAY.getPorta()).rebind("gateway", gateway);
         } catch (IOException re) {
             System.out.println("Exception in Gateway RMI: " + re);
         }
 
         try {
             // Ligar ao QueueManager via TCP
-            Socket socket = new Socket(PortasEIPs.PORTA_QUEUE_MANAGER.getIP(), PortasEIPs.PORTA_QUEUE_MANAGER.getPorta());
+            Socket socket = new Socket(PortasEIPs.QUEUE_MANAGER.getIP(), PortasEIPs.QUEUE_MANAGER.getPorta());
             queueManager = new PrintWriter(socket.getOutputStream(), true);
 
-            System.out.println("Ligação ao QueueManager de sucesso! IP: " + PortasEIPs.PORTA_QUEUE_MANAGER);
+            System.out.println("Ligação ao QueueManager de sucesso! IP: " + PortasEIPs.QUEUE_MANAGER);
         } catch (Exception re) {
             System.out.println("Exception in Gateway Socket: " + re);
         }
 
-        PortasEIPs.PORTA_GATEWAY.printINIT("Gateway");
+        PortasEIPs.GATEWAY.printINIT("Gateway");
     }
 
 

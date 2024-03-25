@@ -2,7 +2,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.rmi.NotBoundException;
@@ -17,8 +16,6 @@ public class DownloaderManager {
     //definir IPs e Portas dos Downloaders com base no DescritorIPPorta
 
     private static Map<DescritorIPPorta, MetodosRMIDownloader> downloaders = new HashMap<>();
-
-    private static PrintWriter queueManager;
 
     public static void main(String[] args) throws IOException {
         // Carregar downloaders do ficheiro de texto downloaders.txt (IP, porta, rmiName)
@@ -84,15 +81,10 @@ public class DownloaderManager {
 
     // Receive from QueueManager and scrape
     private static void socketQueueManagerToDownloadManager() throws IOException {
-        ServerSocket serverSocket = new ServerSocket(PortasEIPs.PORTA_DOWNLOAD_MANAGER.getPorta());
-
-        if (!socketDownloadManagerToQueue()) {
-            System.out.println("Failed to connect to QueueManager.");
-            return;
-        }
+        ServerSocket serverSocket = new ServerSocket(PortasEIPs.DOWNLOAD_MANAGER.getPorta());
 
         // download manager ready
-        System.out.println("[" + PortasEIPs.PORTA_DOWNLOAD_MANAGER + "] DownloadManager ready.");
+        System.out.println("[" + PortasEIPs.DOWNLOAD_MANAGER + "] DownloadManager ready.");
 
         // Aceitar ligações
         while (true) {
@@ -130,35 +122,4 @@ public class DownloaderManager {
             }).start();
         }
     }
-
-    // Send to QueueManager
-    private static boolean socketDownloadManagerToQueue() {
-        final int maxTentativa = 10; // Maximum number of retries
-        int tentativa = 0; // Current attempt counter
-
-        while (tentativa < maxTentativa) {
-            try {
-                // Attempt to connect to QueueManager via TCP
-                Socket socket = new Socket(PortasEIPs.PORTA_QUEUE_MANAGER.getIP(), PortasEIPs.PORTA_QUEUE_MANAGER.getPorta());
-                queueManager = new PrintWriter(socket.getOutputStream(), true);
-
-                System.out.println("Ligação ao QueueManager de sucesso! IP: " + PortasEIPs.PORTA_QUEUE_MANAGER);
-                return true;
-            } catch (Exception re) {
-                System.out.println("Erro ao ligar ao QueueManager - tentativa nº" + (tentativa + 1) + ": " + re);
-                ++tentativa;
-                if (tentativa < maxTentativa) {
-                    try {
-                        Thread.sleep(1001);
-                    } catch (InterruptedException ie) {
-                        System.out.println("Ocorreu um problema no sleep: " + ie);
-                    }
-                } else {
-                    System.out.println("Falha ao ligar ao DownloadManager após " + tentativa + " tentativas.");
-                }
-            }
-        }
-        return false;
-    }
-
 }

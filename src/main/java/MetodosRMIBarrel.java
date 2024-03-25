@@ -1,7 +1,13 @@
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.List;
 
 public interface MetodosRMIBarrel extends Remote {
 
-    public String searchUrl(String url) throws RemoteException;
+    void arquivarURL(URLData data) throws RemoteException;
+
+    void arquivarURLs(List<URLData> data) throws RemoteException;
+
+
+    List<URLData> searchUrl(String url) throws RemoteException;
 }

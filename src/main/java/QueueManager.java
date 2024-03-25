@@ -22,9 +22,9 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
     public static void main(String[] args) {
         try {
             // Criar socket de receção Gateway->QueueManager
-            ServerSocket serverSocket = new ServerSocket(PortasEIPs.PORTA_QUEUE_MANAGER.getPorta());
+            ServerSocket serverSocket = new ServerSocket(PortasEIPs.QUEUE_MANAGER.getPorta());
 
-            PortasEIPs.PORTA_QUEUE_MANAGER.printINIT("DownloadManager");
+            PortasEIPs.QUEUE_MANAGER.printINIT("DownloadManager");
 
             if (!connectToDownloadManager()) {
                 System.out.println("Failed to connect to DownloadManager.");
@@ -52,7 +52,7 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
             }).start();
 
             //fim carregamento do QueueManager
-            PortasEIPs.PORTA_DOWNLOAD_MANAGER.printINIT("QueueManager");
+            PortasEIPs.DOWNLOAD_MANAGER.printINIT("QueueManager");
 
             // Aceitar ligações
             while (true) {
@@ -96,8 +96,8 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
         while (tentativa < 10) {
             try {
                 // Attempt to connect to DownloadManager via TCP
-                Socket socket = new Socket(PortasEIPs.PORTA_DOWNLOAD_MANAGER.getIP(), PortasEIPs.PORTA_DOWNLOAD_MANAGER.getPorta());
-                System.out.println("Ligação ao DownloadManager com sucesso! IP: " + PortasEIPs.PORTA_DOWNLOAD_MANAGER);
+                Socket socket = new Socket(PortasEIPs.DOWNLOAD_MANAGER.getIP(), PortasEIPs.DOWNLOAD_MANAGER.getPorta());
+                System.out.println("Ligação ao DownloadManager com sucesso! IP: " + PortasEIPs.DOWNLOAD_MANAGER);
 
                 downloadManager = new PrintWriter(socket.getOutputStream(), true);
                 return true;

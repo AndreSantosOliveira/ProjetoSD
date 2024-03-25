@@ -13,29 +13,19 @@ import java.net.Socket;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.stream.Collectors;
 
 public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloader, Serializable {
 
-    static HashMap<String, HashSet<URLData>> index = new HashMap<>();
-    static Set<String> alreadyScraped = new HashSet<>();
+    static Map<String, URLData> urlData = new HashMap<>();
 
     private boolean busy = false;
 
     protected Downloader() throws RemoteException {
         super();
-    }
-
-    public static Boolean doesIndexHaveURL(String chave, String url) {
-        List<URLData> urlList = new ArrayList<>(index.get(chave)); // Create a copy
-        return urlList.stream().anyMatch(urlData -> urlData.getURL().equalsIgnoreCase(url));
     }
 
     private static PrintWriter queueManager;
@@ -70,10 +60,10 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
         while (tentativa < maxTentativa) {
             try {
                 // Attempt to connect to QueueManager via TCP
-                Socket socket = new Socket(PortasEIPs.PORTA_QUEUE_MANAGER.getIP(), PortasEIPs.PORTA_QUEUE_MANAGER.getPorta());
+                Socket socket = new Socket(PortasEIPs.QUEUE_MANAGER.getIP(), PortasEIPs.QUEUE_MANAGER.getPorta());
                 queueManager = new PrintWriter(socket.getOutputStream(), true);
 
-                System.out.println("Ligação ao QueueManager de sucesso! IP: " + PortasEIPs.PORTA_QUEUE_MANAGER);
+                System.out.println("Ligação ao QueueManager de sucesso! IP: " + PortasEIPs.QUEUE_MANAGER);
                 return true;
             } catch (Exception re) {
                 System.out.println("Erro ao ligar ao QueueManager - tentativa nº" + (tentativa + 1) + ": " + re);
@@ -113,29 +103,25 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
                         for (String s : titulo.split(" ")) {
                             s = s.toLowerCase();
                             if (s.length() > 3) {
-                                if (index.containsKey(s) && !doesIndexHaveURL(s, link)) {
-                                    URLData r = new URLData(link, titulo);
-                                    index.get(s).add(r);
-                                } else {
-                                    HashSet<URLData> newHashSet = new HashSet<>(Collections.singletonList(new URLData(link, titulo)));
-                                    index.put(s, newHashSet);
-                                }
-
                                 //System.out.println("DownloadManager enviou para QueueManager: " + link);
-                                alreadyScraped.add(link);
+                                if (!urlData.containsKey(link)) {
+                                    urlData.put(link, new URLData(link, titulo));
+                                }
                             }
                         }
                     }
                 }
             }
 
-            alreadyScraped.forEach(queueManager::println);
+            //chaves de urls para a queue
+            urlData.keySet().forEach(queueManager::println);
 
             // Send dummy results via multicas
-            sendResultToISBviaMulticast(alreadyScraped.stream().map(s -> new URLData(s, "Dummy")).collect(Collectors.toCollection(HashSet::new)));
+            sendResultToISBviaMulticast(urlData.values());
 
-            System.out.println("Scraping done! " + url + "\n " + alreadyScraped.size() + " -> unique URLs sent to QueueManager.");
-            alreadyScraped.clear();
+            System.out.println("Scraping done! " + url + "\n " + urlData.size() + " -> unique URLs sent to QueueManager.");
+            urlData.clear();
+
             busy = false;
         } catch (IOException e) {
             System.out.println("Error while trying to scrape data from: " + url + " -> " + e.getMessage());
@@ -149,12 +135,8 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
     }
 
 
-    // Define the multicast address and port
-    static String multicastAddress = "230.0.0.1";
-    static int multicastPort = 6900;
-
     // Send the result to ISB via multicast
-    public static void sendResultToISBviaMulticast(HashSet<URLData> resultado) {
+    public static void sendResultToISBviaMulticast(Collection<URLData> resultado) {
 
         try {
             // Create a multicast socket
@@ -169,10 +151,10 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
             byte[] buffer = mensagem.getBytes();
 
             // Get the multicast address
-            InetAddress group = InetAddress.getByName(multicastAddress);
+            InetAddress group = InetAddress.getByName(PortasEIPs.MULTICAST.getIP());
 
             // Create a datagram packet to send
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, multicastPort);
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, PortasEIPs.MULTICAST.getPorta());
 
             // Send the packet
             multicastSocket.send(packet);

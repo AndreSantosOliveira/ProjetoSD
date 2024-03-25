@@ -64,7 +64,7 @@ public class ClienteRMI implements Serializable, Remote {
             MetodosRMIGateway metodosGateway = null;
             while (metodosGateway == null && retryCount < maxRetries) {
                 try {
-                    metodosGateway = (MetodosRMIGateway) LocateRegistry.getRegistry(PortasEIPs.PORTA_GATEWAY.getPorta()).lookup("gateway");
+                    metodosGateway = (MetodosRMIGateway) LocateRegistry.getRegistry(PortasEIPs.GATEWAY.getPorta()).lookup("gateway");
                 } catch (RemoteException | NotBoundException e) {
                     ++retryCount;
                     if (retryCount < maxRetries) {
