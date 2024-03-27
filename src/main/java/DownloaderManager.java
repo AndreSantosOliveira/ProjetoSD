@@ -19,7 +19,7 @@ import java.util.Map;
 public class DownloaderManager {
 
     // Map to store downloaders
-    private static Map<DescritorIPPorta, MetodosRMIDownloader> downloaders = new HashMap<>();
+    private static Map<Connection, MetodosRMIDownloader> downloaders = new HashMap<>();
     private static int downloadersON;
 
     /**
@@ -39,7 +39,7 @@ public class DownloaderManager {
                         int porta = Integer.parseInt(parts[1]);
                         String rmiName = parts[2];
 
-                        downloaders.put(new DescritorIPPorta(ip, porta, rmiName), null);
+                        downloaders.put(new Connection(ip, porta, rmiName), null);
                         System.out.println("Downloader added: " + rmiName + " (" + ip + ":" + porta + ")");
                     } catch (NumberFormatException e) {
                         System.err.println("Error processing the port for a downloader: " + line);
@@ -53,7 +53,7 @@ public class DownloaderManager {
             e.printStackTrace();
         }
 
-        for (DescritorIPPorta descritorIPPorta : downloaders.keySet()) {
+        for (Connection descritorIPPorta : downloaders.keySet()) {
             MetodosRMIDownloader res = tentarLigarADownloader(descritorIPPorta);
             if (res != null) {
                 downloaders.put(descritorIPPorta, res);
@@ -75,7 +75,7 @@ public class DownloaderManager {
      * @param descritorIPPorta descriptor of the downloader to connect to
      * @return MetodosRMIDownloader object if the connection is successful, null otherwise.
      */
-    private static MetodosRMIDownloader tentarLigarADownloader(DescritorIPPorta descritorIPPorta) {
+    private static MetodosRMIDownloader tentarLigarADownloader(Connection descritorIPPorta) {
         MetodosRMIDownloader metodosGateway = null;
         int retryCount = 0;
         int maxRetries = 5;
@@ -105,10 +105,10 @@ public class DownloaderManager {
      * Sets up a socket to receive URLs from the QueueManager for scraping.
      */
     private static void socketQueueManagerToDownloadManager() throws IOException {
-        ServerSocket serverSocket = new ServerSocket(PortasEIPs.DOWNLOAD_MANAGER.getPorta());
+        ServerSocket serverSocket = new ServerSocket(ConnectionsEnum.DOWNLOAD_MANAGER.getPort());
 
         // download manager ready
-        System.out.println("[" + PortasEIPs.DOWNLOAD_MANAGER + "] DownloadManager ready.");
+        System.out.println("[" + ConnectionsEnum.DOWNLOAD_MANAGER + "] DownloadManager ready.");
 
         // Accept connections
         while (true) {
@@ -125,7 +125,7 @@ public class DownloaderManager {
                     while ((urlParaScrape = inFromClient.readLine()) != null) {
                         final String finalUrlParaScrape = urlParaScrape;
                         synchronized (downloaders) {
-                            for (Map.Entry<DescritorIPPorta, MetodosRMIDownloader> downloader : downloaders.entrySet()) {
+                            for (Map.Entry<Connection, MetodosRMIDownloader> downloader : downloaders.entrySet()) {
                                 if (downloader.getValue() != null && !downloader.getValue().isBusy()) {
                                     System.out.println("Downloader: " + downloader.getKey().getRMIName() + " - " + downloader.getValue().isBusy());
                                     new Thread(() -> {
