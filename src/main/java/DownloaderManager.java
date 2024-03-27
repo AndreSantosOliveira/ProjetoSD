@@ -123,21 +123,21 @@ public class DownloaderManager {
                     // read messages from the client
                     String urlParaScrape;
                     while ((urlParaScrape = inFromClient.readLine()) != null) {
-
+                        final String finalUrlParaScrape = urlParaScrape;
                         synchronized (downloaders) {
                             for (Map.Entry<DescritorIPPorta, MetodosRMIDownloader> downloader : downloaders.entrySet()) {
-                                if (downloader.getValue() != null) {
+                                if (downloader.getValue() != null && !downloader.getValue().isBusy()) {
                                     System.out.println("Downloader: " + downloader.getKey().getRMIName() + " - " + downloader.getValue().isBusy());
-                                    if (!downloader.getValue().isBusy()) {
-                                        downloader.getValue().crawlURL(urlParaScrape);
-                                        break;
-                                    }
+                                    new Thread(() -> {
+                                        try {
+                                            downloader.getValue().crawlURL(finalUrlParaScrape);
+                                        } catch (RemoteException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }).start();
                                 }
                             }
                         }
-
-                        // thread for each link received by the download manager
-                        //new Downloader(urlParaScrape, queueManager).start();
                     }
 
                 } catch (IOException e) {

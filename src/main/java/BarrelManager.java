@@ -40,8 +40,8 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
      */
     public static void main(String args[]) throws RemoteException {
         try {
-            BarrelManager gateway = new BarrelManager();
-            LocateRegistry.createRegistry(PortasEIPs.BARREL_MANAGER.getPorta()).rebind("barrelmanager", gateway);
+            BarrelManager barrelManager = new BarrelManager();
+            LocateRegistry.createRegistry(PortasEIPs.BARREL_MANAGER.getPorta()).rebind("barrelmanager", barrelManager);
         } catch (IOException re) {
             System.out.println("Exception in Gateway RMI: " + re);
         }
@@ -102,7 +102,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         int maxRetries = 5;
         while (metodosBarrel == null && retryCount < maxRetries) {
             try {
-                metodosBarrel = (MetodosRMIBarrel) LocateRegistry.getRegistry(5430).lookup("br1");
+                metodosBarrel = (MetodosRMIBarrel) LocateRegistry.getRegistry(descritorIPPorta.getPorta()).lookup(descritorIPPorta.getRMIName());
                 System.out.println("Connected to Barrel " + descritorIPPorta.getRMIName() + "!");
                 return metodosBarrel;
             } catch (RemoteException | NotBoundException e) {
