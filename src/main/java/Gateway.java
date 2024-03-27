@@ -9,17 +9,37 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Gateway class extends UnicastRemoteObject and implements MetodosRMIGateway and Serializable.
+ * This class is responsible for managing the communication between the client and the server.
+ * It maintains a list of URLs to be indexed, establishes a connection to the BarrelManager via RMI,
+ * and sets up a socket to communicate with the QueueManager.
+ */
 public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, Serializable {
-    // Gateway constructor
+
+    /**
+     * Default constructor for Gateway.
+     *
+     * @throws RemoteException if an error occurs during remote object initialization.
+     */
     public Gateway() throws RemoteException {
         super();
     }
 
+    // List of URLs to be indexed
     List<String> toBeIndexed = new ArrayList<>();
 
+    // PrintWriter to communicate with the QueueManager
     private static PrintWriter queueManager;
+
+    // MetodosRMIBarrel object to communicate with the BarrelManager
     private static MetodosRMIBarrel metodosBarrelManager = null;
 
+    /**
+     * Main method for the Gateway class.
+     *
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         try {
             Gateway gateway = new Gateway();
@@ -62,8 +82,12 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         }
     }
 
-
-    // Indexar novo URL
+    /**
+     * Indexes a new URL.
+     *
+     * @param url the URL to index
+     * @return a string indicating the success of the operation
+     */
     @Override
     public String indexarURL(String url) {
         toBeIndexed.add(url);
@@ -75,15 +99,25 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         return txt;
     }
 
-    // Pesquisar páginas que contenham um conjunto de termos
+    /**
+     * Searches for pages that contain a set of terms.
+     *
+     * @param palavras the terms to search for
+     * @return a list of URLData objects that match the search terms
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
     @Override
     public List<URLData> pesquisar(String palavras) throws RemoteException {
         return metodosBarrelManager.searchInput(palavras);
     }
 
+    /**
+     * Lists the indexed pages.
+     *
+     * @return a list of URLData objects representing the indexed pages
+     */
     @Override
     public List<URLData> listarPaginasIndexadas() {
         return null;
     }
-
 }

@@ -10,16 +10,25 @@ import java.rmi.registry.LocateRegistry;
 import java.util.HashMap;
 import java.util.Map;
 
-/*--------------------------------------------DOWNLOADERMANAGER--------------------------------------------*/
+/**
+ * DownloaderManager class.
+ * This class is responsible for managing a collection of downloaders.
+ * It loads the downloaders from a text file, attempts to connect to each downloader,
+ * and sets up a socket to receive URLs from the QueueManager for scraping.
+ */
 public class DownloaderManager {
 
-    //definir IPs e Portas dos Downloaders com base no DescritorIPPorta
-
+    // Map to store downloaders
     private static Map<DescritorIPPorta, MetodosRMIDownloader> downloaders = new HashMap<>();
     private static int downloadersON;
 
+    /**
+     * Main method for the DownloaderManager class.
+     *
+     * @param args command line arguments
+     */
     public static void main(String[] args) throws IOException {
-        // Carregar downloaders do ficheiro de texto downloaders.txt (IP, porta, rmiName)
+        // Load downloaders from the text file downloaders.txt (IP, port, rmiName)
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/java/downloaders.txt"))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -31,16 +40,16 @@ public class DownloaderManager {
                         String rmiName = parts[2];
 
                         downloaders.put(new DescritorIPPorta(ip, porta, rmiName), null);
-                        System.out.println("Downloader adicionado: " + rmiName + " (" + ip + ":" + porta + ")");
+                        System.out.println("Downloader added: " + rmiName + " (" + ip + ":" + porta + ")");
                     } catch (NumberFormatException e) {
-                        System.err.println("Erro ao processar a porta para um downloader: " + line);
+                        System.err.println("Error processing the port for a downloader: " + line);
                     }
                 } else {
-                    System.err.println("Linha em formato inválido: " + line);
+                    System.err.println("Line in invalid format: " + line);
                 }
             }
         } catch (IOException e) {
-            System.err.println("Erro ao ler o arquivo de downloaders.");
+            System.err.println("Error reading the downloader file.");
             e.printStackTrace();
         }
 
@@ -60,6 +69,12 @@ public class DownloaderManager {
         socketQueueManagerToDownloadManager();
     }
 
+    /**
+     * Attempts to connect to a downloader.
+     *
+     * @param descritorIPPorta descriptor of the downloader to connect to
+     * @return MetodosRMIDownloader object if the connection is successful, null otherwise.
+     */
     private static MetodosRMIDownloader tentarLigarADownloader(DescritorIPPorta descritorIPPorta) {
         MetodosRMIDownloader metodosGateway = null;
         int retryCount = 0;
@@ -67,13 +82,13 @@ public class DownloaderManager {
         while (metodosGateway == null && retryCount < maxRetries) {
             try {
                 metodosGateway = (MetodosRMIDownloader) LocateRegistry.getRegistry(descritorIPPorta.getPorta()).lookup(descritorIPPorta.getRMIName());
-                System.out.println("Ligado ao Downloader " + descritorIPPorta.getRMIName() + "!");
+                System.out.println("Connected to Downloader " + descritorIPPorta.getRMIName() + "!");
                 return metodosGateway;
             } catch (RemoteException | NotBoundException e) {
                 ++retryCount;
                 if (retryCount < maxRetries) {
                     System.out.println("Failed to connect to Downloader: " + descritorIPPorta.getRMIName() + " (" + retryCount + "/" + maxRetries + "). Retrying...");
-                    // Sleep para evitar tentativas de ligação consecutivas
+                    // Sleep to avoid consecutive connection attempts
                     try {
                         Thread.sleep(1001);
                     } catch (InterruptedException ex) {
@@ -86,24 +101,26 @@ public class DownloaderManager {
         return null;
     }
 
-    // Receive from QueueManager and scrape
+    /**
+     * Sets up a socket to receive URLs from the QueueManager for scraping.
+     */
     private static void socketQueueManagerToDownloadManager() throws IOException {
         ServerSocket serverSocket = new ServerSocket(PortasEIPs.DOWNLOAD_MANAGER.getPorta());
 
         // download manager ready
         System.out.println("[" + PortasEIPs.DOWNLOAD_MANAGER + "] DownloadManager ready.");
 
-        // Aceitar ligações
+        // Accept connections
         while (true) {
-            // Aceitar ligação
+            // Accept connection
             Socket connectionSocket = serverSocket.accept();
-            // Criar thread para tratar a conexão
+            // Create thread to handle the connection
             new Thread(() -> {
                 try {
-                    // setup bufferedreader para ler mensagens de clientes
+                    // setup bufferedreader to read messages from clients
                     BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
 
-                    // ler mensagens do cliente
+                    // read messages from the client
                     String urlParaScrape;
                     while ((urlParaScrape = inFromClient.readLine()) != null) {
 
@@ -119,7 +136,7 @@ public class DownloaderManager {
                             }
                         }
 
-                        // thread para cada link recebido pelo download manager
+                        // thread for each link received by the download manager
                         //new Downloader(urlParaScrape, queueManager).start();
                     }
 

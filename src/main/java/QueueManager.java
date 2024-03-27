@@ -8,29 +8,46 @@ import java.net.Socket;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
+/**
+ * QueueManager class extends UnicastRemoteObject and implements Serializable.
+ * This class is responsible for managing a queue of URLs to be downloaded.
+ */
 public class QueueManager extends UnicastRemoteObject implements Serializable {
 
+    /**
+     * Default constructor for QueueManager.
+     *
+     * @throws RemoteException if an error occurs during remote object initialization.
+     */
     protected QueueManager() throws RemoteException {
         super();
     }
 
+    // PrintWriter object to communicate with the DownloadManager
     private static PrintWriter downloadManager;
 
-    // queue manager
+    // Queue to hold unique URLs, with a maximum size of 50
     static final UniqueQueue<String> queue = new UniqueQueue<>(50);
 
+    /**
+     * Main method for the QueueManager class.
+     *
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         try {
-            // Criar socket de receção Gateway->QueueManager
+            // Create a server socket for receiving connections from the Gateway
             ServerSocket serverSocket = new ServerSocket(PortasEIPs.QUEUE_MANAGER.getPorta());
 
             PortasEIPs.QUEUE_MANAGER.printINIT("DownloadManager");
 
+            // Attempt to connect to the DownloadManager
             if (!connectToDownloadManager()) {
                 System.out.println("Failed to connect to DownloadManager.");
                 return;
             }
 
+            // Start a new thread to handle the queue
             new Thread(() -> {
                 while (true) {
                     try {
@@ -43,7 +60,7 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
                             String url = queue.poll();
                             if (url != null) {
                                 downloadManager.println(url);
-                                System.out.println("QueueManager enviou para Scraping: " + url);
+                                System.out.println("QueueManager sent for Scraping: " + url);
                             }
                         }
                     }
@@ -51,29 +68,29 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
 
             }).start();
 
-            //fim carregamento do QueueManager
+            // End of QueueManager loading
             PortasEIPs.DOWNLOAD_MANAGER.printINIT("QueueManager");
 
-            // Aceitar ligações
+            // Accept connections
             while (true) {
-                // Aceitar ligação
+                // Accept a connection
                 Socket connectionSocket = serverSocket.accept();
-                // Informação sobre a ligação:
-                System.out.println("QueueManager recebeu ligação de: " + connectionSocket.getInetAddress().getHostAddress() + ":" + connectionSocket.getPort());
-                // Criar thread para tratar a conexão
+                // Information about the connection:
+                System.out.println("QueueManager received connection from: " + connectionSocket.getInetAddress().getHostAddress() + ":" + connectionSocket.getPort());
+                // Create a thread to handle the connection
                 new Thread(() -> {
                     try {
-                        // setup bufferedreader para ler mensagens de clientes
+                        // Setup BufferedReader to read messages from clients
                         BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
 
-                        // ler mensagens do cliente
+                        // Read messages from the client
                         String dados;
                         while ((dados = inFromClient.readLine()) != null) {
                             synchronized (queue) {
                                 if (queue.offer(dados)) {
-                                    System.out.println("Recebido novo URL para indexar: " + dados);
-                                    //queue size
-                                    System.out.println("URLs para indexar: " + queue.size());
+                                    System.out.println("New url to index: " + dados);
+                                    // Queue size
+                                    System.out.println("URLs to index: " + queue.size());
                                 }
                             }
                         }
@@ -85,33 +102,38 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
                 }).start();
             }
         } catch (IOException e) {
-            System.out.println("Erro ao criar socket de receção Gateway->QueueManager: " + e.getMessage());
+            System.out.println("Error creating connection socket Gateway->QueueManager: " + e.getMessage());
         }
     }
 
+    /**
+     * Attempts to connect to the DownloadManager.
+     *
+     * @return true if the connection is successful, false otherwise.
+     */
     private static boolean connectToDownloadManager() {
         final int maxTentativa = 10;
         int tentativa = 0;
 
-        while (tentativa < 10) {
+        while (tentativa < maxTentativa) {
             try {
                 // Attempt to connect to DownloadManager via TCP
                 Socket socket = new Socket(PortasEIPs.DOWNLOAD_MANAGER.getIP(), PortasEIPs.DOWNLOAD_MANAGER.getPorta());
-                System.out.println("Ligação ao DownloadManager com sucesso! IP: " + PortasEIPs.DOWNLOAD_MANAGER);
+                System.out.println("DownloadManager connected sucessfully. IP: " + PortasEIPs.DOWNLOAD_MANAGER);
 
                 downloadManager = new PrintWriter(socket.getOutputStream(), true);
                 return true;
             } catch (IOException re) {
-                System.out.println("Erro ao ligar ao DownloadManager - tentativa nº" + (tentativa + 1) + ": " + re);
+                System.out.println("Connecting to DownloadManager failed - Atempt nº" + (tentativa + 1) + ": " + re + ". Retrying...");
                 ++tentativa;
                 if (tentativa < maxTentativa) {
                     try {
-                        Thread.sleep(1001);
+                        Thread.sleep(3000);
                     } catch (InterruptedException ie) {
-                        System.out.println("Ocorreu um problema no sleep: " + ie);
+                        System.out.println("Error in connectToDownloadManager sleep: " + ie);
                     }
                 } else {
-                    System.out.println("Falha ao ligar ao DownloadManager após " + tentativa + " tentativas.");
+                    System.out.println("Failed to connect to downloadManager after: " + tentativa + " attempts.");
                 }
             }
         }

@@ -19,18 +19,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
+/**
+ * Downloader class extends UnicastRemoteObject and implements MetodosRMIDownloader and Serializable.
+ * This class is responsible for crawling URLs and sending the results to the QueueManager.
+ */
 public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloader, Serializable {
 
+    // Map to store URLData objects
     static Map<String, URLData> urlData = new HashMap<>();
 
+    // Flag to indicate if the Downloader is busy
     private boolean busy = false;
 
+    /**
+     * Default constructor for Downloader.
+     *
+     * @throws RemoteException if an error occurs during remote object initialization.
+     */
     protected Downloader() throws RemoteException {
         super();
     }
 
     private static PrintWriter queueManager;
 
+    /**
+     * Main method for the Downloader class.
+     *
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         try {
             if (args.length < 2) {
@@ -54,6 +70,11 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
         }
     }
 
+    /**
+     * Establishes a socket connection to the QueueManager.
+     *
+     * @return true if the connection is successful, false otherwise.
+     */
     private static boolean socketDownloadManagerToQueue() {
         final int maxTentativa = 10; // Maximum number of retries
         int tentativa = 0; // Current attempt counter
@@ -83,6 +104,13 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
         return false;
     }
 
+    /**
+     * Crawls a URL and sends the results to the QueueManager.
+     *
+     * @param url the URL to crawl
+     * @return a string indicating the success of the operation
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
     @Override
     public String crawlURL(String url) throws RemoteException {
         try {
@@ -130,12 +158,22 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
         return "Sucesso!";
     }
 
+    /**
+     * Checks if the Downloader is busy.
+     *
+     * @return true if the Downloader is busy, false otherwise.
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
     @Override
     public boolean isBusy() throws RemoteException {
         return busy;
     }
 
-
+    /**
+     * Sends the result to ISB via multicast.
+     *
+     * @param resultado the result to send
+     */
     // Send the result to ISB via multicast
     public static void sendResultToISBviaMulticast(List<URLData> resultado) {
         try {
