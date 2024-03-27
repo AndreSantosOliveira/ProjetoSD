@@ -21,7 +21,7 @@ import java.util.Map;
 public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
     // Map to store barrels
-    private static Map<DescritorIPPorta, MetodosRMIBarrel> barrels = new HashMap<>();
+    private static final Map<Connection, MetodosRMIBarrel> barrels = new HashMap<>();
     private static int barrelsON;
 
     /**
@@ -41,7 +41,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
     public static void main(String args[]) throws RemoteException {
         try {
             BarrelManager gateway = new BarrelManager();
-            LocateRegistry.createRegistry(PortasEIPs.BARREL_MANAGER.getPorta()).rebind("barrelmanager", gateway);
+            LocateRegistry.createRegistry(ConnectionsEnum.BARREL_MANAGER.getPort()).rebind("barrelmanager", gateway);
         } catch (IOException re) {
             System.out.println("Exception in Gateway RMI: " + re);
         }
@@ -57,7 +57,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                         int porta = Integer.parseInt(parts[1]);
                         String rmiName = parts[2];
 
-                        barrels.put(new DescritorIPPorta(ip, porta, rmiName), null);
+                        barrels.put(new Connection(ip, porta, rmiName), null);
                         System.out.println("Barrel added: " + rmiName + " (" + ip + ":" + porta + ")");
                     } catch (NumberFormatException e) {
                         System.err.println("Error processing the port for a barrel: " + line);
@@ -67,14 +67,13 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                 }
             }
         } catch (IOException e) {
-            System.err.println("Error reading the barrel file.");
-            e.printStackTrace();
+            System.err.println("Error reading the barrel file: " + e.getMessage());
         }
 
-        for (DescritorIPPorta descritorIPPorta : barrels.keySet()) {
-            MetodosRMIBarrel res = tentarLigarABarrel(descritorIPPorta);
+        for (Connection connection : barrels.keySet()) {
+            MetodosRMIBarrel res = tentarLigarABarrel(connection);
             if (res != null) {
-                barrels.put(descritorIPPorta, res);
+                barrels.put(connection, res);
                 ++barrelsON;
             }
         }
@@ -84,7 +83,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
             System.exit(1);
         }
 
-        PortasEIPs.BARREL_MANAGER.printINIT("BarrelManager");
+        ConnectionsEnum.BARREL_MANAGER.printINIT("BarrelManager");
 
         // Receives multicast from downloader
         receiveResultFromDownloaderviaMulticast();
@@ -93,22 +92,22 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
     /**
      * Attempts to connect to a barrel.
      *
-     * @param descritorIPPorta descriptor of the barrel to connect to
+     * @param connection descriptor of the barrel to connect to
      * @return MetodosRMIBarrel object if the connection is successful, null otherwise.
      */
-    private static MetodosRMIBarrel tentarLigarABarrel(DescritorIPPorta descritorIPPorta) {
+    private static MetodosRMIBarrel tentarLigarABarrel(Connection connection) {
         MetodosRMIBarrel metodosBarrel = null;
         int retryCount = 0;
         int maxRetries = 5;
         while (metodosBarrel == null && retryCount < maxRetries) {
             try {
                 metodosBarrel = (MetodosRMIBarrel) LocateRegistry.getRegistry(5430).lookup("br1");
-                System.out.println("Connected to Barrel " + descritorIPPorta.getRMIName() + "!");
+                System.out.println("Connected to Barrel " + connection.getRMIName() + "!");
                 return metodosBarrel;
             } catch (RemoteException | NotBoundException e) {
                 ++retryCount;
                 if (retryCount < maxRetries) {
-                    System.out.println("Failed to connect to Barrel: " + descritorIPPorta.getRMIName() + " (" + retryCount + "/" + maxRetries + "). Retrying...");
+                    System.out.println("Failed to connect to Barrel: " + connection.getRMIName() + " (" + retryCount + "/" + maxRetries + "). Retrying...");
                     // Sleep to avoid consecutive connection attempts
                     try {
                         Thread.sleep(1001);
@@ -118,7 +117,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                 }
             }
         }
-        System.out.println("Failed to connect to Barrel: " + descritorIPPorta.getRMIName() + ". :(");
+        System.out.println("Failed to connect to Barrel: " + connection.getRMIName() + ". :(");
         return null;
     }
 
@@ -129,8 +128,8 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         // Receives multicast from downloader
         try {
             // Create a multicast socket
-            MulticastSocket multicastSocket = new MulticastSocket(PortasEIPs.MULTICAST.getPorta());
-            multicastSocket.joinGroup(InetAddress.getByName(PortasEIPs.MULTICAST.getIP()));
+            MulticastSocket multicastSocket = new MulticastSocket(ConnectionsEnum.MULTICAST.getPort());
+            multicastSocket.joinGroup(InetAddress.getByName(ConnectionsEnum.MULTICAST.getIP()));
 
             byte[] buffer = new byte[1024];
 
@@ -169,7 +168,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         for (MetodosRMIBarrel value : barrels.values()) {
             if (value != null) {
                 try {
-                    value.arquivarURL(dados);
+                    value.archiveURL(dados);
                 } catch (RemoteException e) {
                     throw new RuntimeException(e);
                 }
@@ -184,7 +183,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     @Override
-    public void arquivarURL(URLData data) throws RemoteException {
+    public void archiveURL(URLData data) throws RemoteException {
     }
 
     /**

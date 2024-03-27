@@ -2,9 +2,9 @@
  * DescritorIPPorta class.
  * This class is used to describe an IP address and port, along with an optional RMI name.
  */
-public class DescritorIPPorta {
+public class Connection {
 
-    private String ip, rmiName;
+    private final String ip, rmiName;
     private final int porta;
 
     /**
@@ -13,9 +13,10 @@ public class DescritorIPPorta {
      * @param ip    the IP address
      * @param porta the port number
      */
-    public DescritorIPPorta(String ip, int porta) {
+    public Connection(String ip, int porta) {
         this.ip = ip;
         this.porta = porta;
+        this.rmiName = "";
     }
 
     /**
@@ -25,7 +26,7 @@ public class DescritorIPPorta {
      * @param porta   the port number
      * @param rmiName the RMI name
      */
-    public DescritorIPPorta(String ip, int porta, String rmiName) {
+    public Connection(String ip, int porta, String rmiName) {
         this.ip = ip;
         this.porta = porta;
         this.rmiName = rmiName;

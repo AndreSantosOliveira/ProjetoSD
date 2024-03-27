@@ -16,16 +16,16 @@ public interface MetodosRMIGateway extends Remote {
      * @return a string indicating the success of the operation
      * @throws IOException if an error occurs during the operation.
      */
-    String indexarURL(String url) throws IOException;
+    String indexURLString(String url) throws IOException;
 
     /**
      * Searches for URLs based on input.
      *
-     * @param palavras the input to search for
+     * @param words the input to search for
      * @return a list of URLData objects that match the search input
      * @throws java.rmi.RemoteException if an error occurs during remote method invocation.
      */
-    List<URLData> pesquisar(String palavras) throws java.rmi.RemoteException;
+    List<URLData> search(String words) throws java.rmi.RemoteException;
 
     /**
      * Lists the indexed pages.
@@ -33,5 +33,5 @@ public interface MetodosRMIGateway extends Remote {
      * @return a list of URLData objects representing the indexed pages
      * @throws java.rmi.RemoteException if an error occurs during remote method invocation.
      */
-    List<URLData> listarPaginasIndexadas() throws java.rmi.RemoteException;
+    List<URLData> listIndexedPages() throws java.rmi.RemoteException;
 }

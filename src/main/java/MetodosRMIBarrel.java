@@ -15,7 +15,7 @@ public interface MetodosRMIBarrel extends Remote {
      * @param data the URLData object representing the URL to archive
      * @throws RemoteException if an error occurs during remote method invocation.
      */
-    void arquivarURL(URLData data) throws RemoteException;
+    void archiveURL(URLData data) throws RemoteException;
 
     /**
      * Searches for URLs based on input.

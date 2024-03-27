@@ -43,7 +43,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     public static void main(String[] args) {
         try {
             Gateway gateway = new Gateway();
-            LocateRegistry.createRegistry(PortasEIPs.GATEWAY.getPorta()).rebind("gateway", gateway);
+            LocateRegistry.createRegistry(ConnectionsEnum.GATEWAY.getPort()).rebind("gateway", gateway);
         } catch (IOException re) {
             System.out.println("Exception in Gateway RMI: " + re);
         }
@@ -52,20 +52,20 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         int maxRetries = 5;
         while (metodosBarrelManager == null && retryCount < maxRetries) {
             try {
-                metodosBarrelManager = (MetodosRMIBarrel) LocateRegistry.getRegistry(PortasEIPs.BARREL_MANAGER.getPorta()).lookup("barrelmanager");
-                System.out.println("Ligado ao BarrelManager!");
+                metodosBarrelManager = (MetodosRMIBarrel) LocateRegistry.getRegistry(ConnectionsEnum.BARREL_MANAGER.getPort()).lookup("barrelmanager");
+                System.out.println("Connected to BarrelManager!");
 
                 try {
                     // Ligar ao QueueManager via TCP
-                    Socket socket = new Socket(PortasEIPs.QUEUE_MANAGER.getIP(), PortasEIPs.QUEUE_MANAGER.getPorta());
+                    Socket socket = new Socket(ConnectionsEnum.QUEUE_MANAGER.getIP(), ConnectionsEnum.QUEUE_MANAGER.getPort());
                     queueManager = new PrintWriter(socket.getOutputStream(), true);
 
-                    System.out.println("Ligação ao QueueManager de sucesso! IP: " + PortasEIPs.QUEUE_MANAGER);
+                    System.out.println("Sucessfull Connection to QueueManager! IP: " + ConnectionsEnum.QUEUE_MANAGER);
                 } catch (Exception re) {
-                    System.out.println("Exception in Gateway Socket: " + re);
+                    System.out.println("Exception in QueueManager Socket: " + re);
                 }
 
-                PortasEIPs.GATEWAY.printINIT("Gateway");
+                ConnectionsEnum.GATEWAY.printINIT("Gateway");
 
             } catch (RemoteException | NotBoundException e) {
                 ++retryCount;
@@ -89,7 +89,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
      * @return a string indicating the success of the operation
      */
     @Override
-    public String indexarURL(String url) {
+    public String indexURLString(String url) {
         toBeIndexed.add(url);
 
         queueManager.println(url);
@@ -102,13 +102,13 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     /**
      * Searches for pages that contain a set of terms.
      *
-     * @param palavras the terms to search for
+     * @param words the terms to search for
      * @return a list of URLData objects that match the search terms
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     @Override
-    public List<URLData> pesquisar(String palavras) throws RemoteException {
-        return metodosBarrelManager.searchInput(palavras);
+    public List<URLData> search(String words) throws RemoteException {
+        return metodosBarrelManager.searchInput(words);
     }
 
     /**
@@ -117,7 +117,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
      * @return a list of URLData objects representing the indexed pages
      */
     @Override
-    public List<URLData> listarPaginasIndexadas() {
+    public List<URLData> listIndexedPages() {
         return null;
     }
 }
