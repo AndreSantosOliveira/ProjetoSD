@@ -37,9 +37,9 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
     public static void main(String[] args) {
         try {
             // Create a server socket for receiving connections from the Gateway
-            ServerSocket serverSocket = new ServerSocket(PortasEIPs.QUEUE_MANAGER.getPorta());
+            ServerSocket serverSocket = new ServerSocket(ConnectionsEnum.QUEUE_MANAGER.getPort());
 
-            PortasEIPs.QUEUE_MANAGER.printINIT("DownloadManager");
+            ConnectionsEnum.QUEUE_MANAGER.printINIT("DownloadManager");
 
             // Attempt to connect to the DownloadManager
             if (!connectToDownloadManager()) {
@@ -69,7 +69,7 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
             }).start();
 
             // End of QueueManager loading
-            PortasEIPs.DOWNLOAD_MANAGER.printINIT("QueueManager");
+            ConnectionsEnum.DOWNLOAD_MANAGER.printINIT("QueueManager");
 
             // Accept connections
             while (true) {
@@ -97,7 +97,7 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
 
                         //connectionSocket.close();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        System.out.println("Error reading message from Gateway: " + e.getMessage());
                     }
                 }).start();
             }
@@ -118,8 +118,8 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
         while (tentativa < maxTentativa) {
             try {
                 // Attempt to connect to DownloadManager via TCP
-                Socket socket = new Socket(PortasEIPs.DOWNLOAD_MANAGER.getIP(), PortasEIPs.DOWNLOAD_MANAGER.getPorta());
-                System.out.println("DownloadManager connected sucessfully. IP: " + PortasEIPs.DOWNLOAD_MANAGER);
+                Socket socket = new Socket(ConnectionsEnum.DOWNLOAD_MANAGER.getIP(), ConnectionsEnum.DOWNLOAD_MANAGER.getPort());
+                System.out.println("DownloadManager connected sucessfully. IP: " + ConnectionsEnum.DOWNLOAD_MANAGER);
 
                 downloadManager = new PrintWriter(socket.getOutputStream(), true);
                 return true;

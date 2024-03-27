@@ -1,25 +1,25 @@
 /**
  * PortasEIPs is an enumeration that represents different types of ports.
- * Each port is associated with a DescritorIPPorta object that contains the IP address and port number.
+ * Each port is associated with a Connection object that contains the IP address and port number.
  * This enumeration provides methods to get the IP address and port number, print initialization status, and convert the port to a string.
  */
-public enum PortasEIPs {
+public enum ConnectionsEnum {
 
     // Portas
-    MULTICAST(new DescritorIPPorta("230.0.0.1", 6900)),
-    GATEWAY(new DescritorIPPorta("127.0.0.1", 1000)),
-    QUEUE_MANAGER(new DescritorIPPorta("127.0.0.1", 3300)),
-    BARREL_MANAGER(new DescritorIPPorta("127.0.0.1", 4200)),
-    DOWNLOAD_MANAGER(new DescritorIPPorta("127.0.0.1", 3570));
+    MULTICAST(new Connection("230.0.0.1", 6900)),
+    GATEWAY(new Connection("127.0.0.1", 1000)),
+    QUEUE_MANAGER(new Connection("127.0.0.1", 3300)),
+    BARREL_MANAGER(new Connection("127.0.0.1", 4200)),
+    DOWNLOAD_MANAGER(new Connection("127.0.0.1", 3570));
 
-    private final DescritorIPPorta descritor;
+    private final Connection descritor;
 
     /**
      * Constructor for PortasEIPs.
      *
      * @param descritor the DescritorIPPorta object associated with the port
      */
-    PortasEIPs(DescritorIPPorta descritor) {
+    ConnectionsEnum(Connection descritor) {
         this.descritor = descritor;
     }
 
@@ -37,7 +37,7 @@ public enum PortasEIPs {
      *
      * @return the port number of the port
      */
-    public int getPorta() {
+    public int getPort() {
         return descritor.getPorta();
     }
 

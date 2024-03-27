@@ -69,7 +69,7 @@ public class ClienteRMI implements Serializable, Remote {
             MetodosRMIGateway metodosGateway = null;
             while (metodosGateway == null && retryCount < maxRetries) {
                 try {
-                    metodosGateway = (MetodosRMIGateway) LocateRegistry.getRegistry(PortasEIPs.GATEWAY.getPorta()).lookup("gateway");
+                    metodosGateway = (MetodosRMIGateway) LocateRegistry.getRegistry(ConnectionsEnum.GATEWAY.getPort()).lookup("gateway");
                 } catch (RemoteException | NotBoundException e) {
                     ++retryCount;
                     if (retryCount < maxRetries) {
@@ -113,8 +113,8 @@ public class ClienteRMI implements Serializable, Remote {
 
                     case "index": //     index https://sapo.pt
                         //System.out.println(metodosGateway.indexarURL(splitOption[1]));
-                        System.out.println(metodosGateway.indexarURL("https://sapo.pt"));
-                        System.out.println(metodosGateway.indexarURL("https://google.com"));
+                        System.out.println(metodosGateway.indexURLString("https://sapo.pt"));
+                        System.out.println(metodosGateway.indexURLString("https://google.com"));
                         break;
 
                     case "search":
@@ -126,13 +126,15 @@ public class ClienteRMI implements Serializable, Remote {
                             }
                             pesquisa.append(splitOption[i]).append(" ");
                         }
-                        for (URLData urlData : metodosGateway.pesquisar(pesquisa.toString())) {
+                        for (URLData urlData : metodosGateway.search(pesquisa.toString())) {
                             System.out.println(urlData.toString());
                         }
                         break;
 
                     case "list":
-                        for (URLData urlData : metodosGateway.listarPaginasIndexadas()) {
+                        System.out.println("list");
+
+                        for (URLData urlData : metodosGateway.listIndexedPages()) {
                             System.out.println(urlData.toString());
                         }
                         break;

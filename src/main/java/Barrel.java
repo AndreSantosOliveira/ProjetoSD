@@ -33,7 +33,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
      */
     public static void main(String[] args) {
         if (args.length < 2) {
-            System.out.println("Barrel <PORTA> <ID>");
+            System.out.println("Barrel <PORT> <ID>");
             System.exit(1);
         }
 
@@ -47,7 +47,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
             System.out.println("Barrel " + dlID + " ready: 127.0.0.1:" + porta);
 
         } catch (IOException re) {
-            System.out.println("Exception in Gateway RMI: " + re);
+            System.out.println("Exception in Barrel RMI: " + re);
         }
     }
 
@@ -59,7 +59,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     @Override
-    public void arquivarURL(URLData data) throws RemoteException {
+    public void archiveURL(URLData data) throws RemoteException {
         System.out.println("Received " + data + " to index.");
 
         for (String palavra : data.getPageTitle().split(" ")) {

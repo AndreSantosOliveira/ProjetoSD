@@ -50,7 +50,7 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
     public static void main(String[] args) {
         try {
             if (args.length < 2) {
-                System.out.println("Downloader <PORTA> <ID>");
+                System.out.println("Downloader <PORT> <ID>");
                 System.exit(1);
             }
             int porta = Integer.parseInt(args[0]);
@@ -82,22 +82,22 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
         while (tentativa < maxTentativa) {
             try {
                 // Attempt to connect to QueueManager via TCP
-                Socket socket = new Socket(PortasEIPs.QUEUE_MANAGER.getIP(), PortasEIPs.QUEUE_MANAGER.getPorta());
+                Socket socket = new Socket(ConnectionsEnum.QUEUE_MANAGER.getIP(), ConnectionsEnum.QUEUE_MANAGER.getPort());
                 queueManager = new PrintWriter(socket.getOutputStream(), true);
 
-                System.out.println("Ligação ao QueueManager de sucesso! IP: " + PortasEIPs.QUEUE_MANAGER);
+                System.out.println("QueueManager connection has been established! IP: " + ConnectionsEnum.QUEUE_MANAGER);
                 return true;
             } catch (Exception re) {
-                System.out.println("Erro ao ligar ao QueueManager - tentativa nº" + (tentativa + 1) + ": " + re);
+                System.out.println("Error trying to connect to QueueManager - try nº" + (tentativa + 1) + ": " + re);
                 ++tentativa;
                 if (tentativa < maxTentativa) {
                     try {
                         Thread.sleep(1001);
                     } catch (InterruptedException ie) {
-                        System.out.println("Ocorreu um problema no sleep: " + ie);
+                        System.out.println("Problem ocorred in Thread Sleep: " + ie);
                     }
                 } else {
-                    System.out.println("Falha ao ligar ao DownloadManager após " + tentativa + " tentativas.");
+                    System.out.println("Failed to connect to QueueManager after " + tentativa + " tries.");
                 }
             }
         }
@@ -185,10 +185,10 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
                 byte[] buffer = data.toStringDataPacket().getBytes();
 
                 // Get the multicast address
-                InetAddress group = InetAddress.getByName(PortasEIPs.MULTICAST.getIP());
+                InetAddress group = InetAddress.getByName(ConnectionsEnum.MULTICAST.getIP());
 
                 // Create a datagram packet to send
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, PortasEIPs.MULTICAST.getPorta());
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length, group, ConnectionsEnum.MULTICAST.getPort());
                 // Send the packet
                 multicastSocket.send(packet);
             }
