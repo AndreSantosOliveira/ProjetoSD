@@ -20,7 +20,7 @@ public class DownloaderManager {
 
     public static void main(String[] args) throws IOException {
         // Carregar downloaders do ficheiro de texto downloaders.txt (IP, porta, rmiName)
-        try (BufferedReader br = new BufferedReader(new FileReader("/Users/joserod/IdeaProjects/ProjetoSD/src/main/java/downloaders.txt"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("src/main/java/downloaders.txt"))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(":");

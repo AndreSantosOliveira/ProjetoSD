@@ -32,7 +32,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         }
 
         // Carregar barrels do ficheiro de texto barrels.txt (IP, porta, rmiName)
-        try (BufferedReader br = new BufferedReader(new FileReader("/Users/joserod/IdeaProjects/ProjetoSD/src/main/java/barrels.txt"))) {
+        try (BufferedReader br = new BufferedReader(new FileReader("src/main/java/barrels.txt"))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(":");
