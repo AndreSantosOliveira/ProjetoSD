@@ -1,5 +1,8 @@
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.DatagramPacket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
@@ -39,13 +42,15 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
 
         try {
             int porta = Integer.parseInt(args[0]);
-            String dlID = args[1];
+            String brID = args[1];
 
             Barrel barr = new Barrel();
-            LocateRegistry.createRegistry(porta).rebind(dlID, barr);
+            LocateRegistry.createRegistry(porta).rebind(brID, barr);
 
-            System.out.println("Barrel " + dlID + " ready: 127.0.0.1:" + porta);
+            System.out.println("Barrel " + brID + " ready: 127.0.0.1:" + porta);
 
+            // Receives multicast from downloader
+            receiveResultFromDownloaderviaMulticast();
         } catch (IOException re) {
             System.out.println("Exception in Barrel RMI: " + re);
         }
@@ -58,8 +63,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
      * @param data URLData object to be archived
      * @throws RemoteException if an error occurs during remote method invocation.
      */
-    @Override
-    public void archiveURL(URLData data) throws RemoteException {
+    public static void archiveURL(URLData data) throws RemoteException {
         System.out.println("Received " + data + " to index.");
 
         for (String palavra : data.getPageTitle().split(" ")) {
@@ -94,5 +98,44 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
         }
 
         return dadosBarrel;
+    }
+
+    /**
+     * Receives multicast from downloader.
+     */
+    public static void receiveResultFromDownloaderviaMulticast() {
+        // Receives multicast from downloader
+        try {
+            // Create a multicast socket
+            MulticastSocket multicastSocket = new MulticastSocket(ConnectionsEnum.MULTICAST.getPort());
+            multicastSocket.joinGroup(InetAddress.getByName(ConnectionsEnum.MULTICAST.getIP()));
+
+            byte[] buffer = new byte[1024];
+
+            // Receive the multicast packet
+            while (true) {
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+                multicastSocket.receive(packet);
+
+                // Convert the packet data to string and process it
+                String message = new String(packet.getData(), 0, packet.getLength());
+
+                // message is equal to url|title
+                String[] parts = message.split("\\|");
+                if (parts.length == 2) {
+                    String url = parts[0];
+                    String title = parts[1];
+
+                    archiveURL(new URLData(url, title));
+                    //System.out.println("Success in sending to archive URL: " + url + " with title: " + title);
+                } else { //there are strings that arrive cut off..
+                    System.err.println("Recieved invalid message: " + message);
+                }
+            }
+
+        } catch (IOException e) { //there are strings that arrive cut off..
+            // e.printStackTrace();
+            //System.out.println("Error receiving multicast message: " + e.getMessage());
+        }
     }
 }

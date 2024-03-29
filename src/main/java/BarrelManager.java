@@ -2,9 +2,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -86,8 +83,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
         ConnectionsEnum.BARREL_MANAGER.printINIT("BarrelManager");
 
-        // Receives multicast from downloader
-        receiveResultFromDownloaderviaMulticast();
+
     }
 
     /**
@@ -120,71 +116,6 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         }
         System.out.println("Failed to connect to Barrel: " + descritorIPPorta.getRMIName() + ". :(");
         return null;
-    }
-
-    /**
-     * Receives multicast from downloader.
-     */
-    public static void receiveResultFromDownloaderviaMulticast() {
-        // Receives multicast from downloader
-        try {
-            // Create a multicast socket
-            MulticastSocket multicastSocket = new MulticastSocket(ConnectionsEnum.MULTICAST.getPort());
-            multicastSocket.joinGroup(InetAddress.getByName(ConnectionsEnum.MULTICAST.getIP()));
-
-            byte[] buffer = new byte[1024];
-
-            // Receive the multicast packet
-            while (true) {
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-                multicastSocket.receive(packet);
-
-                // Convert the packet data to string and process it
-                String message = new String(packet.getData(), 0, packet.getLength());
-
-                // message is equal to url|title
-                String[] parts = message.split("\\|");
-                if (parts.length == 2) {
-                    String url = parts[0];
-                    String title = parts[1];
-                    gerirArquivamentoURLs(new URLData(url, title));
-                    //System.out.println("Success in sending to archive URL: " + url + " with title: " + title);
-                } else { //there are strings that arrive cut off..
-                    System.err.println("Received invalid message: " + message);
-                }
-            }
-
-        } catch (IOException e) { //there are strings that arrive cut off..
-            // e.printStackTrace();
-            //System.out.println("Error receiving multicast message: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Manages the archiving of URLs.
-     *
-     * @param dados URLData object to be archived
-     */
-    private static void gerirArquivamentoURLs(URLData dados) {
-        for (MetodosRMIBarrel value : barrels.values()) {
-            if (value != null) {
-                try {
-                    value.archiveURL(dados);
-                } catch (RemoteException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-    }
-
-    /**
-     * Archives a URLData object.
-     *
-     * @param data URLData object to be archived
-     * @throws RemoteException if an error occurs during remote method invocation.
-     */
-    @Override
-    public void archiveURL(URLData data) throws RemoteException {
     }
 
     /**
