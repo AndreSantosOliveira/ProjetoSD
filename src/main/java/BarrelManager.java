@@ -83,6 +83,8 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
         ConnectionsEnum.BARREL_MANAGER.printINIT("BarrelManager");
 
+        while (true) {
+        }
 
     }
 
@@ -127,6 +129,12 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
      */
     @Override
     public List<URLData> searchInput(String pesquisa) throws RemoteException {
+        return searchPrivate(pesquisa);
+    }
+
+    private List<URLData> searchPrivate(String pesquisa) {
+        System.out.println("Searching barrels for " + pesquisa);
+        System.out.println(barrels.size());
         List<URLData> dados = new ArrayList<>();
         for (MetodosRMIBarrel value : barrels.values()) {
             if (value != null) {
