@@ -17,4 +17,11 @@ public interface MetodosRMIBarrel extends Remote {
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     List<URLData> searchInput(String url) throws RemoteException;
+
+    /**
+     * Saves the content of the barrels to a file.
+     *
+     * @throws RemoteException
+     */
+    void saveBarrelsContent() throws RemoteException;
 }

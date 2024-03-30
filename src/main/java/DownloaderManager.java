@@ -133,7 +133,7 @@ public class DownloaderManager {
                                         downloader.crawlURL(finalUrlParaScrape);
                                         downloaderCounter.incrementAndGet();
                                     } catch (RemoteException e) {
-                                        e.printStackTrace();
+                                        System.out.println("Failed to send URL to Downloader : " + finalUrlParaScrape);
                                     }
                                 }).start();
                             }

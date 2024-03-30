@@ -6,7 +6,6 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,9 +24,6 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     public Gateway() throws RemoteException {
         super();
     }
-
-    // List of URLs to be indexed
-    List<String> toBeIndexed = new ArrayList<>();
 
     // PrintWriter to communicate with the QueueManager
     private static PrintWriter queueManager;
@@ -49,7 +45,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         }
 
         int retryCount = 0;
-        int maxRetries = 5;
+        int maxRetries = 10;
         while (metodosBarrelManager == null && retryCount < maxRetries) {
             try {
                 metodosBarrelManager = (MetodosRMIBarrel) LocateRegistry.getRegistry(ConnectionsEnum.BARREL_MANAGER.getPort()).lookup("barrelmanager");
@@ -90,8 +86,6 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
      */
     @Override
     public String indexURLString(String url) {
-        toBeIndexed.add(url);
-
         queueManager.println(url);
 
         String txt = url + " enviado para o QueueManager.";
@@ -119,5 +113,10 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     @Override
     public List<URLData> listIndexedPages() {
         return null;
+    }
+
+    @Override
+    public void saveBarrelsContent() throws RemoteException {
+        metodosBarrelManager.saveBarrelsContent();
     }
 }

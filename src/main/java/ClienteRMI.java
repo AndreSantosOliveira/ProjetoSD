@@ -105,16 +105,14 @@ public class ClienteRMI implements Serializable, Remote {
                 }
 
                 String[] splitOption = command.split(" ");
-                if (splitOption.length < 2 && !splitOption[0].equals("help") && !splitOption[0].equals("exit") && !splitOption[0].equals("list") && !splitOption[0].equals("admin")) {
+                if (splitOption.length < 2 && !splitOption[0].equals("help") && !splitOption[0].equals("exit") && !splitOption[0].equals("list") && !splitOption[0].equals("admin") && !splitOption[0].equals("save")) {
                     System.out.println("Invalid option. For additional information type 'help'");
                     continue;
                 }
                 switch (splitOption[0]) {
 
                     case "index": //     index https://sapo.pt
-                        //System.out.println(metodosGateway.indexarURL(splitOption[1]));
-                        System.out.println(metodosGateway.indexURLString("https://sapo.pt"));
-                        System.out.println(metodosGateway.indexURLString("https://google.com"));
+                        System.out.println(metodosGateway.indexURLString("https://" + splitOption[1]));
                         break;
 
                     case "search":
@@ -126,9 +124,15 @@ public class ClienteRMI implements Serializable, Remote {
                             }
                             pesquisa.append(splitOption[i]).append(" ");
                         }
+
                         for (URLData urlData : metodosGateway.search(pesquisa.toString())) {
                             System.out.println(urlData.toString());
                         }
+                        break;
+
+                    case "save":
+                        metodosGateway.saveBarrelsContent();
+                        System.out.println("Saved barrels content to file");
                         break;
 
                     case "list":

@@ -7,9 +7,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * BarrelManager class implements MetodosRMIBarrel and Serializable.
@@ -18,8 +16,7 @@ import java.util.Map;
 public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
     // Map to store barrels
-    private static Map<Connection, MetodosRMIBarrel> barrels = new HashMap<>();
-    private static int barrelsON;
+    private List<MetodosRMIBarrel> barrels = new ArrayList<>();
 
     /**
      * Default constructor for BarrelManager.
@@ -28,20 +25,6 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
      */
     public BarrelManager() throws RemoteException {
         super();
-    }
-
-    /**
-     * Main method for the BarrelManager class.
-     *
-     * @param args command line arguments
-     */
-    public static void main(String args[]) throws RemoteException {
-        try {
-            BarrelManager barrelManager = new BarrelManager();
-            LocateRegistry.createRegistry(ConnectionsEnum.BARREL_MANAGER.getPort()).rebind("barrelmanager", barrelManager);
-        } catch (IOException re) {
-            System.out.println("Exception in Gateway RMI: " + re);
-        }
 
         // Load barrels from the text file barrels.txt (IP, port, rmiName)
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/java/barrels.txt"))) {
@@ -54,8 +37,10 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                         int porta = Integer.parseInt(parts[1]);
                         String rmiName = parts[2];
 
-                        barrels.put(new Connection(ip, porta, rmiName), null);
-                        System.out.println("Barrel added: " + rmiName + " (" + ip + ":" + porta + ")");
+                        MetodosRMIBarrel res = tentarLigarABarrel(new Connection(ip, porta, rmiName));
+                        if (res != null) {
+                            this.barrels.add(res);
+                        }
                     } catch (NumberFormatException e) {
                         System.err.println("Error processing the port for a barrel: " + line);
                     }
@@ -63,29 +48,34 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                     System.err.println("Line in invalid format: " + line);
                 }
             }
+
+            if (this.barrels.isEmpty()) {
+                System.err.println("No barrel has been connected. Exiting...");
+                System.exit(1);
+            }
+
+            ConnectionsEnum.BARREL_MANAGER.printINIT("BarrelManager");
+
         } catch (IOException e) {
-            System.err.println("Error reading the barrel file.");
+            System.err.println("Error reading the barrel file: ");
             e.printStackTrace();
         }
+    }
 
-        for (Connection descritorIPPorta : barrels.keySet()) {
-            MetodosRMIBarrel res = tentarLigarABarrel(descritorIPPorta);
-            if (res != null) {
-                barrels.put(descritorIPPorta, res);
-                ++barrelsON;
+    /**
+     * Main method for the BarrelManager class.
+     *
+     * @param args command line arguments
+     */
+    public static void main(String args[]) throws RemoteException {
+        try {
+            BarrelManager barrelManager = new BarrelManager();
+            LocateRegistry.createRegistry(ConnectionsEnum.BARREL_MANAGER.getPort()).rebind("barrelmanager", barrelManager);
+            while (true) {
             }
+        } catch (IOException re) {
+            System.out.println("Exception in Gateway RMI: " + re);
         }
-
-        if (barrelsON == 0) {
-            System.err.println("No barrel has been connected. Exiting...");
-            System.exit(1);
-        }
-
-        ConnectionsEnum.BARREL_MANAGER.printINIT("BarrelManager");
-
-        while (true) {
-        }
-
     }
 
     /**
@@ -129,25 +119,41 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
      */
     @Override
     public List<URLData> searchInput(String pesquisa) throws RemoteException {
-        return searchPrivate(pesquisa);
-    }
-
-    private List<URLData> searchPrivate(String pesquisa) {
-        System.out.println("Searching barrels for " + pesquisa);
-        System.out.println(barrels.size());
-        List<URLData> dados = new ArrayList<>();
-        for (MetodosRMIBarrel value : barrels.values()) {
-            if (value != null) {
-                try {
-                    List<URLData> dadosDownloader = value.searchInput(pesquisa);
-                    if (dadosDownloader != null) {
-                        dados.addAll(dadosDownloader);
+        synchronized (barrels) {
+            System.out.println("Searching barrels for " + pesquisa);
+            System.out.println(barrels.size());
+            List<URLData> dados = new ArrayList<>();
+            for (MetodosRMIBarrel value : barrels) {
+                if (value != null) {
+                    try {
+                        List<URLData> dadosDownloader = value.searchInput(pesquisa);
+                        if (dadosDownloader != null) {
+                            dados.addAll(dadosDownloader);
+                        }
+                    } catch (RemoteException e) {
+                        return Collections.singletonList(new URLData("?", "Error searching for: " + pesquisa));
                     }
-                } catch (RemoteException e) {
-                    return Collections.singletonList(new URLData("?", "Error searching for: " + pesquisa));
+                    break; // so precisamos de um barrel funcional
                 }
             }
+
+            return dados;
         }
-        return dados;
+    }
+
+    @Override
+    public void saveBarrelsContent() throws RemoteException {
+        synchronized (barrels) {
+            for (MetodosRMIBarrel value : barrels) {
+                if (value != null) {
+                    try {
+                        value.saveBarrelsContent();
+                    } catch (RemoteException e) {
+                        System.out.println("Error saving barrels content");
+                    }
+                }
+                break; // so precisamos de um barrel funcional
+            }
+        }
     }
 }

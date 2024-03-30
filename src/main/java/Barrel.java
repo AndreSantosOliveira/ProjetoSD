@@ -1,4 +1,9 @@
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -6,7 +11,9 @@ import java.net.MulticastSocket;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +36,8 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
         super();
     }
 
+    static String barrelID;
+
     /**
      * Main method for the Barrel class.
      *
@@ -42,12 +51,34 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
 
         try {
             int porta = Integer.parseInt(args[0]);
-            String brID = args[1];
+            barrelID = args[1];
 
             Barrel barr = new Barrel();
-            LocateRegistry.createRegistry(porta).rebind(brID, barr);
+            LocateRegistry.createRegistry(porta).rebind(barrelID, barr);
 
-            System.out.println("Barrel " + brID + " ready: 127.0.0.1:" + porta);
+            // verify if there is a file with content available
+            try {
+                // get the file creation date
+                File file = new File("src/main/java/barrelContent.barrel");
+                long lastModified = file.lastModified();
+                Date date = new Date(lastModified);
+
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                System.out.println("Syncing myself with previous barrel content from: " + sdf.format(date));
+
+                FileInputStream fis = new FileInputStream(file);
+                ObjectInputStream ois = new ObjectInputStream(fis);
+                index = (HashMap<String, HashSet<URLData>>) ois.readObject();
+                ois.close();
+                fis.close();
+                System.out.println("Sucessfully synced with the barrel content available in the directory!");
+            } catch (IOException ignored) {
+            } catch (ClassNotFoundException c) {
+                System.out.println("O conteúdo do ficheiro da barrel está desatualizado.");
+                System.exit(1);
+            }
+
+            System.out.println("Barrel " + barrelID + " ready: 127.0.0.1:" + porta);
 
             // Receives multicast from downloader
             receiveResultFromDownloaderviaMulticast();
@@ -55,7 +86,6 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
             System.out.println("Exception in Barrel RMI: " + re);
         }
     }
-
 
     /**
      * Method to archive URLData objects.
@@ -88,6 +118,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     @Override
     public List<URLData> searchInput(String palavras) throws RemoteException {
         List<URLData> dadosBarrel = new ArrayList<>();
+        dadosBarrel.add(new URLData("https://www.google.com", barrelID + " - loles"));
 
         for (String s : palavras.split(" ")) {
             for (String chaves : index.keySet()) {
@@ -98,6 +129,20 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
         }
 
         return dadosBarrel;
+    }
+
+    @Override
+    public void saveBarrelsContent() throws RemoteException {
+        // Write contents of this barrel (index) to a object file
+        try {
+            FileOutputStream fos = new FileOutputStream("src/main/java/barrelContent.barrel");
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(index);
+            oos.close();
+            fos.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
     }
 
     /**
