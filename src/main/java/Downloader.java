@@ -8,8 +8,10 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.MulticastSocket;
 import java.net.Socket;
+import java.net.URL;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
@@ -104,6 +106,16 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
         return false;
     }
 
+    public static boolean isValidURL(String urlString) {
+        try {
+            // Attempt to create a URL object
+            new URL(urlString).toURI();
+            return true;
+        } catch (MalformedURLException | java.net.URISyntaxException e) {
+            return false;
+        }
+    }
+
     /**
      * Crawls a URL and sends the results to the QueueManager.
      *
@@ -112,7 +124,12 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     @Override
-    public String crawlURL(String url) throws RemoteException {
+    public void crawlURL(String url) throws RemoteException {
+        if (!isValidURL(url)) {
+            System.out.println("Invalid URL: " + url + " - discarding.");
+            return;
+        }
+
         try {
             busy = true;
             Document doc = Jsoup.connect(url).get();
@@ -154,8 +171,9 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
             busy = false;
         } catch (IOException e) {
             System.out.println("Error while trying to scrape data -> " + e.getMessage());
+            queueManager.println(url);
+            System.out.println("Re-added " + url + " to the queue.");
         }
-        return "Sucesso!";
     }
 
     /**

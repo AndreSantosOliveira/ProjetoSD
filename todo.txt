@@ -1,4 +1,1 @@
-Só funciona com um downloader.
-Só funciona com um barrel.
-Os barrels têm que ter todos a mesma informação. (Barrel Manager manda por multicast para todos os barrels o urlData)
 O search não funciona.
