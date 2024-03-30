@@ -7,8 +7,9 @@ import java.net.Socket;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * DownloaderManager class.
@@ -19,8 +20,7 @@ import java.util.Map;
 public class DownloaderManager {
 
     // Map to store downloaders
-    private static Map<Connection, MetodosRMIDownloader> downloaders = new HashMap<>();
-    private static int downloadersON;
+    private static List<MetodosRMIDownloader> downloaders = new ArrayList<>();
 
     /**
      * Main method for the DownloaderManager class.
@@ -39,8 +39,11 @@ public class DownloaderManager {
                         int porta = Integer.parseInt(parts[1]);
                         String rmiName = parts[2];
 
-                        downloaders.put(new Connection(ip, porta, rmiName), null);
-                        System.out.println("Downloader added: " + rmiName + " (" + ip + ":" + porta + ")");
+                        MetodosRMIDownloader res = tentarLigarADownloader(new Connection(ip, porta, rmiName));
+                        if (res != null) {
+                            downloaders.add(res);
+                        }
+
                     } catch (NumberFormatException e) {
                         System.err.println("Error processing the port for a downloader: " + line);
                     }
@@ -53,15 +56,7 @@ public class DownloaderManager {
             e.printStackTrace();
         }
 
-        for (Connection descritorIPPorta : downloaders.keySet()) {
-            MetodosRMIDownloader res = tentarLigarADownloader(descritorIPPorta);
-            if (res != null) {
-                downloaders.put(descritorIPPorta, res);
-                ++downloadersON;
-            }
-        }
-
-        if (downloadersON == 0) {
+        if (downloaders.isEmpty()) {
             System.err.println("No barrel has been connected. Exiting...");
             System.exit(1);
         }
@@ -120,22 +115,27 @@ public class DownloaderManager {
                     // setup bufferedreader to read messages from clients
                     BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
 
+                    AtomicInteger downloaderCounter = new AtomicInteger();
+
                     // read messages from the client
                     String urlParaScrape;
                     while ((urlParaScrape = inFromClient.readLine()) != null) {
                         final String finalUrlParaScrape = urlParaScrape;
                         synchronized (downloaders) {
-                            for (Map.Entry<Connection, MetodosRMIDownloader> downloader : downloaders.entrySet()) {
-                                if (downloader.getValue() != null && !downloader.getValue().isBusy()) {
-                                    System.out.println("Downloader: " + downloader.getKey().getRMIName() + " - " + downloader.getValue().isBusy());
-                                    new Thread(() -> {
-                                        try {
-                                            downloader.getValue().crawlURL(finalUrlParaScrape);
-                                        } catch (RemoteException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }).start();
-                                }
+                            if (downloaderCounter.get() >= downloaders.size()) {
+                                downloaderCounter.set(0);
+                            }
+
+                            MetodosRMIDownloader downloader = downloaders.get(downloaderCounter.get());
+                            if (downloader != null && !downloader.isBusy()) {
+                                new Thread(() -> {
+                                    try {
+                                        downloader.crawlURL(finalUrlParaScrape);
+                                        downloaderCounter.incrementAndGet();
+                                    } catch (RemoteException e) {
+                                        e.printStackTrace();
+                                    }
+                                }).start();
                             }
                         }
                     }
