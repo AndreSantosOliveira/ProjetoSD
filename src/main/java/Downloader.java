@@ -129,6 +129,9 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
             System.out.println("Invalid URL: " + url + " - discarding.");
             return;
         }
+        if (url.endsWith("/")) {
+            url = url.substring(0, url.length() - 1);
+        }
 
         try {
             busy = true;

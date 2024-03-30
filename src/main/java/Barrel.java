@@ -118,7 +118,6 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     @Override
     public List<URLData> searchInput(String palavras) throws RemoteException {
         List<URLData> dadosBarrel = new ArrayList<>();
-        dadosBarrel.add(new URLData("https://www.google.com", barrelID + " - loles"));
 
         for (String s : palavras.split(" ")) {
             for (String chaves : index.keySet()) {

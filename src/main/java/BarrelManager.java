@@ -7,7 +7,10 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * BarrelManager class implements MetodosRMIBarrel and Serializable.
@@ -119,6 +122,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
      */
     @Override
     public List<URLData> searchInput(String pesquisa) throws RemoteException {
+        Map<String, String> urlTitulo = new HashMap<>();
         synchronized (barrels) {
             System.out.println("Searching barrels for " + pesquisa);
             System.out.println(barrels.size());
@@ -128,7 +132,11 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                     try {
                         List<URLData> dadosDownloader = value.searchInput(pesquisa);
                         if (dadosDownloader != null) {
-                            dados.addAll(dadosDownloader);
+                            for (URLData urlData : dadosDownloader) {
+                                if (!urlTitulo.containsKey(urlData.getURL())) {
+                                    urlTitulo.put(urlData.getURL(), urlData.getPageTitle());
+                                }
+                            }
                         }
                     } catch (RemoteException e) {
                         return Collections.singletonList(new URLData("?", "Error searching for: " + pesquisa));
@@ -137,7 +145,10 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                 }
             }
 
-            return dados;
+            return urlTitulo.entrySet()
+                    .stream()
+                    .map(entry -> new URLData(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
         }
     }
 

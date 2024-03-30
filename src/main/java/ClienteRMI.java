@@ -5,6 +5,8 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -125,9 +127,14 @@ public class ClienteRMI implements Serializable, Remote {
                             pesquisa.append(splitOption[i]).append(" ");
                         }
 
-                        for (URLData urlData : metodosGateway.search(pesquisa.toString())) {
-                            System.out.println(urlData.toString());
+                        List<URLData> lista = metodosGateway.search(pesquisa.toString());
+                        lista.sort(Comparator.comparing(URLData::getPageTitle).reversed());
+
+                        for (URLData urlData : lista) {
+                            System.out.println(urlData.getPageTitle());
+                            System.out.println(" -> " + urlData.getURL());
                         }
+
                         break;
 
                     case "save":

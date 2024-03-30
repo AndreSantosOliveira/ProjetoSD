@@ -86,6 +86,10 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
                         // Read messages from the client
                         String dados;
                         while ((dados = inFromClient.readLine()) != null) {
+                            if (dados.endsWith("/")) {
+                                dados = dados.substring(0, dados.length() - 1);
+                            }
+
                             synchronized (queue) {
                                 if (queue.offer(dados)) {
                                     System.out.println("New url to index: " + dados);
