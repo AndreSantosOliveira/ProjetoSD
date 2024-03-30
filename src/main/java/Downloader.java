@@ -165,7 +165,7 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
             //chaves de urls para a queue
             urlData.keySet().forEach(queueManager::println);
 
-            // Send dummy results via multicas
+            // Send dummy results via multicast
             sendResultToISBviaMulticast(new ArrayList<>(urlData.values()));
 
             System.out.println("Scraping done! " + url + "\n " + urlData.size() + " -> unique URLs sent to QueueManager.");
