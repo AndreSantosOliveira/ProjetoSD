@@ -146,6 +146,7 @@ public class ClienteRMI implements Serializable, Remote {
                         System.out.println("list");
 
                         for (URLData urlData : metodosGateway.listIndexedPages()) {
+                            // TODO:  Cannot invoke "java.util.List.iterator()" because the return value of "MetodosRMIGateway.listIndexedPages()" is null at ClienteRMI.main(ClienteRMI.java:148)
                             System.out.println(urlData.toString());
                         }
                         break;
