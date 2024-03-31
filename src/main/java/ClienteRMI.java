@@ -278,8 +278,8 @@ public class ClienteRMI implements Serializable, Remote {
         System.out.println("Available options:");
         System.out.println("index <url> - Index new URL");
         System.out.println("search <terms> - Search for pages that contain a set of terms");
-        System.out.println("list - List pages with a link to a specific page");
+        System.out.println("list <url> - List pages with a link to a specific page");
         System.out.println("admin - Access the administration page");
-        System.out.println("exit - Terminate the program");
+        System.out.println("exit - Terminate the connection and exit the client");
     }
 }
