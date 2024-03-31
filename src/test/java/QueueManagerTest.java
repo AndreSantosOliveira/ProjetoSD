@@ -8,8 +8,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 
 public class QueueManagerTest {
 
@@ -32,13 +32,32 @@ public class QueueManagerTest {
         when(mockServerSocket.accept()).thenReturn(mockSocket);
     }
 
-    /*
     @Test
     public void shouldConnectToDownloadManagerSuccessfully() throws IOException {
+
+
+        // Run a downloadManager in a thread separately
+        new Thread(() -> {
+            try {
+                DownloaderManager.main(new String[0]);
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
+
+        // Run dl1 in a thread separately
+        new Thread(() -> {
+            Downloader.main(new String[]{"5436", "dl1"});
+        }).start();
+
+        // Run dl2 in a thread separately
+        new Thread(() -> {
+            Downloader.main(new String[]{"5434", "dl2"});
+        }).start();
+
         assertTrue(queueManager.connectToDownloadManager());
-        verify(mockPrintWriter, times(1)).println(anyString());
     }
-    */
 
 
     @Test

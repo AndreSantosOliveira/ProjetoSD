@@ -36,10 +36,10 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     }
 
     // PrintWriter to communicate with the QueueManager
-    private static PrintWriter queueManager;
+    static PrintWriter queueManager;
 
     // MetodosRMIBarrel object to communicate with the BarrelManager
-    private static MetodosRMIBarrel metodosBarrelManager = null;
+    static MetodosRMIBarrel metodosBarrelManager = null;
 
     /**
      * Main method for the Gateway class.
@@ -158,7 +158,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
 
     // PARTE DE ESTATÍSTICAS DE ADMINISTRAÇÃO
 
-    private final Map<String, Integer> top10Searches = new HashMap<>();
+    final Map<String, Integer> top10Searches = new HashMap<>();
 
     @Override
     public String getAdministrativeStatistics() throws RemoteException {

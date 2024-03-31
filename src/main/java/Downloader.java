@@ -43,7 +43,7 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
         super();
     }
 
-    private static PrintWriter queueManager;
+    static PrintWriter queueManager;
 
     /**
      * Main method for the Downloader class.
@@ -83,7 +83,7 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
      *
      * @return true if the connection is successful, false otherwise.
      */
-    private static boolean socketDownloadManagerToQueue() {
+    static boolean socketDownloadManagerToQueue() {
         final int maxTentativa = 10; // Maximum number of retries
         int tentativa = 0; // Current attempt counter
 
