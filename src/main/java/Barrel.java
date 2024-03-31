@@ -177,7 +177,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
                     archiveURL(new URLData(url, title));
                     //System.out.println("Success in sending to archive URL: " + url + " with title: " + title);
                 } else { //there are strings that arrive cut off..
-                    System.err.println("Recieved invalid message: " + message);
+                    System.err.println("Received invalid message: " + message);
                 }
             }
 
