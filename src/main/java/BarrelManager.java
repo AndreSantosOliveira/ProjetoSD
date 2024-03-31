@@ -19,7 +19,8 @@ import java.util.stream.Collectors;
 public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
     // Map to store barrels
-    private List<MetodosRMIBarrel> barrels = new ArrayList<>();
+    private final List<MetodosRMIBarrel> barrels = new ArrayList<>();
+    private final Map<String, String> activeBarrelsIDIP = new HashMap<>();
 
     /**
      * Default constructor for BarrelManager.
@@ -43,6 +44,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                         MetodosRMIBarrel res = tentarLigarABarrel(new Connection(ip, porta, rmiName));
                         if (res != null) {
                             this.barrels.add(res);
+                            activeBarrelsIDIP.put(res.getBarrelID(), ip + ":" + porta);
                         }
                     } catch (NumberFormatException e) {
                         System.err.println("Error processing the port for a barrel: " + line);
@@ -121,34 +123,35 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     @Override
-    public List<URLData> searchInput(String pesquisa) throws RemoteException {
+    public Tuple<String, List<URLData>> searchInput(String pesquisa) throws RemoteException {
+        String id = "none";
         Map<String, String> urlTitulo = new HashMap<>();
         synchronized (barrels) {
             System.out.println("Searching barrels for " + pesquisa);
             System.out.println(barrels.size());
-            List<URLData> dados = new ArrayList<>();
             for (MetodosRMIBarrel value : barrels) {
                 if (value != null) {
                     try {
-                        List<URLData> dadosDownloader = value.searchInput(pesquisa);
+                        Tuple<String, List<URLData>> dadosDownloader = value.searchInput(pesquisa);
                         if (dadosDownloader != null) {
-                            for (URLData urlData : dadosDownloader) {
+                            id = dadosDownloader.getFirst();
+                            for (URLData urlData : dadosDownloader.getSecond()) {
                                 if (!urlTitulo.containsKey(urlData.getURL())) {
                                     urlTitulo.put(urlData.getURL(), urlData.getPageTitle());
                                 }
                             }
                         }
                     } catch (RemoteException e) {
-                        return Collections.singletonList(new URLData("?", "Error searching for: " + pesquisa));
+                        return new Tuple<>(id, Collections.singletonList(new URLData(e.getMessage(), "Error searching for: " + pesquisa)));
                     }
                     break; // so precisamos de um barrel funcional
                 }
             }
 
-            return urlTitulo.entrySet()
+            return new Tuple<>(id, urlTitulo.entrySet()
                     .stream()
                     .map(entry -> new URLData(entry.getKey(), entry.getValue()))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList()));
         }
     }
 
@@ -166,5 +169,21 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                 break; // so precisamos de um barrel funcional
             }
         }
+    }
+
+    @Override
+    public String getActiveBarrels() throws RemoteException {
+        try {
+            return activeBarrelsIDIP.entrySet().stream()
+                    .map(entry -> " - " + entry.getKey() + " @ " + entry.getValue())
+                    .collect(Collectors.joining("\n"));
+        } catch (Exception e) {
+            return "No barrels connected.";
+        }
+    }
+
+    @Override
+    public String getBarrelID() {
+        return null;
     }
 }

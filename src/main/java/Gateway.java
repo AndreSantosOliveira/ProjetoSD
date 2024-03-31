@@ -6,7 +6,9 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -16,6 +18,12 @@ import java.util.List;
  * and sets up a socket to communicate with the QueueManager.
  */
 public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, Serializable {
+
+    // Map to store the response time of each barrel
+    Map<String, Double> barrelResponseTime = new HashMap<>();
+
+    // Map to store the number of requests to each barrel
+    Map<String, Integer> barrelRequestCount = new HashMap<>();
 
     /**
      * Default constructor for Gateway.
@@ -98,7 +106,6 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         return txt;
     }
 
-
     /**
      * Searches for pages that contain a set of terms.
      * It sends the search terms to the BarrelManager and returns the results.
@@ -109,7 +116,29 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
      */
     @Override
     public List<URLData> search(String words) throws RemoteException {
-        return metodosBarrelManager.searchInput(words);
+        addSearch(words);
+        //measure time in miliseconds
+        long startTime = System.currentTimeMillis();
+        Tuple<String, List<URLData>> res = metodosBarrelManager.searchInput(words);
+        long endTime = System.currentTimeMillis();
+
+        String barrelId = res.getFirst();
+
+        // Update the response time
+        if (barrelResponseTime.containsKey(barrelId)) {
+            barrelResponseTime.put(barrelId, barrelResponseTime.get(res.getFirst()) + (endTime - startTime));
+        } else {
+            barrelResponseTime.put(barrelId, (double) (endTime - startTime));
+        }
+
+        // Update the request count
+        if (barrelRequestCount.containsKey(barrelId)) {
+            barrelRequestCount.put(barrelId, barrelRequestCount.get(barrelId) + 1);
+        } else {
+            barrelRequestCount.put(barrelId, 1);
+        }
+
+        return res.getSecond();
     }
 
     /**
@@ -126,5 +155,48 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     @Override
     public void saveBarrelsContent() throws RemoteException {
         metodosBarrelManager.saveBarrelsContent();
+    }
+
+    // PARTE DE ESTATÍSTICAS DE ADMINISTRAÇÃO
+
+    private final Map<String, Integer> top10Searches = new HashMap<>();
+
+    @Override
+    public String getAdministrativeStatistics() throws RemoteException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\nTop 10 searches:\n");
+        if (top10Searches.isEmpty()) {
+            sb.append("No searches yet.\n");
+        } else {
+            top10Searches.entrySet().stream()
+                    .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                    .forEach(entry -> sb.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n"));
+        }
+        if (metodosBarrelManager == null) {
+            sb.append("BarrelManager is not connected. Something went wrong.");
+        } else {
+            sb.append("\nActive Barrels:\n").append(metodosBarrelManager.getActiveBarrels()).append("\n");
+            sb.append("\nAverage Barrel Response Time:\n");
+            if (barrelResponseTime.isEmpty()) {
+                sb.append("No response times recorded yet.");
+            } else
+                barrelResponseTime.forEach((key, value) -> sb.append(" - ").append(key).append(" -> ").append((value / barrelRequestCount.get(key)) / 1000).append("s\n"));
+        }
+        sb.append("\n");
+
+        return sb.toString();
+    }
+
+    public void addSearch(String search) {
+        int count = top10Searches.getOrDefault(search, 0);
+        top10Searches.put(search, count + 1);
+        if (top10Searches.size() > 10) {
+            // Remove the least common search if more than 10 searches are stored
+            String leastCommon = top10Searches.entrySet().stream()
+                    .min(Map.Entry.comparingByValue())
+                    .orElseThrow()
+                    .getKey();
+            top10Searches.remove(leastCommon);
+        }
     }
 }

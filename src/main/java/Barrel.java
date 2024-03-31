@@ -32,7 +32,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
      *
      * @throws RemoteException if an error occurs during remote object initialization.
      */
-    protected Barrel() throws RemoteException {
+    protected Barrel() throws RemoteException { //TODO PERGUNTAR AO STOR SE A BARREL AO FORCAR DESLIGAR TIRA-SE DAS ESTATISTICAS OU SO SE TIRA QUANDO FORMOS A PESQUISAR E VERIFICAR Q N TA ON
         super();
     }
 
@@ -121,7 +121,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     @Override
-    public List<URLData> searchInput(String palavras) throws RemoteException {
+    public Tuple<String, List<URLData>> searchInput(String palavras) throws RemoteException {
         List<URLData> dadosBarrel = new ArrayList<>();
 
         for (String s : palavras.split(" ")) {
@@ -132,7 +132,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
             }
         }
 
-        return dadosBarrel;
+        return new Tuple<>(barrelID, dadosBarrel);
     }
 
     @Override
@@ -147,6 +147,16 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
+    }
+
+    @Override
+    public String getActiveBarrels() {
+        return null;
+    }
+
+    @Override
+    public String getBarrelID() {
+        return barrelID;
     }
 
     /**

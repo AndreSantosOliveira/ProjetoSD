@@ -215,7 +215,7 @@ public class ClienteRMI implements Serializable, Remote {
                         break;
 
                     case "admin":
-                        System.out.println("Admin");
+                        System.out.println(metodosGateway.getAdministrativeStatistics());
                         break;
 
                     case "help":

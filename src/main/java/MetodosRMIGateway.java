@@ -40,4 +40,12 @@ public interface MetodosRMIGateway extends Remote {
      * Saves the content of the barrels.
      */
     void saveBarrelsContent() throws RemoteException;
+
+    /**
+     * Gets the administrative statistics.
+     *
+     * @return a string containing the administrative statistics
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
+    String getAdministrativeStatistics() throws RemoteException;
 }

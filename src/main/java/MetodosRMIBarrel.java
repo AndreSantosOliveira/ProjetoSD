@@ -16,7 +16,7 @@ public interface MetodosRMIBarrel extends Remote {
      * @return a list of URLData objects that match the search input
      * @throws RemoteException if an error occurs during remote method invocation.
      */
-    List<URLData> searchInput(String url) throws RemoteException;
+    Tuple<String, List<URLData>> searchInput(String url) throws RemoteException;
 
     /**
      * Saves the content of the barrels to a file.
@@ -24,4 +24,20 @@ public interface MetodosRMIBarrel extends Remote {
      * @throws RemoteException
      */
     void saveBarrelsContent() throws RemoteException;
+
+    /**
+     * Gets the active barrels.
+     *
+     * @return a string representing the active barrels
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
+    String getActiveBarrels() throws RemoteException;
+
+    /**
+     * Gets the barrel ID.
+     *
+     * @return a string representing the barrel ID
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
+    String getBarrelID() throws RemoteException;
 }
