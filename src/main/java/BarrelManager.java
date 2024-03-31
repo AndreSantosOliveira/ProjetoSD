@@ -15,12 +15,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * BarrelManager class implements MetodosRMIBarrel and Serializable.
- * This class is responsible for managing a collection of barrels.
+ * The BarrelManager class is responsible for managing a collection of barrels.
+ * It implements MetodosRMIBarrel and Serializable.
  */
 public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
-    // Map to store barrels
+    // A map to store barrels
     private static Map<Connection, MetodosRMIBarrel> barrels = new HashMap<>();
     private static int barrelsON;
 
@@ -34,7 +34,11 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
     }
 
     /**
-     * Main method for the BarrelManager class.
+     * The main method for the BarrelManager class.
+     * It creates a new BarrelManager object and binds it to the RMI registry.
+     * It also loads barrels from a text file and attempts to connect to each barrel.
+     * If no barrels are connected, the program exits.
+     * Finally, it starts receiving multicast messages from the downloader.
      *
      * @param args command line arguments
      */
@@ -90,8 +94,12 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         receiveResultFromDownloaderviaMulticast();
     }
 
+
     /**
      * Attempts to connect to a barrel.
+     * It tries to connect to the barrel up to 5 times.
+     * If the connection is successful, it returns the MetodosRMIBarrel object.
+     * If the connection fails, it returns null.
      *
      * @param descritorIPPorta descriptor of the barrel to connect to
      * @return MetodosRMIBarrel object if the connection is successful, null otherwise.
@@ -122,8 +130,11 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         return null;
     }
 
+
     /**
-     * Receives multicast from downloader.
+     * Receives multicast messages from the downloader.
+     * It creates a multicast socket and joins the multicast group.
+     * It then enters a loop where it receives multicast packets and processes the data.
      */
     public static void receiveResultFromDownloaderviaMulticast() {
         // Receives multicast from downloader
@@ -160,8 +171,10 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         }
     }
 
+
     /**
      * Manages the archiving of URLs.
+     * It iterates over all barrels and calls the archiveURL method on each barrel.
      *
      * @param dados URLData object to be archived
      */
@@ -177,8 +190,10 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         }
     }
 
+
     /**
      * Archives a URLData object.
+     * This method is not implemented in this class.
      *
      * @param data URLData object to be archived
      * @throws RemoteException if an error occurs during remote method invocation.
@@ -187,8 +202,11 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
     public void archiveURL(URLData data) throws RemoteException {
     }
 
+
     /**
      * Searches for URLData objects.
+     * It iterates over all barrels and calls the searchInput method on each barrel.
+     * It returns a list of URLData objects that match the search criteria.
      *
      * @param pesquisa String of words to search for
      * @return List of URLData objects that match the search criteria

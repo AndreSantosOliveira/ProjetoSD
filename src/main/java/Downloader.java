@@ -22,6 +22,7 @@ import java.util.StringTokenizer;
 /**
  * Downloader class extends UnicastRemoteObject and implements MetodosRMIDownloader and Serializable.
  * This class is responsible for crawling URLs and sending the results to the QueueManager.
+ * It maintains a map of URLData objects and a flag to indicate if the Downloader is busy.
  */
 public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloader, Serializable {
 
@@ -44,6 +45,8 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
 
     /**
      * Main method for the Downloader class.
+     * It creates a new Downloader object and binds it to the RMI registry.
+     * It also establishes a socket connection to the QueueManager.
      *
      * @param args command line arguments
      */
@@ -72,6 +75,9 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
 
     /**
      * Establishes a socket connection to the QueueManager.
+     * It tries to connect to the QueueManager up to 10 times.
+     * If the connection is successful, it returns true.
+     * If the connection fails after 10 attempts, it returns false.
      *
      * @return true if the connection is successful, false otherwise.
      */
@@ -106,6 +112,9 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
 
     /**
      * Crawls a URL and sends the results to the QueueManager.
+     * It uses Jsoup to connect to the URL and parse the HTML document.
+     * It then extracts the links from the document and sends them to the QueueManager.
+     * It also sends the results to the ISB via multicast.
      *
      * @param url the URL to crawl
      * @return a string indicating the success of the operation
@@ -171,6 +180,7 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
 
     /**
      * Sends the result to ISB via multicast.
+     * It creates a multicast socket and sends a datagram packet for each URLData object in the result.
      *
      * @param resultado the result to send
      */

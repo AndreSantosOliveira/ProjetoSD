@@ -1,5 +1,5 @@
 /**
- * DescritorIPPorta class.
+ * Connection class.
  * This class is used to describe an IP address and port, along with an optional RMI name.
  */
 public class Connection {
@@ -8,7 +8,8 @@ public class Connection {
     private final int porta;
 
     /**
-     * Constructor for DescritorIPPorta.
+     * Constructor for Connection.
+     * This constructor initializes the IP address and port number.
      *
      * @param ip    the IP address
      * @param porta the port number
@@ -20,7 +21,8 @@ public class Connection {
     }
 
     /**
-     * Constructor for DescritorIPPorta.
+     * Constructor for Connection.
+     * This constructor initializes the IP address, port number, and RMI name.
      *
      * @param ip      the IP address
      * @param porta   the port number
@@ -61,6 +63,7 @@ public class Connection {
 
     /**
      * Returns a string representation of the object.
+     * The string is formatted as "ip:port".
      *
      * @return a string representation of the object
      */

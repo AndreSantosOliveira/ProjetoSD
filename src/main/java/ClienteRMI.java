@@ -5,6 +5,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -28,6 +29,8 @@ public class ClienteRMI implements Serializable, Remote {
 
     /**
      * Main method for the ClienteRMI class.
+     * It creates a new RMI registry for the client, connects to the Gateway via RMI and
+     * sends commands to the Queue.
      *
      * @param args command line arguments
      */
@@ -174,4 +177,5 @@ public class ClienteRMI implements Serializable, Remote {
         System.out.println("admin - Access the administration page");
         System.out.println("exit - Terminate the program");
     }
+
 }

@@ -8,9 +8,11 @@ import java.net.Socket;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
+
 /**
  * QueueManager class extends UnicastRemoteObject and implements Serializable.
  * This class is responsible for managing a queue of URLs to be downloaded.
+ * It maintains a connection with the DownloadManager and accepts connections from the Gateway.
  */
 public class QueueManager extends UnicastRemoteObject implements Serializable {
 
@@ -31,6 +33,9 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
 
     /**
      * Main method for the QueueManager class.
+     * It creates a server socket for receiving connections from the Gateway,
+     * attempts to connect to the DownloadManager, and starts a new thread to handle the queue.
+     * It also accepts connections from the Gateway and creates a new thread to handle each connection.
      *
      * @param args command line arguments
      */
@@ -108,10 +113,13 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
 
     /**
      * Attempts to connect to the DownloadManager.
+     * It tries to connect to the DownloadManager up to 10 times.
+     * If the connection is successful, it returns true.
+     * If the connection fails after 10 attempts, it returns false.
      *
      * @return true if the connection is successful, false otherwise.
      */
-    private static boolean connectToDownloadManager() {
+    static boolean connectToDownloadManager() {
         final int maxTentativa = 10;
         int tentativa = 0;
 
@@ -139,5 +147,8 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
         }
 
         return false;
+    }
+
+    public void handleGatewayConnection(BufferedReader mockBufferedReader) {
     }
 }

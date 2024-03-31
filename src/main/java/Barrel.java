@@ -9,12 +9,12 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- * Barrel class extends UnicastRemoteObject and implements MetodosRMIBarrel and Serializable.
- * This class is responsible for managing a collection of URLData objects.
+ * The Barrel class is responsible for managing a collection of URLData objects.
+ * It extends UnicastRemoteObject and implements MetodosRMIBarrel and Serializable.
  */
 public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Serializable {
 
-    // HashMap to store URLData objects
+    // A HashMap to store URLData objects, where the key is a String and the value is a HashSet of URLData objects.
     static HashMap<String, HashSet<URLData>> index = new HashMap<>();
 
     /**
@@ -27,7 +27,9 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     }
 
     /**
-     * Main method for the Barrel class.
+     * The main method for the Barrel class.
+     * It expects two command line arguments: the port number and the ID of the barrel.
+     * It creates a new Barrel object and binds it to the RMI registry.
      *
      * @param args command line arguments
      */
@@ -53,7 +55,8 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
 
 
     /**
-     * Method to archive URLData objects.
+     * This method is used to archive URLData objects.
+     * It splits the page title of the URLData object into words and adds the URLData object to the HashSet associated with each word in the index HashMap.
      *
      * @param data URLData object to be archived
      * @throws RemoteException if an error occurs during remote method invocation.
@@ -75,7 +78,8 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     }
 
     /**
-     * Method to search for URLData objects.
+     * This method is used to search for URLData objects.
+     * It splits the input string into words and returns a list of URLData objects that match any of the words.
      *
      * @param palavras String of words to search for
      * @return List of URLData objects that match the search criteria

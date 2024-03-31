@@ -9,6 +9,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * Gateway class extends UnicastRemoteObject and implements MetodosRMIGateway and Serializable.
  * This class is responsible for managing the communication between the client and the server.
@@ -37,6 +38,9 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
 
     /**
      * Main method for the Gateway class.
+     * It creates a new Gateway object and binds it to the RMI registry.
+     * It also establishes a connection to the BarrelManager via RMI,
+     * and sets up a socket to communicate with the QueueManager.
      *
      * @param args command line arguments
      */
@@ -84,6 +88,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
 
     /**
      * Indexes a new URL.
+     * It adds the URL to the list of URLs to be indexed and sends it to the QueueManager.
      *
      * @param url the URL to index
      * @return a string indicating the success of the operation
@@ -99,8 +104,10 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         return txt;
     }
 
+
     /**
      * Searches for pages that contain a set of terms.
+     * It sends the search terms to the BarrelManager and returns the results.
      *
      * @param words the terms to search for
      * @return a list of URLData objects that match the search terms
@@ -113,6 +120,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
 
     /**
      * Lists the indexed pages.
+     * This method is not implemented.
      *
      * @return a list of URLData objects representing the indexed pages
      */

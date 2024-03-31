@@ -24,6 +24,8 @@ public class DownloaderManager {
 
     /**
      * Main method for the DownloaderManager class.
+     * It loads downloaders from a text file and attempts to connect to each downloader.
+     * It also sets up a socket to receive URLs from the QueueManager for scraping.
      *
      * @param args command line arguments
      */
@@ -71,6 +73,9 @@ public class DownloaderManager {
 
     /**
      * Attempts to connect to a downloader.
+     * It tries to connect to the downloader up to 5 times.
+     * If the connection is successful, it returns the MetodosRMIDownloader object.
+     * If the connection fails, it returns null.
      *
      * @param descritorIPPorta descriptor of the downloader to connect to
      * @return MetodosRMIDownloader object if the connection is successful, null otherwise.
@@ -103,6 +108,8 @@ public class DownloaderManager {
 
     /**
      * Sets up a socket to receive URLs from the QueueManager for scraping.
+     * It creates a server socket and continuously accepts connections.
+     * For each connection, it creates a new thread to handle the connection.
      */
     private static void socketQueueManagerToDownloadManager() throws IOException {
         ServerSocket serverSocket = new ServerSocket(ConnectionsEnum.DOWNLOAD_MANAGER.getPort());
