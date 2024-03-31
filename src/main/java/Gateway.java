@@ -6,6 +6,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -120,6 +121,15 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         //measure time in miliseconds
         long startTime = System.currentTimeMillis();
         Tuple<String, List<URLData>> res = metodosBarrelManager.searchInput(words);
+        //sort the list of URLData
+        List<URLData> lista = res.getSecond();
+        //check if any urldata has relevance bigger than 0
+        //if so, sort the list by relevance
+        System.out.println(lista.stream().anyMatch(urlData -> urlData.getRelevance() > 0));
+        if (lista.stream().anyMatch(urlData -> urlData.getRelevance() > 0)) {
+            lista.sort(Comparator.comparingInt(URLData::getRelevance).reversed());
+        }
+
         long endTime = System.currentTimeMillis();
 
         String barrelId = res.getFirst();
@@ -138,18 +148,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
             barrelRequestCount.put(barrelId, 1);
         }
 
-        return res.getSecond();
-    }
-
-    /**
-     * Lists the indexed pages.
-     * This method is not implemented.
-     *
-     * @return a list of URLData objects representing the indexed pages
-     */
-    @Override
-    public List<URLData> listIndexedPages() {
-        return null;
+        return lista;
     }
 
     @Override
@@ -185,6 +184,11 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         sb.append("\n");
 
         return sb.toString();
+    }
+
+    @Override
+    public List<String> linksListForURL(String url) throws RemoteException {
+        return metodosBarrelManager.linksListForURL(url);
     }
 
     public void addSearch(String search) {

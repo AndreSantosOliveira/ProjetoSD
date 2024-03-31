@@ -1,6 +1,5 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,8 +7,9 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class QueueManagerTest {
 
@@ -57,7 +57,7 @@ public class QueueManagerTest {
 
     @Test
     public void shouldNotAddUrlToQueueWhenQueueIsFull() throws IOException {
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < 50; ++i) {
             queueManager.queue.offer("http://example.com/" + i);
         }
         when(mockBufferedReader.readLine()).thenReturn("http://example.com/extra");

@@ -29,14 +29,6 @@ public interface MetodosRMIGateway extends Remote {
     List<URLData> search(String words) throws java.rmi.RemoteException;
 
     /**
-     * Lists the indexed pages.
-     *
-     * @return a list of URLData objects representing the indexed pages
-     * @throws java.rmi.RemoteException if an error occurs during remote method invocation.
-     */
-    List<URLData> listIndexedPages() throws java.rmi.RemoteException;
-
-    /**
      * Saves the content of the barrels.
      */
     void saveBarrelsContent() throws RemoteException;
@@ -48,4 +40,12 @@ public interface MetodosRMIGateway extends Remote {
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     String getAdministrativeStatistics() throws RemoteException;
+
+    /**
+     * Lists indexed pages of a specific.
+     *
+     * @return a list of URLData objects representing the indexed pages
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
+    List<String> linksListForURL(String url) throws RemoteException;
 }

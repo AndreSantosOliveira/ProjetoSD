@@ -129,7 +129,6 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
      * It also sends the results to the ISB via multicast.
      *
      * @param url the URL to crawl
-     * @return a string indicating the success of the operation
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     @Override
@@ -163,7 +162,7 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
                             if (s.length() > 3) {
                                 //System.out.println("DownloadManager enviou para QueueManager: " + link);
                                 if (!urlData.containsKey(link)) {
-                                    urlData.put(link, new URLData(link, titulo));
+                                    urlData.put(link, new URLData(link, titulo, url));
                                 }
                             }
                         }

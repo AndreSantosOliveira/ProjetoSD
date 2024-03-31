@@ -6,7 +6,6 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -39,7 +38,7 @@ public class ClienteRMI implements Serializable, Remote {
     public static List<List<URLData>> separateList(List<URLData> inputList, int sublistSize) {
         List<List<URLData>> result = new ArrayList<>();
 
-        for (int i = 0; i < inputList.size(); i++) {
+        for (int i = 0; i < inputList.size(); ++i) {
             inputList.get(i).addPageNumber(i + 1);
         }
 
@@ -138,12 +137,17 @@ public class ClienteRMI implements Serializable, Remote {
                 switch (splitOption[0]) {
 
                     case "index": //     index https://sapo.pt
-                        System.out.println(metodosGateway.indexURLString("https://" + splitOption[1]));
+                        StringBuilder url = new StringBuilder(splitOption[1]);
+                        //only add https:// if it is not already there
+                        if (!url.toString().contains("https://")) {
+                            url.insert(0, "https://");
+                        }
+                        System.out.println(metodosGateway.indexURLString(url.toString()));
                         break;
 
                     case "search":
                         StringBuilder pesquisa = new StringBuilder();
-                        for (int i = 1; i < splitOption.length; i++) {
+                        for (int i = 1; i < splitOption.length; ++i) {
                             if (i == splitOption.length - 1) {
                                 pesquisa.append(splitOption[i]);
                                 break;
@@ -152,7 +156,6 @@ public class ClienteRMI implements Serializable, Remote {
                         }
 
                         List<URLData> lista = metodosGateway.search(pesquisa.toString());
-                        lista.sort(Comparator.comparing(URLData::getPageTitle).reversed());
 
                         /*
                         Resultados de pesquisa ordenados por importância. Os resultados de uma pes- quisa (funcionalidade anterior) devem ser apresentados por ordem de relevância.
@@ -166,12 +169,19 @@ public class ClienteRMI implements Serializable, Remote {
                             System.out.println("No results found for your search.");
                             break;
                         }
+                        if (resultados.size() == 1) {
+                            for (URLData urlData : resultados.get(0)) {
+                                System.out.println(urlData.getPageTitle() + " (" + urlData.getRelevance() + " references)");
+                                System.out.println(" -> " + urlData.getURL());
+                            }
+                            break;
+                        }
 
                         int paginaSelecionada = 0;
                         String input;
                         do {
                             for (URLData urlData : resultados.get(paginaSelecionada)) {
-                                System.out.println(urlData.getPageTitle());
+                                System.out.println(urlData.getPageTitle() + " (" + urlData.getRelevance() + " references)");
                                 System.out.println(" -> " + urlData.getURL());
                             }
 
@@ -206,12 +216,35 @@ public class ClienteRMI implements Serializable, Remote {
                         break;
 
                     case "list":
-                        System.out.println("list");
-
-                        for (URLData urlData : metodosGateway.listIndexedPages()) {
-                            // TODO:  Cannot invoke "java.util.List.iterator()" because the return value of "MetodosRMIGateway.listIndexedPages()" is null at ClienteRMI.main(ClienteRMI.java:148)
-                            System.out.println(urlData.toString());
+                        StringBuilder pesquisaLista = new StringBuilder();
+                        for (int i = 1; i < splitOption.length; ++i) {
+                            if (i == splitOption.length - 1) {
+                                pesquisaLista.append(splitOption[i]);
+                                break;
+                            }
+                            pesquisaLista.append(splitOption[i]).append(" ");
                         }
+
+                        //only add https:// if it is not already there
+                        if (!pesquisaLista.toString().contains("https://")) {
+                            pesquisaLista.insert(0, "https://");
+                        }
+
+
+                        List<String> links = metodosGateway.linksListForURL(pesquisaLista.toString());
+                        if (links.isEmpty()) {
+                            System.out.println("No links found for this URL.");
+                            break;
+                        }
+
+                        links.sort(String::compareTo);
+                        System.out.println("Links that reference: " + pesquisaLista);
+
+                        for (int i = 0; i < links.size(); ++i) {
+                            System.out.println(i + 1 + ". " + metodosGateway.linksListForURL(pesquisaLista.toString()).get(i));
+                        }
+
+                        System.out.println();
                         break;
 
                     case "admin":

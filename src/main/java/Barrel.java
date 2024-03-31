@@ -27,6 +27,9 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     // A HashMap to store URLData objects, where the key is a String and the value is a HashSet of URLData objects.
     static HashMap<String, HashSet<URLData>> index = new HashMap<>();
 
+    // Store in this hashmap the main URL and the urls that link to it
+    static HashMap<String, HashSet<String>> urlEApontadoresParaURL = new HashMap<>();
+
     /**
      * Default constructor for Barrel.
      *
@@ -71,10 +74,12 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
 
                     FileInputStream fis = new FileInputStream(file);
                     ObjectInputStream ois = new ObjectInputStream(fis);
-                    index = (HashMap<String, HashSet<URLData>>) ois.readObject();
+                    Tuple<HashMap<String, HashSet<URLData>>, HashMap<String, HashSet<String>>> tup = (Tuple<HashMap<String, HashSet<URLData>>, HashMap<String, HashSet<String>>>) ois.readObject();
+                    index = tup.getFirst();
+                    urlEApontadoresParaURL = tup.getSecond();
                     ois.close();
                     fis.close();
-                    System.out.println("Sucessfully synced with the barrel content available in the directory! Loaded " + index.size() + " words and their links.");
+                    System.out.println("Sucessfully synced with the barrel content available in the directory! Loaded " + index.size() + " words and " + urlEApontadoresParaURL.size() + " references to URLs.");
                 }
             } catch (IOException | ClassNotFoundException c) {
                 System.out.println("O conteúdo do ficheiro da barrel está desatualizado.");
@@ -100,6 +105,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     public static void archiveURL(URLData data) throws RemoteException {
         System.out.println("Received " + data + " to index.");
 
+        //guardar no index de palavras
         for (String palavra : data.getPageTitle().split(" ")) {
             palavra = palavra.toLowerCase();
             if (index.containsKey(palavra)) {
@@ -109,6 +115,16 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
                 urls.add(data);
                 index.put(palavra, urls);
             }
+        }
+
+        // guardar no urlEApontadoresParaURL
+        // store in this hashmap the URL and the url where it was found
+        if (urlEApontadoresParaURL.containsKey(data.getURL())) {
+            urlEApontadoresParaURL.get(data.getURL()).add(data.getURLWhereItWasFound());
+        } else {
+            HashSet<String> urls = new HashSet<>();
+            urls.add(data.getURLWhereItWasFound());
+            urlEApontadoresParaURL.put(data.getURL(), urls);
         }
     }
 
@@ -127,7 +143,10 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
         for (String s : palavras.split(" ")) {
             for (String chaves : index.keySet()) {
                 if (chaves.toLowerCase().contains(s.toLowerCase())) {
-                    dadosBarrel.addAll(index.get(chaves));
+                    HashSet<URLData> urlData = index.get(chaves);
+                    //adicionar relevancia aos links
+                    urlData.forEach(urlData1 -> urlData1.setRelevance(urlEApontadoresParaURL.containsKey(urlData1.getURL()) ? urlEApontadoresParaURL.get(urlData1.getURL()).size() : 0));
+                    dadosBarrel.addAll(urlData);
                 }
             }
         }
@@ -141,7 +160,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
         try {
             FileOutputStream fos = new FileOutputStream("src/main/java/barrelContent.barrel");
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(index);
+            oos.writeObject(new Tuple<>(index, urlEApontadoresParaURL));
             oos.close();
             fos.close();
         } catch (IOException ioe) {
@@ -157,6 +176,12 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     @Override
     public String getBarrelID() {
         return barrelID;
+    }
+
+    @Override
+    public List<String> linksListForURL(String url) throws RemoteException {
+        // print url and print if it has links
+        return urlEApontadoresParaURL.containsKey(url) ? new ArrayList<>(urlEApontadoresParaURL.get(url)) : new ArrayList<>();
     }
 
     /**
@@ -180,12 +205,13 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
                 String message = new String(packet.getData(), 0, packet.getLength());
 
                 // message is equal to url|title
-                String[] parts = message.split("\\|");
-                if (parts.length == 2) {
+                String[] parts = message.split("§±");
+                if (parts.length == 3) {
                     String url = parts[0];
                     String title = parts[1];
+                    String urlOndeFoiEncontrado = parts[2];
 
-                    archiveURL(new URLData(url, title));
+                    archiveURL(new URLData(url, title, urlOndeFoiEncontrado));
                     //System.out.println("Success in sending to archive URL: " + url + " with title: " + title);
                 } else { //there are strings that arrive cut off..
                     System.err.println("Received invalid message: " + message);

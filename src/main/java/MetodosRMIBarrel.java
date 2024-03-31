@@ -40,4 +40,12 @@ public interface MetodosRMIBarrel extends Remote {
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     String getBarrelID() throws RemoteException;
+
+    /**
+     * Lists indexed pages of a specific.
+     *
+     * @return a list of URLData objects representing the indexed pages
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
+    List<String> linksListForURL(String url) throws RemoteException;
 }

@@ -126,9 +126,8 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
     public Tuple<String, List<URLData>> searchInput(String pesquisa) throws RemoteException {
         String id = "none";
         Map<String, String> urlTitulo = new HashMap<>();
+        Map<String, Integer> relevace = new HashMap<>();
         synchronized (barrels) {
-            System.out.println("Searching barrels for " + pesquisa);
-            System.out.println(barrels.size());
             for (MetodosRMIBarrel value : barrels) {
                 if (value != null) {
                     try {
@@ -138,11 +137,12 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                             for (URLData urlData : dadosDownloader.getSecond()) {
                                 if (!urlTitulo.containsKey(urlData.getURL())) {
                                     urlTitulo.put(urlData.getURL(), urlData.getPageTitle());
+                                    relevace.put(urlData.getURL(), urlData.getRelevance());
                                 }
                             }
                         }
                     } catch (RemoteException e) {
-                        return new Tuple<>(id, Collections.singletonList(new URLData(e.getMessage(), "Error searching for: " + pesquisa)));
+                        return new Tuple<>(id, Collections.singletonList(new URLData(e.getMessage(), "Error searching for: " + pesquisa, "none")));
                     }
                     break; // so precisamos de um barrel funcional
                 }
@@ -150,7 +150,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
             return new Tuple<>(id, urlTitulo.entrySet()
                     .stream()
-                    .map(entry -> new URLData(entry.getKey(), entry.getValue()))
+                    .map(entry -> new URLData(entry.getKey(), entry.getValue(), relevace.get(entry.getKey())))
                     .collect(Collectors.toList()));
         }
     }
@@ -185,5 +185,22 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
     @Override
     public String getBarrelID() {
         return null;
+    }
+
+    @Override
+    public List<String> linksListForURL(String url) throws RemoteException {
+        synchronized (barrels) {
+            for (MetodosRMIBarrel value : barrels) {
+                if (value != null) {
+                    try {
+                        return value.linksListForURL(url);
+                    } catch (RemoteException e) {
+                        System.out.println("Error searching for links list for URL: " + url + " -> " + e.getMessage());
+                    }
+                }
+                break; // so precisamos de um barrel funcional
+            }
+        }
+        return Collections.emptyList();
     }
 }

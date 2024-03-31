@@ -5,9 +5,9 @@ import java.io.Serializable;
  * This class implements Serializable, allowing its instances to be written to an OutputStream.
  */
 public class URLData implements Serializable {
-    private String url;
-    private String pageTitle;
+    private String url, pageTitle, urlOndeFoiEncontrado;
     private int pageNumber = -1;
+    private int relevance = 0;
 
     /**
      * Constructor for URLData.
@@ -15,9 +15,16 @@ public class URLData implements Serializable {
      * @param url       the URL
      * @param pageTitle the page title associated with the URL
      */
-    public URLData(String url, String pageTitle) {
+    public URLData(String url, String pageTitle, String urlOndeFoiEncontrado) {
         this.url = url;
         this.pageTitle = pageTitle;
+        this.urlOndeFoiEncontrado = urlOndeFoiEncontrado;
+    }
+
+    public URLData(String url, String pageTitle, int relevance) {
+        this.url = url;
+        this.pageTitle = pageTitle;
+        this.relevance = relevance;
     }
 
     /**
@@ -39,7 +46,7 @@ public class URLData implements Serializable {
      * @return a string representation of the URLData object in the format of a data packet
      */
     public String toStringDataPacket() {
-        return url + "|" + pageTitle;
+        return url + "§±" + pageTitle + "§±" + urlOndeFoiEncontrado;
     }
 
     /**
@@ -49,6 +56,15 @@ public class URLData implements Serializable {
      */
     public String getURL() {
         return this.url;
+    }
+
+    /**
+     * Returns the URL where the URLData object was found.
+     *
+     * @return the URL where the URLData object was found
+     */
+    public String getURLWhereItWasFound() {
+        return this.urlOndeFoiEncontrado;
     }
 
     /**
@@ -62,5 +78,13 @@ public class URLData implements Serializable {
 
     public void addPageNumber(int i) {
         this.pageNumber = i;
+    }
+
+    public void setRelevance(int relevance) {
+        this.relevance = relevance;
+    }
+
+    public int getRelevance() {
+        return this.relevance;
     }
 }
