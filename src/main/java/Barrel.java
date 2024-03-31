@@ -62,20 +62,21 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
             try {
                 // get the file creation date
                 File file = new File("src/main/java/barrelContent.barrel");
-                long lastModified = file.lastModified();
-                Date date = new Date(lastModified);
+                if (file.exists()) {
+                    long lastModified = file.lastModified();
+                    Date date = new Date(lastModified);
 
-                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                System.out.println("Syncing myself with previous barrel content from: " + sdf.format(date));
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                    System.out.println("Syncing myself with previous barrel content from: " + sdf.format(date));
 
-                FileInputStream fis = new FileInputStream(file);
-                ObjectInputStream ois = new ObjectInputStream(fis);
-                index = (HashMap<String, HashSet<URLData>>) ois.readObject();
-                ois.close();
-                fis.close();
-                System.out.println("Sucessfully synced with the barrel content available in the directory!");
-            } catch (IOException ignored) {
-            } catch (ClassNotFoundException c) {
+                    FileInputStream fis = new FileInputStream(file);
+                    ObjectInputStream ois = new ObjectInputStream(fis);
+                    index = (HashMap<String, HashSet<URLData>>) ois.readObject();
+                    ois.close();
+                    fis.close();
+                    System.out.println("Sucessfully synced with the barrel content available in the directory! Loaded " + index.size() + " words and their links.");
+                }
+            } catch (IOException | ClassNotFoundException c) {
                 System.out.println("O conteúdo do ficheiro da barrel está desatualizado.");
                 System.exit(1);
             }

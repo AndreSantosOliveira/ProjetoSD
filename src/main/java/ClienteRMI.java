@@ -5,6 +5,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
@@ -26,6 +27,28 @@ public class ClienteRMI implements Serializable, Remote {
      */
     protected ClienteRMI() throws RemoteException {
         super();
+    }
+
+    /**
+     * Separares a bigger list into smaller lists.
+     *
+     * @param inputList
+     * @param sublistSize
+     * @return
+     */
+    public static List<List<URLData>> separateList(List<URLData> inputList, int sublistSize) {
+        List<List<URLData>> result = new ArrayList<>();
+
+        for (int i = 0; i < inputList.size(); i++) {
+            inputList.get(i).addPageNumber(i + 1);
+        }
+
+        for (int i = 0; i < inputList.size(); i += sublistSize) {
+            int end = Math.min(inputList.size(), i + sublistSize);
+            result.add(new ArrayList<>(inputList.subList(i, end)));
+        }
+
+        return result;
     }
 
     /**
@@ -111,6 +134,7 @@ public class ClienteRMI implements Serializable, Remote {
                     System.out.println("Invalid option. For additional information type 'help'");
                     continue;
                 }
+
                 switch (splitOption[0]) {
 
                     case "index": //     index https://sapo.pt
@@ -130,10 +154,49 @@ public class ClienteRMI implements Serializable, Remote {
                         List<URLData> lista = metodosGateway.search(pesquisa.toString());
                         lista.sort(Comparator.comparing(URLData::getPageTitle).reversed());
 
-                        for (URLData urlData : lista) {
-                            System.out.println(urlData.getPageTitle());
-                            System.out.println(" -> " + urlData.getURL());
+                        /*
+                        Resultados de pesquisa ordenados por importância. Os resultados de uma pes- quisa (funcionalidade anterior) devem ser apresentados por ordem de relevância.
+                        Para simplificar, considera-se que uma página é mais relevante se tiver mais liga- ções de outras páginas.
+                        Assim, o indexador automático deve manter, para cada URL, a lista de outros URLs que fazem ligação para ele.
+                         */
+
+                        List<List<URLData>> resultados = separateList(lista, 10);
+
+                        if (resultados.isEmpty()) {
+                            System.out.println("No results found for your search.");
+                            break;
                         }
+
+                        int paginaSelecionada = 0;
+                        String input;
+                        do {
+                            for (URLData urlData : resultados.get(paginaSelecionada)) {
+                                System.out.println(urlData.getPageTitle());
+                                System.out.println(" -> " + urlData.getURL());
+                            }
+
+                            System.out.println("\n" + lista.size() + " results | Page " + (paginaSelecionada + 1) + " of " + resultados.size());
+                            System.out.print("Enter a page number, or 'q' to quit search: ");
+                            input = scanner.nextLine().trim();
+
+                            if (input.equalsIgnoreCase("q")) {
+                                break;
+                            } else {
+                                try {
+                                    int pageNumber = Integer.parseInt(input);
+                                    if (pageNumber < 1) {
+                                        paginaSelecionada = 0;
+                                    } else if (pageNumber > resultados.size()) {
+                                        paginaSelecionada = resultados.size() - 1;
+                                    } else {
+                                        paginaSelecionada = pageNumber - 1;
+                                    }
+
+                                } catch (NumberFormatException e) {
+                                    System.out.println("Invalid input. Please enter a page number, or 'q'");
+                                }
+                            }
+                        } while (true);
 
                         break;
 

@@ -7,6 +7,7 @@ import java.io.Serializable;
 public class URLData implements Serializable {
     private String url;
     private String pageTitle;
+    private int pageNumber = -1;
 
     /**
      * Constructor for URLData.
@@ -56,6 +57,10 @@ public class URLData implements Serializable {
      * @return the page title of the URLData object
      */
     public String getPageTitle() {
-        return pageTitle;
+        return pageNumber == -1 ? pageTitle : (pageNumber + ". " + pageTitle);
+    }
+
+    public void addPageNumber(int i) {
+        this.pageNumber = i;
     }
 }
