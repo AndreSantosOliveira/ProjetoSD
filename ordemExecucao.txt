@@ -1,4 +1,0 @@
-1. DownloadManager
-2. QueueManager
-3. Gateway
-4. ClienteRMI

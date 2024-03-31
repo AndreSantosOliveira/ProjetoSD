@@ -8,8 +8,10 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.MulticastSocket;
 import java.net.Socket;
+import java.net.URL;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
@@ -110,6 +112,16 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
         return false;
     }
 
+    public static boolean isValidURL(String urlString) {
+        try {
+            // Attempt to create a URL object
+            new URL(urlString).toURI();
+            return true;
+        } catch (MalformedURLException | java.net.URISyntaxException e) {
+            return false;
+        }
+    }
+
     /**
      * Crawls a URL and sends the results to the QueueManager.
      * It uses Jsoup to connect to the URL and parse the HTML document.
@@ -121,7 +133,15 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     @Override
-    public String crawlURL(String url) throws RemoteException {
+    public void crawlURL(String url) throws RemoteException {
+        if (!isValidURL(url)) {
+            System.out.println("Invalid URL: " + url + " - discarding.");
+            return;
+        }
+        if (url.endsWith("/")) {
+            url = url.substring(0, url.length() - 1);
+        }
+
         try {
             busy = true;
             Document doc = Jsoup.connect(url).get();
@@ -154,7 +174,7 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
             //chaves de urls para a queue
             urlData.keySet().forEach(queueManager::println);
 
-            // Send dummy results via multicas
+            // Send dummy results via multicast
             sendResultToISBviaMulticast(new ArrayList<>(urlData.values()));
 
             System.out.println("Scraping done! " + url + "\n " + urlData.size() + " -> unique URLs sent to QueueManager.");
@@ -162,9 +182,10 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
 
             busy = false;
         } catch (IOException e) {
-            System.out.println("Error while trying to scrape data from: " + url + " -> " + e.getMessage());
+            System.out.println("Error while trying to scrape data -> " + e.getMessage());
+            queueManager.println(url);
+            System.out.println("Re-added " + url + " to the queue.");
         }
-        return "Sucesso!";
     }
 
     /**

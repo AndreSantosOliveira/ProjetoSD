@@ -113,4 +113,12 @@ public class UniqueQueue<E> {
     public String toString() {
         return queue.toString();
     }
+
+    /**
+     * Removes all of the elements from this queue.
+     */
+    public void clear() {
+        queue.clear();
+        set.clear();
+    }
 }

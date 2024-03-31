@@ -1,15 +1,13 @@
 OVERALL:
-    Cliente faz o pedido através do terminal (ex: cmd + url -> index www.youtube.com))
+    Cliente faz o pedido através do terminal (ex: cmd + url -> index www.youtube.com)) - DONE
 
-    A gateway insere o url na fila (FIFO)
+    A gateway insere o url na fila (FIFO)  - DONE
 
-    O downloader faz o fetch do url da fila
-
-    Buscar resultados da WWW
+    O downloader faz o fetch do url da fila  - DONE
 
     Guardar os resultados num HashMap<String, Hashset<URLData>> não pode ser uma lista: Bloom filter -> Pesquisar
 
-    Guardar a URLData nos ISBs
+    Guardar a URLData nos ISBs  - DONE
 
     Implementar um mecanismo de fault tolerance (um retry é suficiente)
 
@@ -30,24 +28,20 @@ CLIENT:
     Range de portas aceitáveis para os clientes. Ex: 7000-7010
     Informar o cliente que está a ser usada e as portas disponíveis
 
-Verificar se a url é válida conforme regex, Já estamos a ignorar .onions. Existe uma exceção que o downloader pode lançar se a url não for válida. Descartar esses urls inválidos.
-
 QUEUE:
     A queue é um componente á parte. A gateway e os downloader comunicam com a queue através de TCP.
-    classe simples que tem uma lista de urls
-    método para adicionar uma url
+    classe simples que tem uma lista de urls - DONE
+    método para adicionar uma url - DONE
     método para remover uma url
 
 
 DOWNLOADER:
-Os downloaders podem ser multi threaded
-O downloader faz o fetch do url da queue e guarda o resultado num hashmap
-Failover: se o downloader falhar, a queue tem de tentar novamente
-Failover: se o downloader lançar uma exceção de bad format url, a queue tem de descartar a url e é ignorado
+Verificar se a url é válida conforme regex, Já estamos a ignorar .onions. Existe uma exceção que o downloader pode lançar se a url não for válida. Descartar esses urls inválidos. - DONE
+Os downloaders podem ser multi threaded - DONE
+O downloader faz o fetch do url da queue e guarda o resultado num hashmap - DONE
+Failover: se o downloader falhar, a queue tem de tentar novamente - DONE
+Failover: se o downloader lançar uma exceção de bad format url, a queue tem de descartar a url e é ignorado - DONE
+    Tem que ser Thread Safe -> ver na documentação do Java o que é thread safe e o que não é - é capaz
+
 
 Agrupar de 10 em 10 urls para fazer o fetch, nao devolver mais que 10 urls, devolvemos apeans o primeiro grupo de resultados
-    Os downloaders podem ser multi threaded
-    O downloader faz o fetch do url da queue e guarda o resultado num hashmap
-    Failover: se o downloader falhar, a queue tem de tentar novamente
-    Failover: se o downloader lançar uma exceção de bad format url, a queue tem de descartar a url e é ignorado
-    Tem que ser Thread Safe -> ver na documentação do Java o que é thread safe e o que não é

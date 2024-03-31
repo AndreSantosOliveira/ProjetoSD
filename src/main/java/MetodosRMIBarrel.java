@@ -10,14 +10,6 @@ import java.util.List;
 public interface MetodosRMIBarrel extends Remote {
 
     /**
-     * Archives a URL.
-     *
-     * @param data the URLData object representing the URL to archive
-     * @throws RemoteException if an error occurs during remote method invocation.
-     */
-    void archiveURL(URLData data) throws RemoteException;
-
-    /**
      * Searches for URLs based on input.
      *
      * @param url the input to search for
@@ -25,4 +17,11 @@ public interface MetodosRMIBarrel extends Remote {
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     List<URLData> searchInput(String url) throws RemoteException;
+
+    /**
+     * Saves the content of the barrels to a file.
+     *
+     * @throws RemoteException
+     */
+    void saveBarrelsContent() throws RemoteException;
 }

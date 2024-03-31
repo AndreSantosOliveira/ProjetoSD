@@ -12,10 +12,9 @@ public interface MetodosRMIDownloader extends Remote {
      * Crawls a URL.
      *
      * @param url the URL to crawl
-     * @return a string indicating the success of the operation
      * @throws RemoteException if an error occurs during remote method invocation.
      */
-    String crawlURL(String url) throws RemoteException;
+    void crawlURL(String url) throws RemoteException;
 
     /**
      * Checks if the Downloader is busy.

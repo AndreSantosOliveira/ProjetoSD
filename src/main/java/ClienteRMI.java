@@ -5,6 +5,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -29,8 +30,6 @@ public class ClienteRMI implements Serializable, Remote {
 
     /**
      * Main method for the ClienteRMI class.
-     * It creates a new RMI registry for the client, connects to the Gateway via RMI and
-     * sends commands to the Queue.
      *
      * @param args command line arguments
      */
@@ -108,16 +107,14 @@ public class ClienteRMI implements Serializable, Remote {
                 }
 
                 String[] splitOption = command.split(" ");
-                if (splitOption.length < 2 && !splitOption[0].equals("help") && !splitOption[0].equals("exit") && !splitOption[0].equals("list") && !splitOption[0].equals("admin")) {
+                if (splitOption.length < 2 && !splitOption[0].equals("help") && !splitOption[0].equals("exit") && !splitOption[0].equals("list") && !splitOption[0].equals("admin") && !splitOption[0].equals("save")) {
                     System.out.println("Invalid option. For additional information type 'help'");
                     continue;
                 }
                 switch (splitOption[0]) {
 
                     case "index": //     index https://sapo.pt
-                        //System.out.println(metodosGateway.indexarURL(splitOption[1]));
-                        System.out.println(metodosGateway.indexURLString("https://sapo.pt"));
-                        System.out.println(metodosGateway.indexURLString("https://google.com"));
+                        System.out.println(metodosGateway.indexURLString("https://" + splitOption[1]));
                         break;
 
                     case "search":
@@ -129,9 +126,20 @@ public class ClienteRMI implements Serializable, Remote {
                             }
                             pesquisa.append(splitOption[i]).append(" ");
                         }
-                        for (URLData urlData : metodosGateway.search(pesquisa.toString())) {
-                            System.out.println(urlData.toString());
+
+                        List<URLData> lista = metodosGateway.search(pesquisa.toString());
+                        lista.sort(Comparator.comparing(URLData::getPageTitle).reversed());
+
+                        for (URLData urlData : lista) {
+                            System.out.println(urlData.getPageTitle());
+                            System.out.println(" -> " + urlData.getURL());
                         }
+
+                        break;
+
+                    case "save":
+                        metodosGateway.saveBarrelsContent();
+                        System.out.println("Saved barrels content to file");
                         break;
 
                     case "list":
@@ -177,5 +185,4 @@ public class ClienteRMI implements Serializable, Remote {
         System.out.println("admin - Access the administration page");
         System.out.println("exit - Terminate the program");
     }
-
 }

@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.rmi.Remote;
+import java.rmi.RemoteException;
 import java.util.List;
 
 /**
@@ -34,4 +35,9 @@ public interface MetodosRMIGateway extends Remote {
      * @throws java.rmi.RemoteException if an error occurs during remote method invocation.
      */
     List<URLData> listIndexedPages() throws java.rmi.RemoteException;
+
+    /**
+     * Saves the content of the barrels.
+     */
+    void saveBarrelsContent() throws RemoteException;
 }

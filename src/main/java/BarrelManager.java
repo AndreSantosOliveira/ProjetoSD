@@ -2,9 +2,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -13,16 +10,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
- * The BarrelManager class is responsible for managing a collection of barrels.
- * It implements MetodosRMIBarrel and Serializable.
+ * BarrelManager class implements MetodosRMIBarrel and Serializable.
+ * This class is responsible for managing a collection of barrels.
  */
 public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
-    // A map to store barrels
-    private static Map<Connection, MetodosRMIBarrel> barrels = new HashMap<>();
-    private static int barrelsON;
+    // Map to store barrels
+    private List<MetodosRMIBarrel> barrels = new ArrayList<>();
 
     /**
      * Default constructor for BarrelManager.
@@ -31,24 +28,6 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
      */
     public BarrelManager() throws RemoteException {
         super();
-    }
-
-    /**
-     * The main method for the BarrelManager class.
-     * It creates a new BarrelManager object and binds it to the RMI registry.
-     * It also loads barrels from a text file and attempts to connect to each barrel.
-     * If no barrels are connected, the program exits.
-     * Finally, it starts receiving multicast messages from the downloader.
-     *
-     * @param args command line arguments
-     */
-    public static void main(String args[]) throws RemoteException {
-        try {
-            BarrelManager barrelManager = new BarrelManager();
-            LocateRegistry.createRegistry(ConnectionsEnum.BARREL_MANAGER.getPort()).rebind("barrelmanager", barrelManager);
-        } catch (IOException re) {
-            System.out.println("Exception in Gateway RMI: " + re);
-        }
 
         // Load barrels from the text file barrels.txt (IP, port, rmiName)
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/java/barrels.txt"))) {
@@ -61,8 +40,10 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                         int porta = Integer.parseInt(parts[1]);
                         String rmiName = parts[2];
 
-                        barrels.put(new Connection(ip, porta, rmiName), null);
-                        System.out.println("Barrel added: " + rmiName + " (" + ip + ":" + porta + ")");
+                        MetodosRMIBarrel res = tentarLigarABarrel(new Connection(ip, porta, rmiName));
+                        if (res != null) {
+                            this.barrels.add(res);
+                        }
                     } catch (NumberFormatException e) {
                         System.err.println("Error processing the port for a barrel: " + line);
                     }
@@ -70,36 +51,38 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                     System.err.println("Line in invalid format: " + line);
                 }
             }
+
+            if (this.barrels.isEmpty()) {
+                System.err.println("No barrel has been connected. Exiting...");
+                System.exit(1);
+            }
+
+            ConnectionsEnum.BARREL_MANAGER.printINIT("BarrelManager");
+
         } catch (IOException e) {
-            System.err.println("Error reading the barrel file.");
+            System.err.println("Error reading the barrel file: ");
             e.printStackTrace();
         }
-
-        for (Connection descritorIPPorta : barrels.keySet()) {
-            MetodosRMIBarrel res = tentarLigarABarrel(descritorIPPorta);
-            if (res != null) {
-                barrels.put(descritorIPPorta, res);
-                ++barrelsON;
-            }
-        }
-
-        if (barrelsON == 0) {
-            System.err.println("No barrel has been connected. Exiting...");
-            System.exit(1);
-        }
-
-        ConnectionsEnum.BARREL_MANAGER.printINIT("BarrelManager");
-
-        // Receives multicast from downloader
-        receiveResultFromDownloaderviaMulticast();
     }
 
+    /**
+     * Main method for the BarrelManager class.
+     *
+     * @param args command line arguments
+     */
+    public static void main(String args[]) throws RemoteException {
+        try {
+            BarrelManager barrelManager = new BarrelManager();
+            LocateRegistry.createRegistry(ConnectionsEnum.BARREL_MANAGER.getPort()).rebind("barrelmanager", barrelManager);
+            while (true) {
+            }
+        } catch (IOException re) {
+            System.out.println("Exception in Gateway RMI: " + re);
+        }
+    }
 
     /**
      * Attempts to connect to a barrel.
-     * It tries to connect to the barrel up to 5 times.
-     * If the connection is successful, it returns the MetodosRMIBarrel object.
-     * If the connection fails, it returns null.
      *
      * @param descritorIPPorta descriptor of the barrel to connect to
      * @return MetodosRMIBarrel object if the connection is successful, null otherwise.
@@ -130,83 +113,8 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         return null;
     }
 
-
-    /**
-     * Receives multicast messages from the downloader.
-     * It creates a multicast socket and joins the multicast group.
-     * It then enters a loop where it receives multicast packets and processes the data.
-     */
-    public static void receiveResultFromDownloaderviaMulticast() {
-        // Receives multicast from downloader
-        try {
-            // Create a multicast socket
-            MulticastSocket multicastSocket = new MulticastSocket(ConnectionsEnum.MULTICAST.getPort());
-            multicastSocket.joinGroup(InetAddress.getByName(ConnectionsEnum.MULTICAST.getIP()));
-
-            byte[] buffer = new byte[1024];
-
-            // Receive the multicast packet
-            while (true) {
-                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-                multicastSocket.receive(packet);
-
-                // Convert the packet data to string and process it
-                String message = new String(packet.getData(), 0, packet.getLength());
-
-                // message is equal to url|title
-                String[] parts = message.split("\\|");
-                if (parts.length == 2) {
-                    String url = parts[0];
-                    String title = parts[1];
-                    gerirArquivamentoURLs(new URLData(url, title));
-                    //System.out.println("Success in sending to archive URL: " + url + " with title: " + title);
-                } else { //there are strings that arrive cut off..
-                    System.err.println("Received invalid message: " + message);
-                }
-            }
-
-        } catch (IOException e) { //there are strings that arrive cut off..
-            // e.printStackTrace();
-            //System.out.println("Error receiving multicast message: " + e.getMessage());
-        }
-    }
-
-
-    /**
-     * Manages the archiving of URLs.
-     * It iterates over all barrels and calls the archiveURL method on each barrel.
-     *
-     * @param dados URLData object to be archived
-     */
-    private static void gerirArquivamentoURLs(URLData dados) {
-        for (MetodosRMIBarrel value : barrels.values()) {
-            if (value != null) {
-                try {
-                    value.archiveURL(dados);
-                } catch (RemoteException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-    }
-
-
-    /**
-     * Archives a URLData object.
-     * This method is not implemented in this class.
-     *
-     * @param data URLData object to be archived
-     * @throws RemoteException if an error occurs during remote method invocation.
-     */
-    @Override
-    public void archiveURL(URLData data) throws RemoteException {
-    }
-
-
     /**
      * Searches for URLData objects.
-     * It iterates over all barrels and calls the searchInput method on each barrel.
-     * It returns a list of URLData objects that match the search criteria.
      *
      * @param pesquisa String of words to search for
      * @return List of URLData objects that match the search criteria
@@ -214,19 +122,49 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
      */
     @Override
     public List<URLData> searchInput(String pesquisa) throws RemoteException {
-        List<URLData> dados = new ArrayList<>();
-        for (MetodosRMIBarrel value : barrels.values()) {
-            if (value != null) {
-                try {
-                    List<URLData> dadosDownloader = value.searchInput(pesquisa);
-                    if (dadosDownloader != null) {
-                        dados.addAll(dadosDownloader);
+        Map<String, String> urlTitulo = new HashMap<>();
+        synchronized (barrels) {
+            System.out.println("Searching barrels for " + pesquisa);
+            System.out.println(barrels.size());
+            List<URLData> dados = new ArrayList<>();
+            for (MetodosRMIBarrel value : barrels) {
+                if (value != null) {
+                    try {
+                        List<URLData> dadosDownloader = value.searchInput(pesquisa);
+                        if (dadosDownloader != null) {
+                            for (URLData urlData : dadosDownloader) {
+                                if (!urlTitulo.containsKey(urlData.getURL())) {
+                                    urlTitulo.put(urlData.getURL(), urlData.getPageTitle());
+                                }
+                            }
+                        }
+                    } catch (RemoteException e) {
+                        return Collections.singletonList(new URLData("?", "Error searching for: " + pesquisa));
                     }
-                } catch (RemoteException e) {
-                    return Collections.singletonList(new URLData("?", "Error searching for: " + pesquisa));
+                    break; // so precisamos de um barrel funcional
                 }
             }
+
+            return urlTitulo.entrySet()
+                    .stream()
+                    .map(entry -> new URLData(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
         }
-        return dados;
+    }
+
+    @Override
+    public void saveBarrelsContent() throws RemoteException {
+        synchronized (barrels) {
+            for (MetodosRMIBarrel value : barrels) {
+                if (value != null) {
+                    try {
+                        value.saveBarrelsContent();
+                    } catch (RemoteException e) {
+                        System.out.println("Error saving barrels content");
+                    }
+                }
+                break; // so precisamos de um barrel funcional
+            }
+        }
     }
 }
