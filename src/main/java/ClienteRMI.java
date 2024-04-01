@@ -179,14 +179,19 @@ public class ClienteRMI implements Serializable, Remote {
 
                         int paginaSelecionada = 0;
                         String input;
-                        do {
-                            for (URLData urlData : resultados.get(paginaSelecionada)) {
-                                System.out.println(urlData.getPageTitle() + " (" + urlData.getRelevance() + " references)");
-                                System.out.println(" -> " + urlData.getURL());
-                            }
+                        boolean invalid = false;
 
-                            System.out.println("\n" + lista.size() + " results | Page " + (paginaSelecionada + 1) + " of " + resultados.size());
-                            System.out.print("Enter a page number, or 'q' to quit search: ");
+                        do {
+                            if (!invalid) {
+                                for (URLData urlData : resultados.get(paginaSelecionada)) {
+                                    System.out.println(urlData.getPageTitle() + " (" + urlData.getRelevance() + " references)");
+                                    System.out.println(" -> " + urlData.getURL());
+                                }
+
+                                System.out.println("\n" + lista.size() + " results | Page " + (paginaSelecionada + 1) + " of " + resultados.size());
+                                System.out.println("Enter a page number, or 'q' to quit search:");
+                            }
+                            System.out.print(">> ");
                             input = scanner.nextLine().trim();
 
                             if (input.equalsIgnoreCase("q")) {
@@ -195,15 +200,22 @@ public class ClienteRMI implements Serializable, Remote {
                                 try {
                                     int pageNumber = Integer.parseInt(input);
                                     if (pageNumber < 1) {
+                                        System.out.println("\nInvalid input. Please enter a valid page number, or 'q'\n");
                                         paginaSelecionada = 0;
+                                        invalid = true;
                                     } else if (pageNumber > resultados.size()) {
+                                        System.out.println("\nInvalid input. Please enter a valid page number, or 'q'\n");
                                         paginaSelecionada = resultados.size() - 1;
+                                        invalid = true;
+
                                     } else {
+                                        invalid = false;
                                         paginaSelecionada = pageNumber - 1;
                                     }
 
                                 } catch (NumberFormatException e) {
-                                    System.out.println("Invalid input. Please enter a page number, or 'q'");
+                                    invalid = true;
+                                    System.out.println("\nInvalid input. Please enter a page number, or 'q'\n");
                                 }
                             }
                         } while (true);
@@ -280,6 +292,6 @@ public class ClienteRMI implements Serializable, Remote {
         System.out.println("search <terms> - Search for pages that contain a set of terms");
         System.out.println("list <url> - List pages with a link to a specific page");
         System.out.println("admin - Access the administration page");
-        System.out.println("exit - Terminate the connection and exit the client");
+        System.out.println("exit - Terminate the connection and exit the client\n");
     }
 }

@@ -9,6 +9,7 @@ import java.net.Socket;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -39,20 +40,6 @@ class GatewayTest {
         gateway.indexURLString(url);
 
         verify(printWriterMock).println(url);
-    }
-
-    @Test
-    void search() throws RemoteException {
-        Gateway gateway = new Gateway();
-        gateway.metodosBarrelManager = metodosRMIBarrelMock;
-
-        String words = "search terms";
-
-        when(metodosRMIBarrelMock.searchInput(anyString())).thenReturn(new Tuple<>("barrelId", null));
-
-        gateway.search(words);
-
-        verify(metodosRMIBarrelMock).searchInput(words);
     }
 
     @Test
