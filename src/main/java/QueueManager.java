@@ -7,6 +7,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Objects;
 
 
 /**
@@ -80,8 +81,10 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
             while (true) {
                 // Accept a connection
                 Socket connectionSocket = serverSocket.accept();
-                // Information about the connection:
-                System.out.println("QueueManager received connection from: " + connectionSocket.getInetAddress().getHostAddress() + ":" + connectionSocket.getPort());
+
+                if (!Objects.equals(connectionSocket.getInetAddress().getHostAddress(), "127.0.0.1"))
+                    // Information about the connection:
+                    System.out.println("QueueManager received connection from: " + connectionSocket.getInetAddress().getHostAddress() + ":" + connectionSocket.getPort());
                 // Create a thread to handle the connection
                 new Thread(() -> {
                     try {

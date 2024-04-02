@@ -30,4 +30,6 @@ bin/
 ### Mac OS ###
 .DS_Storez
 
+src/main/java/barrels.txt
+src/main/java/downloaders.txt
 src/main/java/misc.xml

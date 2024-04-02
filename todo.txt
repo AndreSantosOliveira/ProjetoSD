@@ -1,1 +1,10 @@
-O search não funciona.
+Matar downloaders e barrels quando a BD é desligada.
+
+search depois de um barrel morrer nao funciona:
+1. Error searching for: sapo (0 references)
+ -> Connection refused to host: 192.168.1.193; nested exception is:
+	java.net.ConnectException: Connection refused: connect
+
+
+
+Bloquear pedidos de cliente quando alguma componente essencial está on hold / em baixo. Gateway

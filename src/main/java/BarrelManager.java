@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 /**
@@ -21,8 +22,8 @@ import java.util.stream.Collectors;
 public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
     // Map to store barrels
-    private final List<MetodosRMIBarrel> barrels = new ArrayList<>();
-    private final Map<String, String> activeBarrelsIDIP = new HashMap<>();
+    private final List<MetodosRMIBarrel> barrels = new CopyOnWriteArrayList<>();
+    private static final Map<String, String> activeBarrelsIDIP = new HashMap<>();
 
     /**
      * Default constructor for BarrelManager.
@@ -31,7 +32,13 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
      */
     public BarrelManager() throws RemoteException {
         super();
+        connectToBarrels();
+    }
 
+
+    private void connectToBarrels() {
+        barrels.clear();
+        activeBarrelsIDIP.clear();
         // Load barrels from the text file barrels.txt (IP, port, rmiName)
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/java/barrels.txt"))) {
             String line;
@@ -45,7 +52,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
                         MetodosRMIBarrel res = tentarLigarABarrel(new Connection(ip, porta, rmiName));
                         if (res != null) {
-                            this.barrels.add(res);
+                            barrels.add(res);
                             activeBarrelsIDIP.put(res.getBarrelID(), ip + ":" + porta);
                         }
                     } catch (NumberFormatException e) {
@@ -79,9 +86,28 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
             BarrelManager barrelManager = new BarrelManager();
             LocateRegistry.createRegistry(ConnectionsEnum.BARREL_MANAGER.getPort()).rebind("barrelmanager", barrelManager);
             while (true) {
+                for (MetodosRMIBarrel barrel : barrelManager.barrels) {
+                    //  Busy waiting like a man
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    // Are you alive?
+                    try {
+                        // Yes
+                        barrel.getBarrelID();
+                        System.out.println("Barrel " + barrel.getBarrelID() + " is alive.");
+                    } catch (RemoteException e) {
+                        // No
+                        System.out.println("Failed to connect to a barrel. Retrying in 1 second...");
+                        // Reconnect to barrels that are dead
+                        barrelManager.connectToBarrels();
+                    }
+                }
             }
         } catch (IOException re) {
-            System.out.println("Exception in Gateway RMI: " + re);
+            System.out.println("Exception in BarrelManager: " + re);
         }
     }
 
@@ -152,10 +178,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                 }
             }
 
-            return new Tuple<>(id, urlTitulo.entrySet()
-                    .stream()
-                    .map(entry -> new URLData(entry.getKey(), entry.getValue(), relevace.get(entry.getKey())))
-                    .collect(Collectors.toList()));
+            return new Tuple<>(id, urlTitulo.entrySet().stream().map(entry -> new URLData(entry.getKey(), entry.getValue(), relevace.get(entry.getKey()))).collect(Collectors.toList()));
         }
     }
 
@@ -178,9 +201,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
     @Override
     public String getActiveBarrels() throws RemoteException {
         try {
-            return activeBarrelsIDIP.entrySet().stream()
-                    .map(entry -> " - " + entry.getKey() + " @ " + entry.getValue())
-                    .collect(Collectors.joining("\n"));
+            return activeBarrelsIDIP.entrySet().stream().map(entry -> " - " + entry.getKey() + " @ " + entry.getValue()).collect(Collectors.joining("\n"));
         } catch (Exception e) {
             return "No barrels connected.";
         }
