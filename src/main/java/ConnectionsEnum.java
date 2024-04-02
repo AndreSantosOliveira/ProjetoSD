@@ -1,3 +1,7 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 /**
  * ConnectionsEnum is an enumeration that represents different types of connections.
  * Each connection is associated with a Connection object that contains the IP address and port number.
@@ -6,21 +10,40 @@
 public enum ConnectionsEnum {
 
     // Connections
-    MULTICAST(new Connection("230.0.0.1", 6900)),
-    GATEWAY(new Connection("127.0.0.1", 1000)),
-    QUEUE_MANAGER(new Connection("127.0.0.1", 3300)),
-    BARREL_MANAGER(new Connection("127.0.0.1", 4200)),
-    DOWNLOAD_MANAGER(new Connection("127.0.0.1", 3570));
+    MULTICAST, GATEWAY, QUEUE_MANAGER, BARREL_MANAGER, DOWNLOAD_MANAGER;
 
-    private final Connection descritor;
+    private String IP;
+    private int port;
+
+    ConnectionsEnum() {
+        // Load IP address and port number from connections.txt
+        loadConnectionInfo();
+    }
 
     /**
-     * Constructor for ConnectionsEnum.
-     *
-     * @param descritor the Connection object associated with the connection
+     * Loads IP address and port number from the connections.txt file.
      */
-    ConnectionsEnum(Connection descritor) {
-        this.descritor = descritor;
+    private void loadConnectionInfo() {
+        try (BufferedReader br = new BufferedReader(new FileReader("src/main/java/connections.txt"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\\|");
+                if (parts.length == 2) {
+                    String connectionName = parts[0];
+                    String[] address = parts[1].split(":");
+                    String ipAddress = address[0];
+                    int portNumber = Integer.parseInt(address[1]);
+
+                    if (this.name().equals(connectionName)) {
+                        IP = ipAddress;
+                        port = portNumber;
+                        break;
+                    }
+                }
+            }
+        } catch (IOException | NumberFormatException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -29,7 +52,7 @@ public enum ConnectionsEnum {
      * @return the IP address of the connection
      */
     public String getIP() {
-        return descritor.getIP();
+        return IP;
     }
 
     /**
@@ -38,7 +61,7 @@ public enum ConnectionsEnum {
      * @return the port number of the connection
      */
     public int getPort() {
-        return descritor.getPorta();
+        return port;
     }
 
     /**
@@ -57,6 +80,6 @@ public enum ConnectionsEnum {
      */
     @Override
     public String toString() {
-        return descritor.toString();
+        return getIP() + ":" + getPort();
     }
 }
