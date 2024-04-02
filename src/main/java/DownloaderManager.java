@@ -19,18 +19,28 @@ import java.util.concurrent.atomic.AtomicInteger;
  * and sets up a socket to receive URLs from the QueueManager for scraping.
  */
 public class DownloaderManager {
-
     // Map to store downloaders
     private static List<MetodosRMIDownloader> downloaders = new ArrayList<>();
 
+    // Counter to keep track of the downloader to send the URL to
+    static AtomicInteger downloaderCounter = new AtomicInteger();
+
+
     /**
-     * Main method for the DownloaderManager class.
-     * It loads downloaders from a text file and attempts to connect to each downloader.
-     * It also sets up a socket to receive URLs from the QueueManager for scraping.
+     * Connects to the downloaders.
+     * It loads downloaders from the text file downloaders.txt (IP, port, rmiName).
+     * For each downloader, it attempts to connect to the downloader and adds it to the list of downloaders.
+     * If no downloaders are connected, it exits the program.
      *
-     * @param args command line arguments
+     * @throws IOException if an error occurs while reading the downloader file.
+     * @see Connection
+     * @see MetodosRMIDownloader
+     * @see #tentarLigarADownloader(Connection)
      */
-    public static void main(String[] args) throws IOException {
+    public static void connectToDownloaders() {
+        downloaderCounter.set(0);
+        downloaders.clear();
+
         // Load downloaders from the text file downloaders.txt (IP, port, rmiName)
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/java/downloaders.txt"))) {
             String line;
@@ -63,7 +73,17 @@ public class DownloaderManager {
             System.err.println("No barrel has been connected. Exiting...");
             System.exit(1);
         }
+    }
 
+    /**
+     * Main method for the DownloaderManager class.
+     * It loads downloaders from a text file and attempts to connect to each downloader.
+     * It also sets up a socket to receive URLs from the QueueManager for scraping.
+     *
+     * @param args command line arguments
+     */
+    public static void main(String[] args) throws IOException {
+        connectToDownloaders();
         socketQueueManagerToDownloadManager();
     }
 
@@ -104,6 +124,40 @@ public class DownloaderManager {
         return null;
     }
 
+
+    /**
+     * Synchronizes the downloaders to send a URL to scrape.
+     * It sends the URL to the downloader at the current index in the list of downloaders.
+     * If an error occurs while sending the URL, it prints an error message.
+     *
+     * @param urlParaScrape the URL to scrape
+     */
+    private static void synchronizeDownloaders(String urlParaScrape) {
+        synchronized (downloaders) {
+            if (downloaderCounter.get() >= downloaders.size()) {
+                downloaderCounter.set(0);
+            }
+
+            MetodosRMIDownloader downloader = downloaders.get(downloaderCounter.get());
+            try {
+                if (downloader != null && !downloader.isBusy()) {
+                    new Thread(() -> {
+                        try {
+                            downloader.crawlURL(urlParaScrape);
+                            downloaderCounter.incrementAndGet();
+                        } catch (RemoteException e) {
+                            System.out.println("Failed to send URL to Downloader : " + urlParaScrape);
+                        }
+                    }).start();
+                }
+            } catch (RemoteException e) {
+                System.out.println("Failed to connect to a downloader for indexing. Retrying in 1 second...");
+                connectToDownloaders();
+                synchronizeDownloaders(urlParaScrape);
+            }
+        }
+    }
+
     /**
      * Sets up a socket to receive URLs from the QueueManager for scraping.
      * It creates a server socket and continuously accepts connections.
@@ -125,31 +179,12 @@ public class DownloaderManager {
                     // setup bufferedreader to read messages from clients
                     BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
 
-                    AtomicInteger downloaderCounter = new AtomicInteger();
 
                     // read messages from the client
                     String urlParaScrape;
                     while ((urlParaScrape = inFromClient.readLine()) != null) {
-                        final String finalUrlParaScrape = urlParaScrape;
-                        synchronized (downloaders) {
-                            if (downloaderCounter.get() >= downloaders.size()) {
-                                downloaderCounter.set(0);
-                            }
-
-                            MetodosRMIDownloader downloader = downloaders.get(downloaderCounter.get());
-                            if (downloader != null && !downloader.isBusy()) {
-                                new Thread(() -> {
-                                    try {
-                                        downloader.crawlURL(finalUrlParaScrape);
-                                        downloaderCounter.incrementAndGet();
-                                    } catch (RemoteException e) {
-                                        System.out.println("Failed to send URL to Downloader : " + finalUrlParaScrape);
-                                    }
-                                }).start();
-                            }
-                        }
+                        synchronizeDownloaders(urlParaScrape);
                     }
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
