@@ -7,7 +7,6 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +23,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
     // Map to store barrels
     private final List<MetodosRMIBarrel> barrels = new CopyOnWriteArrayList<>();
     private static final Map<String, String> activeBarrelsIDIP = new HashMap<>();
+    private static MetodosRMIGateway metodosGateway;
 
     /**
      * Default constructor for BarrelManager.
@@ -34,7 +34,6 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         super();
         connectToBarrels();
     }
-
 
     private void connectToBarrels() {
         barrels.clear();
@@ -64,8 +63,12 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
             }
 
             if (this.barrels.isEmpty()) {
-                System.err.println("No barrel has been connected. Exiting...");
-                System.exit(1);
+                System.err.println("No barrel has been connected. Shutting down...");
+                try {
+                    metodosGateway.shutdown("No barrel has been connected. Barrel Manager.");
+                } catch (Exception e) {
+                    System.exit(1);
+                }
             }
 
             ConnectionsEnum.BARREL_MANAGER.printINIT("BarrelManager");
@@ -85,6 +88,27 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         try {
             BarrelManager barrelManager = new BarrelManager();
             LocateRegistry.createRegistry(ConnectionsEnum.BARREL_MANAGER.getPort()).rebind("barrelmanager", barrelManager);
+
+            int maxRetries = 3; // Maximum number of connection attempts to the Gateway
+            int retryCount = 0; // Counter of connection attempts to the Gateway
+            // Try to connect to the Gateway via RMI
+            while (metodosGateway == null && retryCount < maxRetries) {
+                try {
+                    metodosGateway = (MetodosRMIGateway) LocateRegistry.getRegistry(ConnectionsEnum.GATEWAY.getPort()).lookup("gateway");
+                    System.out.println("Connected to Gateway!");
+                } catch (RemoteException | NotBoundException e) {
+                    ++retryCount;
+                    if (retryCount < maxRetries) {
+                        System.out.println("Failed to connect to Gateway. Retrying...");
+                        try {
+                            Thread.sleep(1001);
+                        } catch (InterruptedException ex) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                }
+            }
+
             while (true) {
                 for (MetodosRMIBarrel barrel : barrelManager.barrels) {
                     //  Busy waiting like a man
@@ -154,6 +178,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
      */
     @Override
     public Tuple<String, List<URLData>> searchInput(String pesquisa) throws RemoteException {
+        boolean error = true;
         String id = "none";
         Map<String, String> urlTitulo = new HashMap<>();
         Map<String, Integer> relevace = new HashMap<>();
@@ -168,17 +193,23 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                                 if (!urlTitulo.containsKey(urlData.getURL())) {
                                     urlTitulo.put(urlData.getURL(), urlData.getPageTitle());
                                     relevace.put(urlData.getURL(), urlData.getRelevance());
+                                    error = false;
                                 }
                             }
                         }
                     } catch (RemoteException e) {
-                        return new Tuple<>(id, Collections.singletonList(new URLData(e.getMessage(), "Error searching for: " + pesquisa, "none")));
+                        // vamos tentar o próximo barrel
+                        continue;
                     }
                     break; // so precisamos de um barrel funcional
                 }
             }
 
-            return new Tuple<>(id, urlTitulo.entrySet().stream().map(entry -> new URLData(entry.getKey(), entry.getValue(), relevace.get(entry.getKey()))).collect(Collectors.toList()));
+            if (error) {
+                return new Tuple<>(id, Collections.singletonList(new URLData("Please make sure that at least one barrel is online.", "Trying to reconnect to the barrels..", 0)));
+            } else {
+                return new Tuple<>(id, urlTitulo.entrySet().stream().map(entry -> new URLData(entry.getKey(), entry.getValue(), relevace.get(entry.getKey()))).collect(Collectors.toList()));
+            }
         }
     }
 
@@ -203,13 +234,13 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         try {
             return activeBarrelsIDIP.entrySet().stream().map(entry -> " - " + entry.getKey() + " @ " + entry.getValue()).collect(Collectors.joining("\n"));
         } catch (Exception e) {
-            return "No barrels connected.";
+            return "Error while catching name for a barrel. Please try again.";
         }
     }
 
     @Override
     public String getBarrelID() {
-        return null;
+        return "i'm barrel manager :D";
     }
 
     @Override
@@ -227,5 +258,21 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
             }
         }
         return Collections.emptyList();
+    }
+
+    @Override
+    public void shutdown(String motive) throws RemoteException {
+        synchronized (barrels) {
+            for (MetodosRMIBarrel value : barrels) {
+                if (value != null) {
+                    try {
+                        value.shutdown(motive);
+                    } catch (RemoteException e) {
+                        continue;
+                    }
+                }
+            }
+        }
+        System.exit(0);
     }
 }

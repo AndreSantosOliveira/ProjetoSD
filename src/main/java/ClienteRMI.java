@@ -85,7 +85,7 @@ public class ClienteRMI implements Serializable, Remote {
                 return;
             }
 
-            // Connect client via RMI
+            // Register client via RMI
             ClienteRMI clienteRMI = new ClienteRMI();
             registry.rebind("Client", clienteRMI);
 
@@ -108,6 +108,19 @@ public class ClienteRMI implements Serializable, Remote {
                 }
             }
 
+            MetodosRMIGateway finalMetodosGateway = metodosGateway;
+            new Thread(() -> {
+                while (true) {
+                    try {
+                        Thread.sleep(1000);
+                        finalMetodosGateway.getAdministrativeStatistics();
+                    } catch (RemoteException | InterruptedException e) {
+                        System.out.println("Gateway went offline. Exiting...");
+                        System.exit(0);
+                    }
+                }
+            }).start();
+
             // If it is not possible to connect to the Gateway, terminate the program
             if (metodosGateway == null) {
                 System.out.println("Failed to connect to Gateway after maximum retry attempts. Exiting...");
@@ -129,12 +142,26 @@ public class ClienteRMI implements Serializable, Remote {
                 }
 
                 String[] splitOption = command.split(" ");
-                if (splitOption.length < 2 && !splitOption[0].equals("help") && !splitOption[0].equals("exit") && !splitOption[0].equals("list") && !splitOption[0].equals("admin") && !splitOption[0].equals("save")) {
+                if (splitOption.length < 2 && !splitOption[0].equals("help") && !splitOption[0].equals("exit") && !splitOption[0].equals("list") && !splitOption[0].equals("admin") && !splitOption[0].equals("save") && !splitOption[0].equals("clear") && !splitOption[0].equals("cls") && !splitOption[0].equals("shutdown")) {
                     System.out.println("Invalid option. For additional information type 'help'");
                     continue;
                 }
 
                 switch (splitOption[0]) {
+                    case "shutdown":
+                        try {
+                            System.out.println("Shutting down all components...");
+                            metodosGateway.shutdown("ClientRMI ordered shutdown.");
+                        } catch (RemoteException ignored) {
+                        }
+                        break;
+
+                    case "clear":
+                    case "cls":
+                        for (int i = 0; i < 40; i++) {
+                            System.out.println();
+                        }
+                        break;
 
                     case "index": //     index https://sapo.pt
                         StringBuilder url = new StringBuilder(splitOption[1]);

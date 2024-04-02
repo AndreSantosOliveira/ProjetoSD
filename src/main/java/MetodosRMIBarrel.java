@@ -21,7 +21,7 @@ public interface MetodosRMIBarrel extends Remote {
     /**
      * Saves the content of the barrels to a file.
      *
-     * @throws RemoteException
+     * @throws RemoteException if an error occurs during remote method invocation.
      */
     void saveBarrelsContent() throws RemoteException;
 
@@ -48,4 +48,12 @@ public interface MetodosRMIBarrel extends Remote {
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     List<String> linksListForURL(String url) throws RemoteException;
+
+    /**
+     * Shuts down the barrel.
+     *
+     * @param motive the reason for the shutdown
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
+    void shutdown(String motive) throws RemoteException;
 }

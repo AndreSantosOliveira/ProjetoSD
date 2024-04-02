@@ -34,6 +34,8 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
     // Flag to indicate if the Downloader is busy
     private boolean busy = false;
 
+    static String dlID;
+
     /**
      * Default constructor for Downloader.
      *
@@ -59,7 +61,7 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
                 System.exit(1);
             }
             int porta = Integer.parseInt(args[0]);
-            String dlID = args[1];
+            dlID = args[1];
 
             Downloader gateway = new Downloader();
             LocateRegistry.createRegistry(porta).rebind(dlID, gateway);
@@ -196,6 +198,12 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
     @Override
     public boolean isBusy() throws RemoteException {
         return busy;
+    }
+
+    @Override
+    public void shutdown() throws RemoteException {
+        System.out.println("Shutting down Downloader " + dlID);
+        System.exit(0);
     }
 
     /**

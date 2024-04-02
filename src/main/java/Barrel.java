@@ -64,7 +64,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
             // verify if there is a file with content available
             try {
                 // get the file creation date
-                File file = new File("src/main/java/barrelContent.barrel");
+                File file = new File("src/main/java/barrelContent." + barrelID);
                 if (file.exists()) {
                     long lastModified = file.lastModified();
                     Date date = new Date(lastModified);
@@ -158,7 +158,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     public void saveBarrelsContent() throws RemoteException {
         // Write contents of this barrel (index) to a object file
         try {
-            FileOutputStream fos = new FileOutputStream("src/main/java/barrelContent.barrel");
+            FileOutputStream fos = new FileOutputStream("src/main/java/barrelContent." + barrelID);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(new Tuple<>(index, urlEApontadoresParaURL));
             oos.close();
@@ -182,6 +182,13 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     public List<String> linksListForURL(String url) throws RemoteException {
         // print url and print if it has links
         return urlEApontadoresParaURL.containsKey(url) ? new ArrayList<>(urlEApontadoresParaURL.get(url)) : new ArrayList<>();
+    }
+
+    @Override
+    public void shutdown(String motive) throws RemoteException {
+        System.out.println("Barrel " + barrelID + " is shutting down. Reason: " + motive);
+        saveBarrelsContent();
+        System.exit(0);
     }
 
     /**

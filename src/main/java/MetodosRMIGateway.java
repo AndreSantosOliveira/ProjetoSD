@@ -48,4 +48,12 @@ public interface MetodosRMIGateway extends Remote {
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     List<String> linksListForURL(String url) throws RemoteException;
+
+    /**
+     * Lists indexed pages.
+     *
+     * @param motive the reason for the shutdown
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
+    void shutdown(String motive) throws RemoteException;
 }

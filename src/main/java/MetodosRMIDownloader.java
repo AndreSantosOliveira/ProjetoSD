@@ -23,4 +23,11 @@ public interface MetodosRMIDownloader extends Remote {
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     boolean isBusy() throws RemoteException;
+
+    /**
+     * Shuts down the Downloader.
+     *
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
+    void shutdown() throws RemoteException;
 }

@@ -190,6 +190,17 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         return metodosBarrelManager.linksListForURL(url);
     }
 
+    @Override
+    public void shutdown(String motive) throws RemoteException {
+        queueManager.println("shutdown");
+        System.out.println(motive + ". Shutting down.");
+        try {
+            metodosBarrelManager.shutdown(motive);
+        } catch (RemoteException ignored) {
+        }
+        System.exit(0);
+    }
+
     public void addSearch(String search) {
         int count = top10Searches.getOrDefault(search, 0);
         top10Searches.put(search, count + 1);

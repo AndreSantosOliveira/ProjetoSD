@@ -1,3 +1,4 @@
+FOI FIXED E MELHORADO:
 Matar downloaders e barrels quando a BD é desligada.
 
 search depois de um barrel morrer nao funciona:
@@ -6,5 +7,5 @@ search depois de um barrel morrer nao funciona:
 	java.net.ConnectException: Connection refused: connect
 
 
-
-Bloquear pedidos de cliente quando alguma componente essencial está on hold / em baixo. Gateway
+TODO:
+Bloquear pedidos de cliente quando alguma compxonente essencial está on hold / em baixo. Gateway

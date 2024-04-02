@@ -32,7 +32,6 @@ public class DownloaderManager {
      * For each downloader, it attempts to connect to the downloader and adds it to the list of downloaders.
      * If no downloaders are connected, it exits the program.
      *
-     * @throws IOException if an error occurs while reading the downloader file.
      * @see Connection
      * @see MetodosRMIDownloader
      * @see #tentarLigarADownloader(Connection)
@@ -65,8 +64,7 @@ public class DownloaderManager {
                 }
             }
         } catch (IOException e) {
-            System.err.println("Error reading the downloader file.");
-            e.printStackTrace();
+            System.err.println("Error reading the downloader file: " + e.getMessage());
         }
 
         if (downloaders.isEmpty()) {
@@ -183,6 +181,15 @@ public class DownloaderManager {
                     // read messages from the client
                     String urlParaScrape;
                     while ((urlParaScrape = inFromClient.readLine()) != null) {
+                        if (urlParaScrape.equalsIgnoreCase("shutdown")) {
+                            System.out.println("DownloadManager received shutdown command.");
+                            shutdownDownloaders();
+                            break;
+                        }
+                        if (urlParaScrape.endsWith("/")) {
+                            urlParaScrape = urlParaScrape.substring(0, urlParaScrape.length() - 1);
+                        }
+
                         synchronizeDownloaders(urlParaScrape);
                     }
                 } catch (IOException e) {
@@ -190,5 +197,18 @@ public class DownloaderManager {
                 }
             }).start();
         }
+    }
+
+    private static void shutdownDownloaders() {
+        synchronized (downloaders) {
+            for (MetodosRMIDownloader downloader : downloaders) {
+                try {
+                    downloader.shutdown();
+                } catch (RemoteException e) {
+                    continue;
+                }
+            }
+        }
+        System.exit(0);
     }
 }

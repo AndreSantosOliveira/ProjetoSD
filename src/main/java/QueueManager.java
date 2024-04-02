@@ -30,7 +30,7 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
     private static PrintWriter downloadManager;
 
     // Queue to hold unique URLs, with a maximum size of 50
-    static final UniqueQueue<String> queue = new UniqueQueue<>(50);
+    static UniqueQueue<String> queue = new UniqueQueue<>(50);
 
     /**
      * Main method for the QueueManager class.
@@ -61,15 +61,21 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-                    synchronized (queue) {
-                        if (!queue.isEmpty()) {
-                            String url = queue.poll();
-                            if (url != null) {
-                                downloadManager.println(url);
-                                System.out.println("QueueManager sent for Scraping: " + url);
+                    if (queue == null) {
+                        downloadManager.println("shutdown");
+                        System.exit(0);
+                    } else {
+                        synchronized (queue) {
+                            if (!queue.isEmpty()) {
+                                String url = queue.poll();
+                                if (url != null) {
+                                    downloadManager.println(url);
+                                    System.out.println("QueueManager sent for Scraping: " + url);
+                                }
                             }
                         }
                     }
+
                 }
 
             }).start();
@@ -96,6 +102,13 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
                         while ((dados = inFromClient.readLine()) != null) {
                             if (dados.endsWith("/")) {
                                 dados = dados.substring(0, dados.length() - 1);
+                            }
+
+                            if (dados.equalsIgnoreCase("shutdown")) {
+                                System.out.println("QueueManager received shutdown command.");
+                                queue.clear();
+                                queue = null;
+                                break;
                             }
 
                             synchronized (queue) {
@@ -154,8 +167,5 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
         }
 
         return false;
-    }
-
-    public void handleGatewayConnection(BufferedReader mockBufferedReader) {
     }
 }
