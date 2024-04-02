@@ -125,7 +125,6 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         List<URLData> lista = res.getSecond();
         //check if any urldata has relevance bigger than 0
         //if so, sort the list by relevance
-        System.out.println(lista.stream().anyMatch(urlData -> urlData.getRelevance() > 0));
         if (lista.stream().anyMatch(urlData -> urlData.getRelevance() > 0)) {
             lista.sort(Comparator.comparingInt(URLData::getRelevance).reversed());
         }
