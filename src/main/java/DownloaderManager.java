@@ -2,11 +2,12 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -81,7 +82,7 @@ public class DownloaderManager {
         int maxRetries = 5;
         while (metodosGateway == null && retryCount < maxRetries) {
             try {
-                metodosGateway = (MetodosRMIDownloader) LocateRegistry.getRegistry(descritorIPPorta.getPorta()).lookup(descritorIPPorta.getRMIName());
+                metodosGateway = (MetodosRMIDownloader) Naming.lookup("rmi://" + descritorIPPorta.getIP() + ":" + descritorIPPorta.getPorta() + "/" + descritorIPPorta.getRMIName());
                 System.out.println("Connected to Downloader " + descritorIPPorta.getRMIName() + "!");
                 return metodosGateway;
             } catch (RemoteException | NotBoundException e) {
@@ -95,6 +96,8 @@ public class DownloaderManager {
                         Thread.currentThread().interrupt();
                     }
                 }
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
             }
         }
         System.out.println("Failed to connect to Downloader: " + descritorIPPorta.getRMIName() + ". :(");

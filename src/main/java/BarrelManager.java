@@ -2,6 +2,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -95,7 +97,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         int maxRetries = 5;
         while (metodosBarrel == null && retryCount < maxRetries) {
             try {
-                metodosBarrel = (MetodosRMIBarrel) LocateRegistry.getRegistry(descritorIPPorta.getPorta()).lookup(descritorIPPorta.getRMIName());
+                metodosBarrel = (MetodosRMIBarrel) Naming.lookup("rmi://" + descritorIPPorta.getIP() + ":" + descritorIPPorta.getPorta() + "/" + descritorIPPorta.getRMIName());
                 System.out.println("Connected to Barrel " + descritorIPPorta.getRMIName() + "!");
                 return metodosBarrel;
             } catch (RemoteException | NotBoundException e) {
@@ -109,6 +111,8 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                         Thread.currentThread().interrupt();
                     }
                 }
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
             }
         }
         System.out.println("Failed to connect to Barrel: " + descritorIPPorta.getRMIName() + ". :(");
