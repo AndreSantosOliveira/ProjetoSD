@@ -185,8 +185,9 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         String id = "none";
         Map<String, String> urlTitulo = new HashMap<>();
         Map<String, Integer> relevace = new HashMap<>();
-        System.out.println(barrels);
         synchronized (barrels) {
+            System.out.println(barrels);
+
             for (MetodosRMIBarrel barrel : barrels) {
                 if (barrel != null) {
                     try {
@@ -197,9 +198,9 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                                 if (!urlTitulo.containsKey(urlData.getURL())) {
                                     urlTitulo.put(urlData.getURL(), urlData.getPageTitle());
                                     relevace.put(urlData.getURL(), urlData.getRelevance());
-                                    error = false;
                                 }
                             }
+                            error = false;
                         }
                     } catch (RemoteException e) {
                         // vamos tentar o próximo barrel
