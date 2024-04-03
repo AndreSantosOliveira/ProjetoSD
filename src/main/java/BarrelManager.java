@@ -113,28 +113,49 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
             }
 
             while (true) {
+
+                //  Busy waiting like a man
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+
                 for (MetodosRMIBarrel barrel : barrelManager.barrels) {
-                    //  Busy waiting like a man
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                    // Are you alive?
-                    try {
-                        // Yes
-                        barrel.getBarrelID();
-                        System.out.println("Barrel " + barrel.getBarrelID() + " is alive.");
-                    } catch (RemoteException e) {
-                        // No
-                        System.out.println("Failed to connect to a barrel. Retrying in 1 second...");
-                        // Reconnect to barrels that are dead
-                        barrelManager.connectToBarrels();
-                    }
+                    // Make individual heartbeat system for each barrel in seperate threads
+                    new Thread(() -> {
+                        try {
+                            barrelManager.heartbeat(barrel, barrelManager);
+                        } catch (RemoteException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }).start();
                 }
             }
         } catch (IOException re) {
             System.out.println("Exception in BarrelManager: " + re);
+        }
+    }
+
+    private void heartbeat(MetodosRMIBarrel barrel, BarrelManager barrelManager) throws RemoteException {
+        try {
+            while (true) {
+                Thread.sleep(5000);
+
+                // Are you alive?
+                try {
+                    // Yes
+                    barrel.getBarrelID();
+                    System.out.println("Barrel " + barrel.getBarrelID() + " is alive.");
+                } catch (RemoteException e) {
+                    // No
+                    System.out.println("Failed to connect to a barrel. Retrying in 1 second...");
+                    // Reconnect to barrels that are dead
+                    barrelManager.connectToBarrels();
+                }
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
