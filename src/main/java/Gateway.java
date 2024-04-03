@@ -216,7 +216,6 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
                     String storedUsername = parts[0];
                     String storedPassword = parts[1];
                     int storedValue = Integer.parseInt(parts[2]);
-                    System.out.println(storedUsername + " " + storedPassword + " " + storedValue);
 
                     if (storedUsername.equalsIgnoreCase(username) && storedPassword.equalsIgnoreCase(password)) {
                         authResult = storedValue;

@@ -169,10 +169,6 @@ public class ClienteRMI implements Serializable, Remote {
 
                     String[] splitOption = command.split(" ");
 
-                    if (splitOption.length == 2) {
-                        System.out.println("Logging in...");
-                    }
-
                     if (splitOption.length < 2 && !splitOption[0].equals("help") && !splitOption[0].equals("exit") && !splitOption[0].equals("list") && !splitOption[0].equals("admin") && !splitOption[0].equals("save") && !splitOption[0].equals("clear") && !splitOption[0].equals("cls") && !splitOption[0].equals("shutdown") && !splitOption[0].equals("logout")) {
                         System.out.println("Invalid option. For additional information type 'help'");
                         continue;

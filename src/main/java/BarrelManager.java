@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
     // Map to store barrels
-    private final List<MetodosRMIBarrel> barrels = new CopyOnWriteArrayList<>();
-    private static final Map<String, String> activeBarrelsIDIP = new HashMap<>();
+    private List<MetodosRMIBarrel> barrels = new CopyOnWriteArrayList<>();
+    private static Map<String, String> activeBarrelsIDIP = new HashMap<>();
     private static MetodosRMIGateway metodosGateway;
 
     /**
@@ -207,7 +207,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         Map<String, String> urlTitulo = new HashMap<>();
         Map<String, Integer> relevace = new HashMap<>();
         synchronized (barrels) {
-            System.out.println(barrels);
+            //System.out.println(barrels);
 
             for (MetodosRMIBarrel barrel : barrels) {
                 if (barrel != null) {
@@ -257,6 +257,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
     @Override
     public String getActiveBarrels() throws RemoteException {
+        System.out.println(activeBarrelsIDIP);
         try {
             return activeBarrelsIDIP.entrySet().stream().map(entry -> " - " + entry.getKey() + " @ " + entry.getValue()).collect(Collectors.joining("\n"));
         } catch (Exception e) {
