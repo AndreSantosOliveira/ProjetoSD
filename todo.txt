@@ -22,3 +22,5 @@ Não rebentar o sistema sem barrels
 Instanciar novo barrel manager quando um morre ou quando o numero desejado de barrels nao é atingido
 
 Verificar se nao temos um loop infinito de URLs (site com 2 paginas q apontam para si mesmas), implementar urls já visitados
+
+Dar fix dos active gateways na pagina admin
