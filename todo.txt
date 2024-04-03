@@ -1,13 +1,7 @@
 TODO:
 Bloquear pedidos de cliente quando alguma compxonente essencial está on hold / em baixo. Gateway
 
-Autenticação admin com password na gateway
-
 Quando adiciona novo barrel (ou ele é morto), adicionado ao barrel manager, enviamos os dados totais de 1 q esteja online para o novo barrel, copiar dados de barrel1 para outro, mas melhor automatico
-
-Threads para heart beat para cada barrel manager
-
-Disparar novos barrels do barrel manager
 
 Verificar se nao temos um loop infinito de URLs (site com 2 paginas q apontam para si mesmas), implementar urls já visitados
 
