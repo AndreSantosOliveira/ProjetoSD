@@ -21,7 +21,6 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
     // Map to store barrels
     private Map<Connection, MetodosRMIBarrel> barrels = new HashMap<>();
-    private static MetodosRMIGateway metodosGateway;
 
     /**
      * Default constructor for BarrelManager.
@@ -34,7 +33,6 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
     }
 
     private void connectToBarrels() {
-        barrels.clear();
 
         // Load barrels from the text file barrels.txt (IP, port, rmiName)
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/java/barrels.txt"))) {
@@ -59,13 +57,6 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
             if (this.barrels.isEmpty()) {
                 System.err.println("No barrel has been connected. Shutting down...");
-                /*
-                try {
-                    metodosGateway.shutdown("No barrel has been connected. Barrel Manager.");
-                } catch (Exception e) {
-                    System.exit(1);
-                }
-            */
                 System.exit(1);
             }
 
@@ -87,29 +78,8 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
             BarrelManager barrelManager = new BarrelManager();
             LocateRegistry.createRegistry(ConnectionsEnum.BARREL_MANAGER.getPort()).rebind("barrelmanager", barrelManager);
 
-            int maxRetries = 3; // Maximum number of connection attempts to the Gateway
-            int retryCount = 0; // Counter of connection attempts to the Gateway
-
-            // Try to connect to the Gateway via RMI
-            while (metodosGateway == null && retryCount < maxRetries) {
-                try {
-                    metodosGateway = (MetodosRMIGateway) LocateRegistry.getRegistry(ConnectionsEnum.GATEWAY.getPort()).lookup("gateway");
-                    System.out.println("Connected to Gateway!");
-                } catch (RemoteException | NotBoundException e) {
-                    ++retryCount;
-                    if (retryCount < maxRetries) {
-                        System.out.println("Failed to connect to Gateway. Retrying...");
-                        try {
-                            Thread.sleep(1001);
-                        } catch (InterruptedException ex) {
-                            Thread.currentThread().interrupt();
-                        }
-                    }
-                }
-            }
-
             for (Connection connection : barrelManager.barrels.keySet()) {
-                // Make individual heartbeat system for each barrel in seperate threads
+                // Make individual heartbeat system for each barrel in separate threads
                 new Thread(() -> {
                     try {
                         barrelManager.heartbeat(connection);
@@ -117,16 +87,6 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                         throw new RuntimeException(e);
                     }
                 }).start();
-            }
-
-            while (true) {
-                System.out.println(barrelManager.barrels);
-                //  Busy waiting like a man
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
             }
 
         } catch (IOException re) {
@@ -137,14 +97,31 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
     private void heartbeat(Connection barrelCon) throws RemoteException, InterruptedException {
         while (true) {
             Thread.sleep(5000);
-            // Are you alive?
             MetodosRMIBarrel barrel = tentarLigarABarrel(barrelCon, false);
             if (barrel != null) {
                 System.out.println("Barrel " + barrelCon.getRMIName() + " is alive.");
-                barrels.put(barrelCon, barrel);
+                //barrels.put(barrelCon, barrel);
+            } else {
+                System.out.println("Barrel " + barrelCon.getRMIName() + " is offline.");
+                //barrels.remove(barrelCon);
+                reconnectToBarrel(barrelCon);
             }
         }
     }
+
+    private void reconnectToBarrel(Connection barrelCon) throws InterruptedException {
+        System.out.println("Trying to reconnect to Barrel " + barrelCon.getRMIName() + "...");
+        while (true) {
+            Thread.sleep(5000);
+            MetodosRMIBarrel barrel = tentarLigarABarrel(barrelCon, false);
+            if (barrel != null) {
+                System.out.println("Reconnected to Barrel " + barrelCon.getRMIName() + "!");
+                //barrels.put(barrelCon, barrel);
+                break;
+            }
+        }
+    }
+
 
     /**
      * Attempts to connect to a barrel.
@@ -156,7 +133,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         MetodosRMIBarrel metodosBarrel = null;
         int retryCount = 0;
         int maxRetries = 5;
-        while (metodosBarrel == null && retryCount < maxRetries) {
+        while (retryCount < maxRetries) {
             try {
                 metodosBarrel = (MetodosRMIBarrel) Naming.lookup("rmi://" + descritorIPPorta.getIP() + ":" + descritorIPPorta.getPorta() + "/" + descritorIPPorta.getRMIName());
                 if (retrySystemOff) System.out.println("Connected to Barrel " + descritorIPPorta.getRMIName() + "!");
@@ -188,14 +165,13 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     @Override
+    //TODO: Distribuir carga entre barrels.
     public Tuple<String, List<URLData>> searchInput(String pesquisa) throws RemoteException {
         boolean error = true;
         String id = "none";
         Map<String, String> urlTitulo = new HashMap<>();
         Map<String, Integer> relevace = new HashMap<>();
         synchronized (barrels) {
-            //System.out.println(barrels);
-
             for (MetodosRMIBarrel barrel : barrels.values()) {
                 if (barrel != null) {
                     try {
@@ -244,15 +220,20 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
     @Override
     public String getActiveBarrels() throws RemoteException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\n");
         synchronized (barrels) {
-            StringBuilder activeBarrelsIDIP = new StringBuilder();
-            activeBarrelsIDIP.append(" (" + barrels.size() + ")\n");
             for (Connection connection : barrels.keySet()) {
-                if (barrels.get(connection) != null)
-                    activeBarrelsIDIP.append(" - ").append(connection.getRMIName()).append(" @ ").append(connection.getIP()).append(":").append(connection.getPorta()).append("\n");
+                try {
+                    MetodosRMIBarrel res = (MetodosRMIBarrel) Naming.lookup("rmi://" + connection.getIP() + ":" + connection.getPorta() + "/" + connection.getRMIName());
+                    res.getBarrelID();
+                    sb.append("- ").append(connection.getRMIName()).append(" - ").append(connection.getIP()).append(":").append(connection.getPorta()).append("\n");
+                } catch (MalformedURLException | NotBoundException | RemoteException e) {
+                    continue;
+                }
             }
-            return activeBarrelsIDIP.toString();
         }
+        return sb.toString();
     }
 
     @Override
@@ -266,7 +247,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                         System.out.println("Error searching for links list for URL: " + url + " -> " + e.getMessage());
                     }
                 }
-                break; // so precisamos de um barrel funcional
+                break; // we only need one functional barrels
             }
         }
         return Collections.emptyList();
@@ -286,5 +267,11 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
             }
         }
         System.exit(0);
+    }
+
+    // Implement the remaining methods from the MetodosRMIBarrel interface   ----------- DUMMY METHODS ------------
+    @Override
+    public String getBarrelID() throws RemoteException {
+        return null;
     }
 }

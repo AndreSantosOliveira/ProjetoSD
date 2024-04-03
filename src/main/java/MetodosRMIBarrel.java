@@ -49,4 +49,5 @@ public interface MetodosRMIBarrel extends Remote {
      */
     void shutdown(String motive) throws RemoteException;
 
+    String getBarrelID() throws RemoteException;
 }

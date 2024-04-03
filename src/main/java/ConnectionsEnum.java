@@ -13,7 +13,9 @@ public enum ConnectionsEnum implements Serializable {
     // Connections
     MULTICAST, GATEWAY, QUEUE_MANAGER, BARREL_MANAGER, DOWNLOAD_MANAGER;
 
+    // The IP address of the connection
     private String IP;
+    // The port number of the connection
     private int port;
 
     ConnectionsEnum() {

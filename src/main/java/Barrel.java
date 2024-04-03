@@ -30,17 +30,21 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     // Store in this hashmap the main URL and the urls that link to it
     static HashMap<String, HashSet<String>> urlEApontadoresParaURL = new HashMap<>();
 
+    // The ID of the barrel
+    static String barrelID;
+
+    // The port of the barrel
+    static String barrelPort;
+
     /**
      * Default constructor for Barrel.
      *
      * @throws RemoteException if an error occurs during remote object initialization.
      */
-    protected Barrel() throws RemoteException { //TODO PERGUNTAR AO STOR SE A BARREL AO FORCAR DESLIGAR TIRA-SE DAS ESTATISTICAS OU SO SE TIRA QUANDO FORMOS A PESQUISAR E VERIFICAR Q N TA ON
+    protected Barrel() throws RemoteException {
         super();
     }
 
-    static String barrelID;
-    static String barrelPort;
 
     /**
      * The main method for the Barrel class.
@@ -50,6 +54,8 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
      * @param args command line arguments
      */
     public static void main(String[] args) {
+
+        // Verify if the command line arguments are valid
         if (args.length < 2) {
             System.out.println("Barrel <PORT> <ID>");
             System.exit(1);
@@ -63,9 +69,9 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
             Barrel barr = new Barrel();
             LocateRegistry.createRegistry(porta).rebind(barrelID, barr);
 
-            // verify if there is a file with content available
+            // Verify if there is a file with content available
             try {
-                // get the file creation date
+                // Get the file creation date
                 File file = new File("src/main/java/barrelContent." + barrelID);
                 if (file.exists()) {
                     long lastModified = file.lastModified();
@@ -107,7 +113,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     public static void archiveURL(URLData data) throws RemoteException {
         System.out.println("Received " + data + " to index.");
 
-        //guardar no index de palavras
+        // Split the page title into words and add the URLData object to the HashSet associated with each word in the index HashMap
         for (String palavra : data.getPageTitle().split(" ")) {
             palavra = palavra.toLowerCase();
             if (index.containsKey(palavra)) {
@@ -119,8 +125,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
             }
         }
 
-        // guardar no urlEApontadoresParaURL
-        // store in this hashmap the URL and the url where it was found
+        // Save the URL and the URL where it was found
         if (urlEApontadoresParaURL.containsKey(data.getURL())) {
             urlEApontadoresParaURL.get(data.getURL()).add(data.getURLWhereItWasFound());
         } else {
@@ -146,7 +151,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
             for (String chaves : index.keySet()) {
                 if (chaves.toLowerCase().contains(s.toLowerCase())) {
                     HashSet<URLData> urlData = index.get(chaves);
-                    //adicionar relevancia aos links
+                    //Add relevance to each URLData object
                     urlData.forEach(urlData1 -> urlData1.setRelevance(urlEApontadoresParaURL.containsKey(urlData1.getURL()) ? urlEApontadoresParaURL.get(urlData1.getURL()).size() : 0));
                     dadosBarrel.addAll(urlData);
                 }
@@ -170,14 +175,10 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
         }
     }
 
-    @Override
-    public String getActiveBarrels() {
-        return null;
-    }
 
     @Override
     public List<String> linksListForURL(String url) throws RemoteException {
-        // print url and print if it has links
+        // Print the URL and the URLs that link to it
         return urlEApontadoresParaURL.containsKey(url) ? new ArrayList<>(urlEApontadoresParaURL.get(url)) : new ArrayList<>();
     }
 
@@ -186,6 +187,11 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
         System.out.println("Barrel " + barrelID + " is shutting down. Reason: " + motive);
         saveBarrelsContent();
         System.exit(0);
+    }
+
+    @Override
+    public String getBarrelID() throws RemoteException {
+        return barrelID;
     }
 
     /**
@@ -226,5 +232,11 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
             // e.printStackTrace();
             //System.out.println("Error receiving multicast message: " + e.getMessage());
         }
+    }
+
+    // Implement the remaining methods from the MetodosRMIBarrel interface   ----------- DUMMY METHODS ------------
+    @Override
+    public String getActiveBarrels() {
+        return null;
     }
 }

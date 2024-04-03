@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -52,6 +53,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
      * @param args command line arguments
      */
     public static void main(String[] args) {
+        // Create a new Gateway object and bind it to the RMI registry
         try {
             Gateway gateway = new Gateway();
             LocateRegistry.createRegistry(ConnectionsEnum.GATEWAY.getPort()).rebind("gateway", gateway);
@@ -59,6 +61,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
             System.out.println("Exception in Gateway RMI: " + re);
         }
 
+        // Connect to the BarrelManager via RMI
         int retryCount = 0;
         int maxRetries = 10;
         while (metodosBarrelManager == null && retryCount < maxRetries) {
@@ -67,7 +70,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
                 System.out.println("Connected to BarrelManager!");
 
                 try {
-                    // Ligar ao QueueManager via TCP
+                    // Connect to the QueueManager via socket
                     Socket socket = new Socket(ConnectionsEnum.QUEUE_MANAGER.getIP(), ConnectionsEnum.QUEUE_MANAGER.getPort());
                     queueManager = new PrintWriter(socket.getOutputStream(), true);
 
@@ -77,13 +80,14 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
                     //System.exit(1);
                 }
 
+                // Print the initialization message
                 ConnectionsEnum.GATEWAY.printINIT("Gateway");
 
             } catch (RemoteException | NotBoundException e) {
                 ++retryCount;
                 if (retryCount < maxRetries) {
                     System.out.println("Failed to connect to BarrelManager (" + retryCount + "/" + maxRetries + "). Retrying...");
-                    // Sleep para evitar tentativas de ligação consecutivas
+                    // Sleep for 1 second before retrying
                     try {
                         Thread.sleep(1001);
                     } catch (InterruptedException ex) {
@@ -104,7 +108,6 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     @Override
     public String indexURLString(String url) {
         queueManager.println(url);
-
         String txt = url + " enviado para o QueueManager.";
         System.out.println(txt);
         return txt;
@@ -121,13 +124,13 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     @Override
     public List<URLData> search(String words) throws RemoteException {
         addSearch(words);
-        //measure time in miliseconds
+        // Measure the time it takes to search for the input
         long startTime = System.currentTimeMillis();
         Tuple<String, List<URLData>> res = metodosBarrelManager.searchInput(words);
-        //sort the list of URLData
+        // Store the results in a list
         List<URLData> lista = res.getSecond();
-        //check if any urldata has relevance bigger than 0
-        //if so, sort the list by relevance
+        // Check if any of the results have a relevance greater than 0
+        // if so, sort the list by relevance
         if (lista.stream().anyMatch(urlData -> urlData.getRelevance() > 0)) {
             lista.sort(Comparator.comparingInt(URLData::getRelevance).reversed());
         }
@@ -158,34 +161,45 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         metodosBarrelManager.saveBarrelsContent();
     }
 
-    // PARTE DE ESTATÍSTICAS DE ADMINISTRAÇÃO
-
+    //-----------------------------------------ADMIN STUFF-----------------------------------------
+    
     final Map<String, Integer> top10Searches = new HashMap<>();
 
     @Override
     public String getAdministrativeStatistics() throws RemoteException {
         StringBuilder sb = new StringBuilder();
-        sb.append("\nTop 10 searches:\n");
-        if (top10Searches.isEmpty()) {
-            sb.append("No searches yet.\n");
-        } else {
-            top10Searches.entrySet().stream()
-                    .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                    .forEach(entry -> sb.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n"));
-        }
-        if (metodosBarrelManager == null) {
-            sb.append("BarrelManager is not connected. Something went wrong.");
-        } else {
-            sb.append("\nActive Barrels:").append(metodosBarrelManager.getActiveBarrels()).append("\n");
-            sb.append("\nAverage Barrel Response Time:\n");
-            if (barrelResponseTime.isEmpty()) {
-                sb.append("No response times recorded yet.");
-            } else
-                barrelResponseTime.forEach((key, value) -> sb.append(" - ").append(key).append(" -> ").append((value / barrelRequestCount.get(key)) / 1000).append("s\n"));
-        }
-        sb.append("\n");
+
+        sb.append("\nTop 10 searches:\n")
+                .append(getTopSearches())
+                .append(getActiveBarrels())
+                .append(getAverageResponseTimes())
+                .append("\n");
 
         return sb.toString();
+    }
+
+    private String getTopSearches() {
+        return top10Searches.isEmpty() ? "No searches yet.\n" :
+                top10Searches.entrySet().stream()
+                        .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                        .map(entry -> entry.getKey() + ": " + entry.getValue() + "\n")
+                        .collect(Collectors.joining());
+    }
+
+    private String getActiveBarrels() throws RemoteException {
+        if (metodosBarrelManager == null) {
+            return "BarrelManager is not connected. Something went wrong.";
+        }
+        return "\nActive Barrels:" +
+                (metodosBarrelManager.getActiveBarrels().isEmpty() ? "No active barrels.\n" : metodosBarrelManager.getActiveBarrels() + "\n");
+    }
+
+    private String getAverageResponseTimes() {
+        return "Average Barrel Response Time:\n" +
+                (barrelResponseTime.isEmpty() ? "No response times recorded yet." :
+                        barrelResponseTime.entrySet().stream()
+                                .map(entry -> String.format(" - %s -> %.2fs", entry.getKey(), (entry.getValue() / barrelRequestCount.get(entry.getKey())) / 1000))
+                                .collect(Collectors.joining("\n")));
     }
 
     @Override
@@ -235,10 +249,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         top10Searches.put(search, count + 1);
         if (top10Searches.size() > 10) {
             // Remove the least common search if more than 10 searches are stored
-            String leastCommon = top10Searches.entrySet().stream()
-                    .min(Map.Entry.comparingByValue())
-                    .orElseThrow()
-                    .getKey();
+            String leastCommon = top10Searches.entrySet().stream().min(Map.Entry.comparingByValue()).orElseThrow().getKey();
             top10Searches.remove(leastCommon);
         }
     }

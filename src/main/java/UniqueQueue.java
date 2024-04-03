@@ -12,8 +12,12 @@ import java.util.Set;
  * @param <E> the type of elements held in this collection
  */
 public class UniqueQueue<E> implements Serializable {
+
+    // Queue to store elements
     private final Queue<E> queue = new ArrayDeque<>();
+    // Set to store unique elements
     private final Set<E> set = new HashSet<>();
+    // Maximum size of the queue
     private final int maxSize;
 
     /**
@@ -116,7 +120,7 @@ public class UniqueQueue<E> implements Serializable {
     }
 
     /**
-     * Removes all of the elements from this queue.
+     * Removes all the elements from this queue.
      */
     public void clear() {
         queue.clear();

@@ -32,7 +32,7 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
 
     // Queue to hold unique URLs, with a maximum size of 50
     static UniqueQueue<String> queue = new UniqueQueue<>(50);
-
+    // HashSet to store visited URLs
     static HashSet<String> jaVisitados = new HashSet<>();
 
     /**

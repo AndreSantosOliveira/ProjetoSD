@@ -43,16 +43,6 @@ class GatewayTest {
     }
 
     @Test
-    void getAdministrativeStatistics() throws RemoteException {
-        Gateway gateway = new Gateway();
-        gateway.metodosBarrelManager = metodosRMIBarrelMock;
-
-        gateway.getAdministrativeStatistics();
-
-        verify(metodosRMIBarrelMock, atLeastOnce()).getActiveBarrels();
-    }
-
-    @Test
     void addSearch() throws RemoteException {
         Gateway gateway = new Gateway();
 

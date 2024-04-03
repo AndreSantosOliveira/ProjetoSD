@@ -5,15 +5,20 @@ import java.io.Serializable;
  * This class implements Serializable, allowing its instances to be written to an OutputStream.
  */
 public class URLData implements Serializable {
+    // The URL, page title, and URL where it was found
     private String url, pageTitle, urlOndeFoiEncontrado;
+
+    // The page number
     private int pageNumber = -1;
+    // The relevance of the URL
     private int relevance = 0;
 
     /**
      * Constructor for URLData.
      *
-     * @param url       the URL
-     * @param pageTitle the page title associated with the URL
+     * @param url                  the URL
+     * @param pageTitle            the page title associated with the URL
+     * @param urlOndeFoiEncontrado the URL where this URL was found
      */
     public URLData(String url, String pageTitle, String urlOndeFoiEncontrado) {
         this.url = url;
@@ -21,6 +26,13 @@ public class URLData implements Serializable {
         this.urlOndeFoiEncontrado = urlOndeFoiEncontrado;
     }
 
+    /**
+     * Constructor for URLData.
+     *
+     * @param url       the URL
+     * @param pageTitle the page title associated with the URL
+     * @param relevance the relevance of the URL
+     */
     public URLData(String url, String pageTitle, int relevance) {
         this.url = url;
         this.pageTitle = pageTitle;
@@ -69,6 +81,7 @@ public class URLData implements Serializable {
 
     /**
      * Returns the page title of the URLData object.
+     * If a page number is set, it is prepended to the page title.
      *
      * @return the page title of the URLData object
      */
@@ -76,14 +89,29 @@ public class URLData implements Serializable {
         return pageNumber == -1 ? pageTitle : (pageNumber + ". " + pageTitle);
     }
 
+    /**
+     * Adds a page number to the URLData object.
+     *
+     * @param i the page number to add
+     */
     public void addPageNumber(int i) {
         this.pageNumber = i;
     }
 
+    /**
+     * Sets the relevance of the URLData object.
+     *
+     * @param relevance the relevance to set
+     */
     public void setRelevance(int relevance) {
         this.relevance = relevance;
     }
 
+    /**
+     * Returns the relevance of the URLData object.
+     *
+     * @return the relevance of the URLData object
+     */
     public int getRelevance() {
         return this.relevance;
     }

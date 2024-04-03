@@ -6,21 +6,11 @@ import java.io.Serializable;
  */
 public class Connection implements Serializable {
 
+    // The IP address and rmi name
     private final String ip, rmiName;
+    // The port number
     private final int porta;
 
-    /**
-     * Constructor for Connection.
-     * This constructor initializes the IP address and port number.
-     *
-     * @param ip    the IP address
-     * @param porta the port number
-     */
-    public Connection(String ip, int porta) {
-        this.ip = ip;
-        this.porta = porta;
-        this.rmiName = "";
-    }
 
     /**
      * Constructor for Connection.

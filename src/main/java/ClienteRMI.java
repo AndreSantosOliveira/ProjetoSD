@@ -145,7 +145,7 @@ public class ClienteRMI implements Serializable, Remote {
                 command = scanner.nextLine().toLowerCase();
 
                 if (admin == -1) {
-                    //autenticar
+                    // Authentication
                     String[] splitOption = command.split(" ");
                     if (splitOption.length != 2) {
                         System.out.println("Invalid syntax: <username> <password>");
@@ -232,7 +232,7 @@ public class ClienteRMI implements Serializable, Remote {
                             int paginaSelecionada = 0;
                             String input;
                             boolean invalid = false;
-
+                            // Loop to navigate through the pages of the search results
                             do {
                                 if (!invalid) {
                                     for (URLData urlData : resultados.get(paginaSelecionada)) {
@@ -324,12 +324,14 @@ public class ClienteRMI implements Serializable, Remote {
                             break;
 
                         case "logout":
-                        case "exit":
                             System.out.println("Logging out...");
                             System.out.println("Please enter your login details:");
                             admin = -1;
                             break;
-
+                        case "exit":
+                            System.out.println("Exiting...");
+                            System.exit(0);
+                            break;
                         default:
                             System.out.println("Invalid option. For additional help type 'help'");
                     }
@@ -348,11 +350,14 @@ public class ClienteRMI implements Serializable, Remote {
      * Prints the help message.
      */
     private static void help() {
-        System.out.println("Available options:");
-        System.out.println("index <url> - Index new URL");
-        System.out.println("search <terms> - Search for pages that contain a set of terms");
-        System.out.println("list <url> - List pages with a link to a specific page");
-        System.out.println("admin - Access the administration page");
-        System.out.println("exit - Terminate the connection and exit the client\n");
+        System.out.println("Available commands:");
+        System.out.println("index <url> - Indexes a URL");
+        System.out.println("search <words> - Searches for pages that contain the specified words");
+        System.out.println("list <url> - Lists pages that contain a link to the specified URL");
+        System.out.println("save - Saves the content of the barrels");
+        System.out.println("admin - Displays administrative statistics");
+        System.out.println("shutdown - Shuts down all components");
+        System.out.println("logout - Logs out of the system");
+        System.out.println("exit - Exits the system");
     }
 }

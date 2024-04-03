@@ -34,7 +34,10 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
     // Flag to indicate if the Downloader is busy
     private boolean busy = false;
 
+    // The ID of the Downloader
     static String dlID;
+    // PrintWriter to send messages to the QueueManager
+    static PrintWriter queueManager;
 
     /**
      * Default constructor for Downloader.
@@ -45,7 +48,6 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
         super();
     }
 
-    static PrintWriter queueManager;
 
     /**
      * Main method for the Downloader class.
@@ -56,6 +58,7 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
      */
     public static void main(String[] args) {
         try {
+            // Check if the command line arguments are valid
             if (args.length < 2) {
                 System.out.println("Downloader <PORT> <ID>");
                 System.exit(1);
@@ -156,13 +159,9 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
                     if (link.endsWith(".onion")) continue; //ignorar links da dark web xD
 
                     if (titulo.length() > 3 && link.startsWith("http")) {
-                        //System.out.println(titulo + "\n" + link + "\n");
-
-                        // TODO 3: o título pode não conter o conteúdo essencial da página, encontrar uma maneira mais otimizada de o procurar
                         for (String s : titulo.split(" ")) {
                             s = s.toLowerCase();
                             if (s.length() > 3) {
-                                //System.out.println("DownloadManager enviou para QueueManager: " + link);
                                 if (!urlData.containsKey(link)) {
                                     urlData.put(link, new URLData(link, titulo, url));
                                 }
@@ -172,15 +171,16 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
                 }
             }
 
-            //chaves de urls para a queue
+            // Url keys
             urlData.keySet().forEach(queueManager::println);
 
-            // Send dummy results via multicast
+            // Send the result to ISB via multicast
             sendResultToISBviaMulticast(new ArrayList<>(urlData.values()));
 
             System.out.println("Scraping done! " + url + "\n " + urlData.size() + " -> unique URLs sent to QueueManager.");
             urlData.clear();
 
+            // Downloader is no longer busy
             busy = false;
         } catch (IOException e) {
             System.out.println("Error while trying to scrape data -> " + e.getMessage());
