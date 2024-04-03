@@ -84,7 +84,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
      *
      * @param args command line arguments
      */
-    public static void main(String args[]) throws RemoteException {
+    public static void main(String[] args) throws RemoteException {
         try {
             BarrelManager barrelManager = new BarrelManager();
             LocateRegistry.createRegistry(ConnectionsEnum.BARREL_MANAGER.getPort()).rebind("barrelmanager", barrelManager);
@@ -206,7 +206,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
             }
 
             if (error) {
-                return new Tuple<>(id, Collections.singletonList(new URLData("Please make sure that at least one barrel is online.", "Trying to reconnect to the barrels..", 0)));
+                return new Tuple<>(id, Collections.singletonList(new URLData("Please wait...", "Trying to reconnect to the barrels..", 0)));
             } else {
                 return new Tuple<>(id, urlTitulo.entrySet().stream().map(entry -> new URLData(entry.getKey(), entry.getValue(), relevace.get(entry.getKey()))).collect(Collectors.toList()));
             }
