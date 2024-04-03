@@ -296,6 +296,7 @@ public class ClienteRMI implements Serializable, Remote {
 
                     case "exit":
                         System.out.println("Exiting...");
+                        System.exit(0);
                         break;
 
                     default:
