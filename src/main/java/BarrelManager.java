@@ -64,11 +64,14 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
             if (this.barrels.isEmpty()) {
                 System.err.println("No barrel has been connected. Shutting down...");
+                /*
                 try {
                     metodosGateway.shutdown("No barrel has been connected. Barrel Manager.");
                 } catch (Exception e) {
                     System.exit(1);
                 }
+                 */
+                System.exit(1);
             }
 
             ConnectionsEnum.BARREL_MANAGER.printINIT("BarrelManager");
