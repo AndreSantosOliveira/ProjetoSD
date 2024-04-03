@@ -1,11 +1,3 @@
-FOI FIXED E MELHORADO:
-Matar downloaders e barrels quando a BD é desligada.
-
-search depois de um barrel morrer nao funciona:
-1. Error searching for: sapo (0 references)
- -> Connection refused to host: 192.168.1.193; nested exception is:
-	java.net.ConnectException: Connection refused: connect
-
 TODO:
 Bloquear pedidos de cliente quando alguma compxonente essencial está on hold / em baixo. Gateway
 
@@ -13,14 +5,12 @@ Autenticação admin com password na gateway
 
 Quando adiciona novo barrel (ou ele é morto), adicionado ao barrel manager, enviamos os dados totais de 1 q esteja online para o novo barrel, copiar dados de barrel1 para outro, mas melhor automatico
 
-Threads para heart beat para cada barrel manager
+Threads para heart beat para cada barrel
 
 Disparar novos barrels do barrel manager
 
 Não rebentar o sistema sem barrels
 
-Instanciar novo barrel manager quando um morre ou quando o numero desejado de barrels nao é atingido
-
 Verificar se nao temos um loop infinito de URLs (site com 2 paginas q apontam para si mesmas), implementar urls já visitados
 
-Dar fix dos active gateways na pagina admin
+Dar fix dos active barrels na pagina admin
