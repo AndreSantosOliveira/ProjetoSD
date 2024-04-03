@@ -1,7 +1,4 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -18,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * It loads the downloaders from a text file, attempts to connect to each downloader,
  * and sets up a socket to receive URLs from the QueueManager for scraping.
  */
-public class DownloaderManager {
+public class DownloaderManager implements Serializable {
     // Map to store downloaders
     private static List<MetodosRMIDownloader> downloaders = new ArrayList<>();
 

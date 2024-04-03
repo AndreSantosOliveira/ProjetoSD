@@ -1,3 +1,4 @@
+import java.io.Serializable;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.Queue;
@@ -10,7 +11,7 @@ import java.util.Set;
  *
  * @param <E> the type of elements held in this collection
  */
-public class UniqueQueue<E> {
+public class UniqueQueue<E> implements Serializable {
     private final Queue<E> queue = new ArrayDeque<>();
     private final Set<E> set = new HashSet<>();
     private final int maxSize;

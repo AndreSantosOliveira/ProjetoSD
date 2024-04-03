@@ -1,8 +1,10 @@
+import java.io.Serializable;
+
 /**
  * Connection class.
  * This class is used to describe an IP address and port, along with an optional RMI name.
  */
-public class Connection {
+public class Connection implements Serializable {
 
     private final String ip, rmiName;
     private final int porta;

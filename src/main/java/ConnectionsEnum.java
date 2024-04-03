@@ -1,13 +1,14 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * ConnectionsEnum is an enumeration that represents different types of connections.
  * Each connection is associated with a Connection object that contains the IP address and port number.
  * This enumeration provides methods to get the IP address and port number, print initialization status, and convert the connection to a string.
  */
-public enum ConnectionsEnum {
+public enum ConnectionsEnum implements Serializable {
 
     // Connections
     MULTICAST, GATEWAY, QUEUE_MANAGER, BARREL_MANAGER, DOWNLOAD_MANAGER;
