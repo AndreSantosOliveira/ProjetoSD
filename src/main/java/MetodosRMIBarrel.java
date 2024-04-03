@@ -33,16 +33,6 @@ public interface MetodosRMIBarrel extends Remote {
      */
     String getActiveBarrels() throws RemoteException;
 
-    String getBarrelPort() throws RemoteException;
-
-    /**
-     * Gets the barrel ID.
-     *
-     * @return a string representing the barrel ID
-     * @throws RemoteException if an error occurs during remote method invocation.
-     */
-    String getBarrelID() throws RemoteException;
-
     /**
      * Lists indexed pages of a specific.
      *

@@ -176,16 +176,6 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     }
 
     @Override
-    public String getBarrelID() {
-        return barrelID;
-    }
-
-    @Override
-    public String getBarrelPort() {
-        return barrelPort;
-    }
-
-    @Override
     public List<String> linksListForURL(String url) throws RemoteException {
         // print url and print if it has links
         return urlEApontadoresParaURL.containsKey(url) ? new ArrayList<>(urlEApontadoresParaURL.get(url)) : new ArrayList<>();
