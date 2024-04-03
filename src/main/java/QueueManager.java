@@ -7,6 +7,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashSet;
 import java.util.Objects;
 
 
@@ -31,6 +32,8 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
 
     // Queue to hold unique URLs, with a maximum size of 50
     static UniqueQueue<String> queue = new UniqueQueue<>(50);
+
+    static HashSet<String> jaVisitados = new HashSet<>();
 
     /**
      * Main method for the QueueManager class.
@@ -104,6 +107,12 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
                                 dados = dados.substring(0, dados.length() - 1);
                             }
 
+                            // Check if dado is already in jaVisitados
+                            if (jaVisitados.contains(dados)) {
+                                System.out.println("URL already visited: " + dados);
+                                break;
+                            }
+
                             if (dados.equalsIgnoreCase("shutdown")) {
                                 System.out.println("QueueManager received shutdown command.");
                                 queue.clear();
@@ -116,6 +125,8 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
                                     System.out.println("New url to index: " + dados);
                                     // Queue size
                                     System.out.println("URLs to index: " + queue.size());
+                                    // Add to visited
+                                    jaVisitados.add(dados);
                                 }
                             }
                         }

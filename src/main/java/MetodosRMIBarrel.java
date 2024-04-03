@@ -56,4 +56,5 @@ public interface MetodosRMIBarrel extends Remote {
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     void shutdown(String motive) throws RemoteException;
+
 }
