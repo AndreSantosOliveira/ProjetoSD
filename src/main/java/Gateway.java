@@ -1,3 +1,5 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -71,7 +73,8 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
 
                     System.out.println("Sucessfull Connection to QueueManager! IP: " + ConnectionsEnum.QUEUE_MANAGER);
                 } catch (Exception re) {
-                    System.out.println("Exception in QueueManager Socket: " + re);
+                    System.out.println("Could not connect to QueueManager: " + re);
+                    //System.exit(1);
                 }
 
                 ConnectionsEnum.GATEWAY.printINIT("Gateway");
@@ -199,6 +202,33 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         } catch (RemoteException ignored) {
         }
         System.exit(0);
+    }
+
+    @Override
+    public int autenticarCliente(String username, String password) {
+        String line;
+        int authResult = -1; // Default result if user is not found
+
+        try (BufferedReader br = new BufferedReader(new FileReader("src/main/java/accounts.txt"))) {
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split("\\|");
+                if (parts.length == 3) {
+                    String storedUsername = parts[0];
+                    String storedPassword = parts[1];
+                    int storedValue = Integer.parseInt(parts[2]);
+                    System.out.println(storedUsername + " " + storedPassword + " " + storedValue);
+
+                    if (storedUsername.equalsIgnoreCase(username) && storedPassword.equalsIgnoreCase(password)) {
+                        authResult = storedValue;
+                        break; // Exit loop once user is found
+                    }
+                }
+            }
+        } catch (IOException | NumberFormatException e) {
+            e.printStackTrace();
+        }
+
+        return authResult;
     }
 
     public void addSearch(String search) {

@@ -56,4 +56,13 @@ public interface MetodosRMIGateway extends Remote {
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     void shutdown(String motive) throws RemoteException;
+
+    /**
+     * Authenticates a client.
+     *
+     * @param username the username of the client
+     * @param password the password of the client
+     * @return an integer indicating account type, or if the authentication failed
+     */
+    int autenticarCliente(String username, String password) throws RemoteException;
 }

@@ -19,6 +19,11 @@ import java.util.Scanner;
  */
 public class ClienteRMI implements Serializable, Remote {
 
+    //-1 -> não logado
+    //0 -> user
+    //1 -> admin
+    static int admin = -1;
+
     /**
      * Default constructor for ClienteRMI.
      *
@@ -130,178 +135,210 @@ public class ClienteRMI implements Serializable, Remote {
             // Read input and send to the Queue
             String command;
             System.out.println("Welcome to Googol, your favourite search engine. For additional information type 'help'.");
+            System.out.println("Please enter your login details:");
             do {
-                System.out.println("Enter an option:");
+                if (admin != -1) {
+                    System.out.println("Enter an option:");
+                }
                 System.out.print("> ");
 
                 command = scanner.nextLine().toLowerCase();
 
-                if (command.length() <= 1) {
-                    System.out.println("Invalid option. For additional information type 'help'");
-                    continue;
-                }
+                if (admin == -1) {
+                    //autenticar
+                    String[] splitOption = command.split(" ");
+                    if (splitOption.length != 2) {
+                        System.out.println("Invalid syntax: <username> <password>");
+                    } else {
+                        String username = splitOption[0];
+                        String password = splitOption[1];
 
-                String[] splitOption = command.split(" ");
-                if (splitOption.length < 2 && !splitOption[0].equals("help") && !splitOption[0].equals("exit") && !splitOption[0].equals("list") && !splitOption[0].equals("admin") && !splitOption[0].equals("save") && !splitOption[0].equals("clear") && !splitOption[0].equals("cls") && !splitOption[0].equals("shutdown")) {
-                    System.out.println("Invalid option. For additional information type 'help'");
-                    continue;
-                }
-
-                switch (splitOption[0]) {
-                    case "shutdown":
-                        try {
-                            System.out.println("Shutting down all components...");
-                            metodosGateway.shutdown("ClientRMI ordered shutdown.");
-                        } catch (RemoteException ignored) {
+                        int res = metodosGateway.autenticarCliente(username, password);
+                        if (res == -1) {
+                            System.out.println("Invalid username or password.");
+                        } else {
+                            admin = res;
+                            System.out.println("Login successful as " + (admin == 0 ? "user" : "admin") + ". Welcome, " + username + "!");
                         }
-                        break;
+                    }
+                } else {
+                    if (command.length() <= 1) {
+                        System.out.println("Invalid option. For additional information type 'help'");
+                        continue;
+                    }
 
-                    case "clear":
-                    case "cls":
-                        for (int i = 0; i < 40; i++) {
-                            System.out.println();
-                        }
-                        break;
+                    String[] splitOption = command.split(" ");
 
-                    case "index": //     index https://sapo.pt
-                        StringBuilder url = new StringBuilder(splitOption[1]);
-                        //only add https:// if it is not already there
-                        if (!url.toString().contains("https://")) {
-                            url.insert(0, "https://");
-                        }
-                        System.out.println(metodosGateway.indexURLString(url.toString()));
-                        break;
+                    if (splitOption.length == 2) {
+                        System.out.println("Logging in...");
+                    }
 
-                    case "search":
-                        StringBuilder pesquisa = new StringBuilder();
-                        for (int i = 1; i < splitOption.length; ++i) {
-                            if (i == splitOption.length - 1) {
-                                pesquisa.append(splitOption[i]);
+                    if (splitOption.length < 2 && !splitOption[0].equals("help") && !splitOption[0].equals("exit") && !splitOption[0].equals("list") && !splitOption[0].equals("admin") && !splitOption[0].equals("save") && !splitOption[0].equals("clear") && !splitOption[0].equals("cls") && !splitOption[0].equals("shutdown") && !splitOption[0].equals("logout")) {
+                        System.out.println("Invalid option. For additional information type 'help'");
+                        continue;
+                    }
+
+                    switch (splitOption[0]) {
+                        case "shutdown":
+                            if (admin == 1) {
+                                try {
+                                    System.out.println("Shutting down all components...");
+                                    metodosGateway.shutdown("ClientRMI ordered shutdown.");
+                                } catch (RemoteException ignored) {
+                                }
+                            } else {
+                                System.out.println("You do not have permission to perform this action.");
+                            }
+                            break;
+
+                        case "clear":
+                        case "cls":
+                            for (int i = 0; i < 40; i++) {
+                                System.out.println();
+                            }
+                            break;
+
+                        case "index": //     index https://sapo.pt
+                            StringBuilder url = new StringBuilder(splitOption[1]);
+                            //only add https:// if it is not already there
+                            if (!url.toString().contains("https://")) {
+                                url.insert(0, "https://");
+                            }
+                            System.out.println(metodosGateway.indexURLString(url.toString()));
+                            break;
+
+                        case "search":
+                            StringBuilder pesquisa = new StringBuilder();
+                            for (int i = 1; i < splitOption.length; ++i) {
+                                if (i == splitOption.length - 1) {
+                                    pesquisa.append(splitOption[i]);
+                                    break;
+                                }
+                                pesquisa.append(splitOption[i]).append(" ");
+                            }
+
+                            List<URLData> lista = metodosGateway.search(pesquisa.toString());
+
+                            List<List<URLData>> resultados = separateList(lista, 10);
+
+                            if (resultados.isEmpty()) {
+                                System.out.println("No results found for your search.");
                                 break;
                             }
-                            pesquisa.append(splitOption[i]).append(" ");
-                        }
-
-                        List<URLData> lista = metodosGateway.search(pesquisa.toString());
-
-                        /*
-                        Resultados de pesquisa ordenados por importância. Os resultados de uma pes- quisa (funcionalidade anterior) devem ser apresentados por ordem de relevância.
-                        Para simplificar, considera-se que uma página é mais relevante se tiver mais liga- ções de outras páginas.
-                        Assim, o indexador automático deve manter, para cada URL, a lista de outros URLs que fazem ligação para ele.
-                         */
-
-                        List<List<URLData>> resultados = separateList(lista, 10);
-
-                        if (resultados.isEmpty()) {
-                            System.out.println("No results found for your search.");
-                            break;
-                        }
-                        if (resultados.size() == 1) {
-                            for (URLData urlData : resultados.get(0)) {
-                                System.out.println(urlData.getPageTitle() + " (" + urlData.getRelevance() + " references)");
-                                System.out.println(" -> " + urlData.getURL());
-                            }
-                            break;
-                        }
-
-                        int paginaSelecionada = 0;
-                        String input;
-                        boolean invalid = false;
-
-                        do {
-                            if (!invalid) {
-                                for (URLData urlData : resultados.get(paginaSelecionada)) {
+                            if (resultados.size() == 1) {
+                                for (URLData urlData : resultados.get(0)) {
                                     System.out.println(urlData.getPageTitle() + " (" + urlData.getRelevance() + " references)");
                                     System.out.println(" -> " + urlData.getURL());
                                 }
-
-                                System.out.println("\n" + lista.size() + " results | Page " + (paginaSelecionada + 1) + " of " + resultados.size());
-                                System.out.println("Enter a page number, or 'q' to quit search:");
-                            }
-                            System.out.print(">> ");
-                            input = scanner.nextLine().trim();
-
-                            if (input.equalsIgnoreCase("q")) {
                                 break;
-                            } else {
-                                try {
-                                    int pageNumber = Integer.parseInt(input);
-                                    if (pageNumber < 1) {
-                                        System.out.println("\nInvalid input. Please enter a valid page number, or 'q'\n");
-                                        paginaSelecionada = 0;
-                                        invalid = true;
-                                    } else if (pageNumber > resultados.size()) {
-                                        System.out.println("\nInvalid input. Please enter a valid page number, or 'q'\n");
-                                        paginaSelecionada = resultados.size() - 1;
-                                        invalid = true;
+                            }
 
-                                    } else {
-                                        invalid = false;
-                                        paginaSelecionada = pageNumber - 1;
+                            int paginaSelecionada = 0;
+                            String input;
+                            boolean invalid = false;
+
+                            do {
+                                if (!invalid) {
+                                    for (URLData urlData : resultados.get(paginaSelecionada)) {
+                                        System.out.println(urlData.getPageTitle() + " (" + urlData.getRelevance() + " references)");
+                                        System.out.println(" -> " + urlData.getURL());
                                     }
 
-                                } catch (NumberFormatException e) {
-                                    invalid = true;
-                                    System.out.println("\nInvalid input. Please enter a page number, or 'q'\n");
+                                    System.out.println("\n" + lista.size() + " results | Page " + (paginaSelecionada + 1) + " of " + resultados.size());
+                                    System.out.println("Enter a page number, or 'q' to quit search:");
                                 }
+                                System.out.print(">> ");
+                                input = scanner.nextLine().trim();
+
+                                if (input.equalsIgnoreCase("q")) {
+                                    break;
+                                } else {
+                                    try {
+                                        int pageNumber = Integer.parseInt(input);
+                                        if (pageNumber < 1) {
+                                            System.out.println("\nInvalid input. Please enter a valid page number, or 'q'\n");
+                                            paginaSelecionada = 0;
+                                            invalid = true;
+                                        } else if (pageNumber > resultados.size()) {
+                                            System.out.println("\nInvalid input. Please enter a valid page number, or 'q'\n");
+                                            paginaSelecionada = resultados.size() - 1;
+                                            invalid = true;
+
+                                        } else {
+                                            invalid = false;
+                                            paginaSelecionada = pageNumber - 1;
+                                        }
+
+                                    } catch (NumberFormatException e) {
+                                        invalid = true;
+                                        System.out.println("\nInvalid input. Please enter a page number, or 'q'\n");
+                                    }
+                                }
+                            } while (true);
+
+                            break;
+
+                        case "save":
+                            metodosGateway.saveBarrelsContent();
+                            System.out.println("Saved barrels content to file");
+                            break;
+
+                        case "list":
+                            StringBuilder pesquisaLista = new StringBuilder();
+                            for (int i = 1; i < splitOption.length; ++i) {
+                                if (i == splitOption.length - 1) {
+                                    pesquisaLista.append(splitOption[i]);
+                                    break;
+                                }
+                                pesquisaLista.append(splitOption[i]).append(" ");
                             }
-                        } while (true);
 
-                        break;
+                            //only add https:// if it is not already there
+                            if (!pesquisaLista.toString().contains("https://")) {
+                                pesquisaLista.insert(0, "https://");
+                            }
 
-                    case "save":
-                        metodosGateway.saveBarrelsContent();
-                        System.out.println("Saved barrels content to file");
-                        break;
 
-                    case "list":
-                        StringBuilder pesquisaLista = new StringBuilder();
-                        for (int i = 1; i < splitOption.length; ++i) {
-                            if (i == splitOption.length - 1) {
-                                pesquisaLista.append(splitOption[i]);
+                            List<String> links = metodosGateway.linksListForURL(pesquisaLista.toString());
+                            if (links.isEmpty()) {
+                                System.out.println("No links found for this URL.");
                                 break;
                             }
-                            pesquisaLista.append(splitOption[i]).append(" ");
-                        }
 
-                        //only add https:// if it is not already there
-                        if (!pesquisaLista.toString().contains("https://")) {
-                            pesquisaLista.insert(0, "https://");
-                        }
+                            links.sort(String::compareTo);
+                            System.out.println("Links that reference: " + pesquisaLista);
 
+                            for (int i = 0; i < links.size(); ++i) {
+                                System.out.println(i + 1 + ". " + metodosGateway.linksListForURL(pesquisaLista.toString()).get(i));
+                            }
 
-                        List<String> links = metodosGateway.linksListForURL(pesquisaLista.toString());
-                        if (links.isEmpty()) {
-                            System.out.println("No links found for this URL.");
+                            System.out.println();
                             break;
-                        }
 
-                        links.sort(String::compareTo);
-                        System.out.println("Links that reference: " + pesquisaLista);
+                        case "admin":
+                            if (admin == 1) {
+                                System.out.println(metodosGateway.getAdministrativeStatistics());
+                            } else {
+                                System.out.println("You do not have permission to perform this action.");
+                            }
+                            break;
 
-                        for (int i = 0; i < links.size(); ++i) {
-                            System.out.println(i + 1 + ". " + metodosGateway.linksListForURL(pesquisaLista.toString()).get(i));
-                        }
+                        case "help":
+                            help();
+                            break;
 
-                        System.out.println();
-                        break;
+                        case "logout":
+                        case "exit":
+                            System.out.println("Logging out...");
+                            System.out.println("Please enter your login details:");
+                            admin = -1;
+                            break;
 
-                    case "admin":
-                        System.out.println(metodosGateway.getAdministrativeStatistics());
-                        break;
-
-                    case "help":
-                        help();
-                        break;
-
-                    case "exit":
-                        System.out.println("Exiting...");
-                        System.exit(0);
-                        break;
-
-                    default:
-                        System.out.println("Invalid option. For additional help type 'help'");
+                        default:
+                            System.out.println("Invalid option. For additional help type 'help'");
+                    }
                 }
+
             } while (!command.equals("exit"));
 
         } catch (RemoteException e) {
