@@ -94,6 +94,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
             int maxRetries = 3; // Maximum number of connection attempts to the Gateway
             int retryCount = 0; // Counter of connection attempts to the Gateway
+
             // Try to connect to the Gateway via RMI
             while (metodosGateway == null && retryCount < maxRetries) {
                 try {
@@ -112,50 +113,49 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                 }
             }
 
+            for (MetodosRMIBarrel barrel : barrelManager.barrels) {
+                // Make individual heartbeat system for each barrel in seperate threads
+                new Thread(() -> {
+                    try {
+                        barrelManager.heartbeat(barrel, barrelManager);
+                    } catch (RemoteException | InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).start();
+            }
+
             while (true) {
 
                 //  Busy waiting like a man
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-
-                for (MetodosRMIBarrel barrel : barrelManager.barrels) {
-                    // Make individual heartbeat system for each barrel in seperate threads
-                    new Thread(() -> {
-                        try {
-                            barrelManager.heartbeat(barrel, barrelManager);
-                        } catch (RemoteException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }).start();
-                }
             }
+
         } catch (IOException re) {
             System.out.println("Exception in BarrelManager: " + re);
         }
     }
 
-    private void heartbeat(MetodosRMIBarrel barrel, BarrelManager barrelManager) throws RemoteException {
-        try {
-            while (true) {
-                Thread.sleep(5000);
+    private void heartbeat(MetodosRMIBarrel barrel, BarrelManager barrelManager) throws RemoteException, InterruptedException {
+        while (true) {
+            Thread.sleep(5000);
 
-                // Are you alive?
-                try {
-                    // Yes
-                    barrel.getBarrelID();
-                    System.out.println("Barrel " + barrel.getBarrelID() + " is alive.");
-                } catch (RemoteException e) {
-                    // No
-                    System.out.println("Failed to connect to a barrel. Retrying in 1 second...");
-                    // Reconnect to barrels that are dead
-                    barrelManager.connectToBarrels();
-                }
+            // Are you alive?
+            try {
+                // Yes
+                barrel.getBarrelID();
+                System.out.println("Barrel " + barrel.getBarrelID() + " is alive.");
+            } catch (RemoteException e) {
+
+                // No
+                System.out.println("Failed to connect to a barrel. Retrying in 1 second...");
+                // Reconnect to barrels that are dead
+                barrelManager.connectToBarrels();
+
             }
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
         }
     }
 
