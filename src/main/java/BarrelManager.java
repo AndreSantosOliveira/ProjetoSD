@@ -22,7 +22,8 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
     // Map to store barrels
     private List<MetodosRMIBarrel> barrels = new CopyOnWriteArrayList<>();
-    private static Map<String, String> activeBarrelsIDIP = new HashMap<>();
+    private Map<String, String> activeBarrelsIDIP = new HashMap<>();
+    private Map<MetodosRMIBarrel, Connection> barrelsDescritores = new HashMap<>();
     private static MetodosRMIGateway metodosGateway;
 
     /**
@@ -38,6 +39,8 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
     private void connectToBarrels() {
         barrels.clear();
         activeBarrelsIDIP.clear();
+        barrelsDescritores.clear();
+
         // Load barrels from the text file barrels.txt (IP, port, rmiName)
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/java/barrels.txt"))) {
             String line;
@@ -48,9 +51,10 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                         String ip = parts[0];
                         int porta = Integer.parseInt(parts[1]);
                         String rmiName = parts[2];
-
-                        MetodosRMIBarrel res = tentarLigarABarrel(new Connection(ip, porta, rmiName));
+                        Connection descritor = new Connection(ip, porta, rmiName);
+                        MetodosRMIBarrel res = tentarLigarABarrel(descritor, true);
                         if (res != null) {
+                            barrelsDescritores.put(res, descritor);
                             barrels.add(res);
                             activeBarrelsIDIP.put(res.getBarrelID(), ip + ":" + porta);
                         }
@@ -117,7 +121,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                 // Make individual heartbeat system for each barrel in seperate threads
                 new Thread(() -> {
                     try {
-                        barrelManager.heartbeat(barrel, barrelManager);
+                        barrelManager.heartbeat(barrelManager.barrelsDescritores.get(barrel));
                     } catch (RemoteException | InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -139,22 +143,33 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         }
     }
 
-    private void heartbeat(MetodosRMIBarrel barrel, BarrelManager barrelManager) throws RemoteException, InterruptedException {
+    private void heartbeat(Connection barrelCon) throws RemoteException, InterruptedException {
         while (true) {
             Thread.sleep(5000);
-
             // Are you alive?
             try {
-                // Yes
-                barrel.getBarrelID();
-                System.out.println("Barrel " + barrel.getBarrelID() + " is alive.");
+                MetodosRMIBarrel barrel = tentarLigarABarrel(barrelCon, false);
+                if (barrel != null) {
+                    System.out.println("Barrel " + barrelCon.getRMIName() + " is alive.");
+                    barrels.add(barrel);
+                    activeBarrelsIDIP.put(barrel.getBarrelID(), barrelCon.getIP() + ":" + barrelCon.getPorta());
+                    barrelsDescritores.put(barrel, barrelCon);
+                }
             } catch (RemoteException e) {
-
                 // No
-                System.out.println("Failed to connect to a barrel. Retrying in 1 second...");
-                // Reconnect to barrels that are dead
-                barrelManager.connectToBarrels();
+                System.out.println("Failed to connect to barrel " + barrelCon.getRMIName() + ". Retrying in 1 second...");
+                // Remove unactive barrel from activeBarrelsIDIP
+                activeBarrelsIDIP.remove(barrelCon.getRMIName());
+                // Remove unactive barrel from barrelsDescritores
+                barrelsDescritores.entrySet().removeIf(entry -> entry.getValue().equals(barrelCon));
 
+                // Reconnect the barrel that died
+                MetodosRMIBarrel res = tentarLigarABarrel(barrelCon, true);
+                if (res != null) {
+                    barrels.add(res);
+                    activeBarrelsIDIP.put(res.getBarrelID(), res.getBarrelID() + ":" + res.getBarrelPort());
+                    barrelsDescritores.put(res, barrelCon);
+                }
             }
         }
     }
@@ -165,14 +180,15 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
      * @param descritorIPPorta descriptor of the barrel to connect to
      * @return MetodosRMIBarrel object if the connection is successful, null otherwise.
      */
-    private static MetodosRMIBarrel tentarLigarABarrel(Connection descritorIPPorta) {
+    private static MetodosRMIBarrel tentarLigarABarrel(Connection descritorIPPorta, boolean retrySystemOff) {
         MetodosRMIBarrel metodosBarrel = null;
         int retryCount = 0;
         int maxRetries = 5;
         while (metodosBarrel == null && retryCount < maxRetries) {
             try {
                 metodosBarrel = (MetodosRMIBarrel) Naming.lookup("rmi://" + descritorIPPorta.getIP() + ":" + descritorIPPorta.getPorta() + "/" + descritorIPPorta.getRMIName());
-                System.out.println("Connected to Barrel " + descritorIPPorta.getRMIName() + "!");
+                if (retrySystemOff)
+                    System.out.println("Connected to Barrel " + descritorIPPorta.getRMIName() + "!");
                 return metodosBarrel;
             } catch (RemoteException | NotBoundException e) {
                 ++retryCount;
@@ -263,6 +279,11 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         } catch (Exception e) {
             return "Error while catching name for a barrel. Please try again.";
         }
+    }
+
+    @Override
+    public String getBarrelPort() {
+        return "i'm barrel manager :D";
     }
 
     @Override

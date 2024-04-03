@@ -40,6 +40,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     }
 
     static String barrelID;
+    static String barrelPort;
 
     /**
      * The main method for the Barrel class.
@@ -55,6 +56,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
         }
 
         try {
+            barrelPort = args[0];
             int porta = Integer.parseInt(args[0]);
             barrelID = args[1];
 
@@ -176,6 +178,11 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     @Override
     public String getBarrelID() {
         return barrelID;
+    }
+
+    @Override
+    public String getBarrelPort() {
+        return barrelPort;
     }
 
     @Override
