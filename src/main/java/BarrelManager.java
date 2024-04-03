@@ -22,7 +22,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
     // Map to store barrels
     private List<MetodosRMIBarrel> barrels = new CopyOnWriteArrayList<>();
-    private static Map<String, String> activeBarrelsIDIP = new HashMap<>();
+    private Map<String, String> activeBarrelsIDIP = new HashMap<>();
     private static MetodosRMIGateway metodosGateway;
 
     /**
@@ -62,7 +62,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                 }
             }
 
-            if (this.barrels.isEmpty()) {
+            if (barrels.isEmpty()) {
                 System.err.println("No barrel has been connected. Shutting down...");
                 /*
                 try {
@@ -257,9 +257,9 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
     @Override
     public String getActiveBarrels() throws RemoteException {
-        System.out.println(activeBarrelsIDIP);
+        //System.out.println(activeBarrelsIDIP);
         try {
-            return activeBarrelsIDIP.entrySet().stream().map(entry -> " - " + entry.getKey() + " @ " + entry.getValue()).collect(Collectors.joining("\n"));
+            return " (" + activeBarrelsIDIP.size() + ")\n" + activeBarrelsIDIP.entrySet().stream().map(entry -> " - " + entry.getKey() + " @ " + entry.getValue()).collect(Collectors.joining("\n"));
         } catch (Exception e) {
             return "Error while catching name for a barrel. Please try again.";
         }
