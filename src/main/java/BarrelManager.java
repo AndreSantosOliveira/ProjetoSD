@@ -121,7 +121,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                 // Make individual heartbeat system for each barrel in seperate threads
                 new Thread(() -> {
                     try {
-                        barrelManager.heartbeat(barrelManager.barrelsDescritores.get(barrel));
+                        barrelManager.heartbeat(barrelManager.barrelsDescritores.get(barrel), barrelManager.activeBarrelsIDIP);
                     } catch (RemoteException | InterruptedException e) {
                         throw new RuntimeException(e);
                     }
@@ -143,7 +143,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         }
     }
 
-    private void heartbeat(Connection barrelCon) throws RemoteException, InterruptedException {
+    private void heartbeat(Connection barrelCon, Map<String, String> barrelsAtivos) throws RemoteException, InterruptedException {
         while (true) {
             Thread.sleep(5000);
             // Are you alive?
@@ -152,7 +152,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                 if (barrel != null) {
                     System.out.println("Barrel " + barrelCon.getRMIName() + " is alive.");
                     barrels.add(barrel);
-                    activeBarrelsIDIP.put(barrel.getBarrelID(), barrelCon.getIP() + ":" + barrelCon.getPorta());
+                    barrelsAtivos.put(barrel.getBarrelID(), barrelCon.getIP() + ":" + barrelCon.getPorta());
                     barrelsDescritores.put(barrel, barrelCon);
                 }
             } catch (RemoteException e) {
@@ -160,14 +160,17 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                 System.out.println("Failed to connect to barrel " + barrelCon.getRMIName() + ". Retrying in 1 second...");
                 // Remove unactive barrel from activeBarrelsIDIP
                 activeBarrelsIDIP.remove(barrelCon.getRMIName());
+
                 // Remove unactive barrel from barrelsDescritores
                 barrelsDescritores.entrySet().removeIf(entry -> entry.getValue().equals(barrelCon));
+                // Remove barrel from barrels
+                barrels.removeIf(barrel -> barrelsDescritores.get(barrel).equals(barrelCon));
 
                 // Reconnect the barrel that died
                 MetodosRMIBarrel res = tentarLigarABarrel(barrelCon, true);
                 if (res != null) {
                     barrels.add(res);
-                    activeBarrelsIDIP.put(res.getBarrelID(), res.getBarrelID() + ":" + res.getBarrelPort());
+                    this.activeBarrelsIDIP.put(res.getBarrelID(), res.getBarrelID() + ":" + res.getBarrelPort());
                     barrelsDescritores.put(res, barrelCon);
                 }
             }
@@ -187,8 +190,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         while (metodosBarrel == null && retryCount < maxRetries) {
             try {
                 metodosBarrel = (MetodosRMIBarrel) Naming.lookup("rmi://" + descritorIPPorta.getIP() + ":" + descritorIPPorta.getPorta() + "/" + descritorIPPorta.getRMIName());
-                if (retrySystemOff)
-                    System.out.println("Connected to Barrel " + descritorIPPorta.getRMIName() + "!");
+                if (retrySystemOff) System.out.println("Connected to Barrel " + descritorIPPorta.getRMIName() + "!");
                 return metodosBarrel;
             } catch (RemoteException | NotBoundException e) {
                 ++retryCount;
@@ -273,11 +275,13 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
     @Override
     public String getActiveBarrels() throws RemoteException {
-        System.out.println(activeBarrelsIDIP);
-        try {
-            return activeBarrelsIDIP.entrySet().stream().map(entry -> " - " + entry.getKey() + " @ " + entry.getValue()).collect(Collectors.joining("\n"));
-        } catch (Exception e) {
-            return "Error while catching name for a barrel. Please try again.";
+        synchronized (activeBarrelsIDIP) {
+            //System.out.println(activeBarrelsIDIP);
+            try {
+                return " (" + activeBarrelsIDIP.size() + ")\n" + activeBarrelsIDIP.entrySet().stream().map(entry -> " - " + entry.getKey() + " @ " + entry.getValue()).collect(Collectors.joining("\n"));
+            } catch (Exception e) {
+                return "Error while catching name for a barrel. Please try again.";
+            }
         }
     }
 

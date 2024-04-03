@@ -176,7 +176,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         if (metodosBarrelManager == null) {
             sb.append("BarrelManager is not connected. Something went wrong.");
         } else {
-            sb.append("\nActive Barrels:\n").append(metodosBarrelManager.getActiveBarrels()).append("\n");
+            sb.append("\nActive Barrels:").append(metodosBarrelManager.getActiveBarrels()).append("\n");
             sb.append("\nAverage Barrel Response Time:\n");
             if (barrelResponseTime.isEmpty()) {
                 sb.append("No response times recorded yet.");
