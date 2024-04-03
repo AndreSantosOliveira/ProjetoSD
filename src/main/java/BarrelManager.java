@@ -70,7 +70,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                 } catch (Exception e) {
                     System.exit(1);
                 }
-                 */
+            */
                 System.exit(1);
             }
 
@@ -185,14 +185,15 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         String id = "none";
         Map<String, String> urlTitulo = new HashMap<>();
         Map<String, Integer> relevace = new HashMap<>();
+        System.out.println(barrels);
         synchronized (barrels) {
-            for (MetodosRMIBarrel value : barrels) {
-                if (value != null) {
+            for (MetodosRMIBarrel barrel : barrels) {
+                if (barrel != null) {
                     try {
-                        Tuple<String, List<URLData>> dadosDownloader = value.searchInput(pesquisa);
-                        if (dadosDownloader != null) {
-                            id = dadosDownloader.getFirst();
-                            for (URLData urlData : dadosDownloader.getSecond()) {
+                        Tuple<String, List<URLData>> dadosBarrel = barrel.searchInput(pesquisa);
+                        if (dadosBarrel != null) {
+                            id = dadosBarrel.getFirst();
+                            for (URLData urlData : dadosBarrel.getSecond()) {
                                 if (!urlTitulo.containsKey(urlData.getURL())) {
                                     urlTitulo.put(urlData.getURL(), urlData.getPageTitle());
                                     relevace.put(urlData.getURL(), urlData.getRelevance());
