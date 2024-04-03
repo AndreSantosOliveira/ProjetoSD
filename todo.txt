@@ -2,5 +2,3 @@ TODO:
 Bloquear pedidos de cliente quando alguma compxonente essencial está on hold / em baixo. Gateway
 
 Quando adiciona novo barrel (ou ele é morto), adicionado ao barrel manager, enviamos os dados totais de 1 q esteja online para o novo barrel, copiar dados de barrel1 para outro, mas melhor automatico
-
-Dar fix dos active barrels na pagina admin
