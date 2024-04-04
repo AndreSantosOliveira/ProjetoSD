@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.io.Serializable;
+import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -98,11 +99,12 @@ public class ClienteRMI implements Serializable, Remote {
             MetodosRMIGateway metodosGateway = null;
             while (metodosGateway == null && retryCount < maxRetries) {
                 try {
-                    metodosGateway = (MetodosRMIGateway) LocateRegistry.getRegistry(ConnectionsEnum.GATEWAY.getPort()).lookup("gateway");
+                    metodosGateway = (MetodosRMIGateway) Naming.lookup("rmi://" + ConnectionsEnum.GATEWAY.getIP() + ":" + ConnectionsEnum.GATEWAY.getPort() + "/gateway");
                 } catch (RemoteException | NotBoundException e) {
                     ++retryCount;
                     if (retryCount < maxRetries) {
                         System.out.println("Failed to connect to Gateway. Retrying...");
+
                         // Sleep to avoid consecutive connection attempts
                         try {
                             Thread.sleep(1001);
