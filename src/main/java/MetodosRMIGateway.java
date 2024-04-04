@@ -65,4 +65,14 @@ public interface MetodosRMIGateway extends Remote {
      * @return an integer indicating account type, or if the authentication failed
      */
     int autenticarCliente(String username, String password) throws RemoteException;
+
+    /**
+     * Copies the content of a barrel to another barrel.
+     *
+     * @param from the barrel to copy from
+     * @param to   the barrel to copy to
+     * @return a string representing the result of the copy operation
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
+    String copyBarrel(String from, String to) throws RemoteException;
 }

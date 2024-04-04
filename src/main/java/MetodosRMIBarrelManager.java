@@ -1,7 +1,5 @@
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -9,7 +7,7 @@ import java.util.List;
  * This interface defines the methods that a Barrel object must implement.
  * These methods allow the Barrel to archive URLs and search for URLs based on input.
  */
-public interface MetodosRMIBarrel extends Remote {
+public interface MetodosRMIBarrelManager extends Remote {
 
     /**
      * Searches for URLs based on input.
@@ -25,7 +23,23 @@ public interface MetodosRMIBarrel extends Remote {
      *
      * @throws RemoteException if an error occurs during remote method invocation.
      */
-    void saveBarrelContent() throws RemoteException;
+    void saveBarrelsContent() throws RemoteException;
+
+    /**
+     * Gets the active barrels.
+     *
+     * @return a string representing the active barrels
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
+    String getActiveBarrels() throws RemoteException;
+
+    /**
+     * Shuts down the barrels.
+     *
+     * @param motive the reason for the shutdown
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
+    void shutdownBarrels(String motive) throws RemoteException;
 
     /**
      * Lists indexed pages of a specific.
@@ -35,32 +49,6 @@ public interface MetodosRMIBarrel extends Remote {
      */
     List<String> linksListForURL(String url) throws RemoteException;
 
-    /**
-     * Shuts down the barrel.
-     *
-     * @param motive the reason for the shutdown
-     * @throws RemoteException if an error occurs during remote method invocation.
-     */
-    void shutdown(String motive) throws RemoteException;
+    String copyBarrel(String from, String to) throws RemoteException;
 
-    /**
-     * Returns the barrel ID.
-     *
-     * @return the barrel ID
-     */
-    String getBarrelID() throws RemoteException;
-
-    /**
-     * Copy barrel's content to connection
-     *
-     * @return outcome of the operation
-     */
-    String copyBarrelContents(Connection c) throws RemoteException;
-
-    /**
-     * Receive barrel's content from connection
-     *
-     * @return outcome of the operation
-     */
-    String receiveBarrelContents(String barrelID, HashMap<String, HashSet<URLData>> index, HashMap<String, HashSet<String>> urlEApontadoresParaURL) throws RemoteException;
 }

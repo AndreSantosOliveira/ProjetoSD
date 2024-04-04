@@ -42,8 +42,8 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     // PrintWriter to communicate with the QueueManager
     static PrintWriter queueManager;
 
-    // MetodosRMIBarrel object to communicate with the BarrelManager
-    static MetodosRMIBarrel metodosBarrelManager = null;
+    // MetodosRMIBarrelManager object to communicate with the BarrelManager
+    static MetodosRMIBarrelManager metodosBarrelManager = null;
 
     /**
      * Main method for the Gateway class.
@@ -67,7 +67,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         int maxRetries = 10;
         while (metodosBarrelManager == null && retryCount < maxRetries) {
             try {
-                metodosBarrelManager = (MetodosRMIBarrel) LocateRegistry.getRegistry(ConnectionsEnum.BARREL_MANAGER.getPort()).lookup("barrelmanager");
+                metodosBarrelManager = (MetodosRMIBarrelManager) LocateRegistry.getRegistry(ConnectionsEnum.BARREL_MANAGER.getPort()).lookup("barrelmanager");
                 System.out.println("Connected to BarrelManager!");
 
                 try {
@@ -219,7 +219,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         queueManager.println("shutdown");
         System.out.println(motive + ". Shutting down.");
         try {
-            metodosBarrelManager.shutdown(motive);
+            metodosBarrelManager.shutdownBarrels(motive);
         } catch (RemoteException ignored) {
         }
         System.exit(0);
@@ -249,6 +249,11 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         }
 
         return authResult;
+    }
+
+    @Override
+    public String copyBarrel(String from, String to) throws RemoteException {
+        return metodosBarrelManager.copyBarrel(from, to);
     }
 
     public void addSearch(String search) {

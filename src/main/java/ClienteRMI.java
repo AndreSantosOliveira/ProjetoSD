@@ -175,6 +175,36 @@ public class ClienteRMI implements Serializable, Remote {
                     }
 
                     switch (splitOption[0]) {
+                        case "copy":
+                            if (admin == 1) {
+                                if (splitOption.length != 3) {
+                                    System.out.println("Invalid syntax: copy <from> <to>");
+                                    break;
+                                }
+                                
+                                // get 2 barrel IDs
+                                String de = splitOption[1];
+                                if (de == null || de.isEmpty()) {
+                                    System.out.println("Invalid barrel ID. copy <from> <to>");
+                                    break;
+                                }
+
+                                String para = splitOption[2];
+                                if (para == null || para.isEmpty()) {
+                                    System.out.println("Invalid barrel ID. copy <from> <to>");
+                                    break;
+                                }
+
+                                try {
+                                    System.out.printf("Copying barrel %s -> %s...\n", de, para);
+                                    System.out.println(metodosGateway.copyBarrel(de, para));
+                                } catch (RemoteException ignored) {
+                                }
+                            } else {
+                                System.out.println("You do not have permission to perform this action.");
+                            }
+                            break;
+
                         case "shutdown":
                             if (admin == 1) {
                                 try {

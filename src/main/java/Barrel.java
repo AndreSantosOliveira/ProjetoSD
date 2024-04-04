@@ -7,7 +7,10 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.MulticastSocket;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
@@ -162,7 +165,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     }
 
     @Override
-    public void saveBarrelsContent() throws RemoteException {
+    public void saveBarrelContent() throws RemoteException {
         // Write contents of this barrel (index) to a object file
         try {
             FileOutputStream fos = new FileOutputStream("src/main/java/barrelContent." + barrelID);
@@ -185,13 +188,33 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     @Override
     public void shutdown(String motive) throws RemoteException {
         System.out.println("Barrel " + barrelID + " is shutting down. Reason: " + motive);
-        saveBarrelsContent();
+        saveBarrelContent();
         System.exit(0);
     }
 
     @Override
     public String getBarrelID() throws RemoteException {
         return barrelID;
+    }
+
+    @Override
+    public String copyBarrelContents(Connection connection) throws RemoteException {
+        try {
+            System.out.println("Copying barrel contents to destination barrel " + connection.getRMIName() + " @ " + connection);
+            MetodosRMIBarrel res = (MetodosRMIBarrel) Naming.lookup("rmi://" + connection.getIP() + ":" + connection.getPorta() + "/" + connection.getRMIName());
+            return res.receiveBarrelContents(barrelID, index, urlEApontadoresParaURL);
+        } catch (MalformedURLException | NotBoundException | RemoteException e) {
+            return "Error connecting to destination barrel: " + e.getMessage();
+        }
+    }
+
+    @Override
+    public String receiveBarrelContents(String barrelID, HashMap<String, HashSet<URLData>> indexCopy, HashMap<String, HashSet<String>> urlEApontadoresParaURLCopy) throws RemoteException {
+        index = indexCopy;
+        urlEApontadoresParaURL = urlEApontadoresParaURLCopy;
+        System.out.printf("Synced barrel contents with barrel %s: %d words and %d references to URLs.%n", barrelID, indexCopy.size(), urlEApontadoresParaURLCopy.size());
+        saveBarrelContent();
+        return "Copy of barrel contents successful!";
     }
 
     /**
@@ -232,11 +255,5 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
             // e.printStackTrace();
             //System.out.println("Error receiving multicast message: " + e.getMessage());
         }
-    }
-
-    // Implement the remaining methods from the MetodosRMIBarrel interface   ----------- DUMMY METHODS ------------
-    @Override
-    public String getActiveBarrels() {
-        return null;
     }
 }

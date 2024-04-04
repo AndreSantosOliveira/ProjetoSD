@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * BarrelManager class implements MetodosRMIBarrel and Serializable.
  * This class is responsible for managing a collection of barrels.
  */
-public class BarrelManager implements MetodosRMIBarrel, Serializable {
+public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
 
     // Map to store barrels
     private Map<Connection, MetodosRMIBarrel> barrels = new HashMap<>();
@@ -111,14 +111,24 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         }
     }
 
-    private void reconnectToBarrel(Connection barrelCon) throws InterruptedException {
+
+    private void reconnectToBarrel(Connection barrelCon) throws InterruptedException, RemoteException {
         System.out.println("Trying to reconnect to Barrel " + barrelCon.getRMIName() + "...");
         while (true) {
             Thread.sleep(5000);
             MetodosRMIBarrel barrel = tentarLigarABarrel(barrelCon, false);
             if (barrel != null) {
                 System.out.println("Reconnected to Barrel " + barrelCon.getRMIName() + "!");
+                System.out.printf("Copying contents automatically from Barrel %s to Barrel %s...%n", barrel.getBarrelID(), barrelCon.getRMIName());
                 //barrels.put(barrelCon, barrel);
+                //find a barrel with different barrelCon
+
+                for (Connection connection : barrels.keySet()) {
+                    if (!connection.equals(barrelCon)) {
+                        MetodosRMIBarrel barrel1 = barrels.get(connection);
+                        barrel1.copyBarrelContents(barrelCon);
+                    }
+                }
                 break;
             }
         }
@@ -217,7 +227,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
             for (MetodosRMIBarrel value : barrels.values()) {
                 if (value != null) {
                     try {
-                        value.saveBarrelsContent();
+                        value.saveBarrelContent();
                     } catch (RemoteException e) {
                         System.out.println("Error saving barrels content");
                     }
@@ -266,7 +276,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
     }
 
     @Override
-    public void shutdown(String motive) throws RemoteException {
+    public void shutdownBarrels(String motive) throws RemoteException {
         synchronized (barrels) {
             for (MetodosRMIBarrel value : barrels.values()) {
                 if (value != null) {
@@ -281,9 +291,35 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         System.exit(0);
     }
 
-    // Implement the remaining methods from the MetodosRMIBarrel interface   ----------- DUMMY METHODS ------------
-    @Override
-    public String getBarrelID() throws RemoteException {
+    public MetodosRMIBarrel getBarrel(String rmiName) {
+        for (Connection connection : barrels.keySet()) {
+            if (connection.getRMIName().equalsIgnoreCase(rmiName)) {
+                return barrels.get(connection);
+            }
+        }
         return null;
+    }
+
+    public Connection getBarrelConnection(String rmiName) {
+        for (Connection connection : barrels.keySet()) {
+            if (connection.getRMIName().equalsIgnoreCase(rmiName)) {
+                return connection;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String copyBarrel(String from, String to) throws RemoteException {
+        // get the barrels
+        MetodosRMIBarrel fromBarrel = getBarrel(from);
+        if (fromBarrel == null) return "Barrel from: " + from + " not found.";
+
+        MetodosRMIBarrel toBarrel = getBarrel(to);
+        if (toBarrel == null) return "Barrel to: " + to + " not found.";
+
+        if (fromBarrel == toBarrel) return "Barrel from and to can't be the same.";
+
+        return fromBarrel.copyBarrelContents(getBarrelConnection(to));
     }
 }
