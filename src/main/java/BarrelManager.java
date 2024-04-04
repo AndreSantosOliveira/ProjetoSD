@@ -125,7 +125,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
                 for (Connection connection : barrels.keySet()) {
                     if (!connection.equals(barrelCon)) {
                         MetodosRMIBarrel barrel1 = barrels.get(connection);
-                        System.out.printf("Copying contents automatically from Barrel %s to Barrel %s...%n", barrel1.getBarrelID(), barrelCon.getRMIName());
+                        System.out.printf("Copying contents automatically from Barrel %s to Barrel %s...%n", barrels.get(connection).getBarrelID(), barrelCon.getRMIName());
                         barrel1.copyBarrelContents(barrelCon);
                         break;
                     }
