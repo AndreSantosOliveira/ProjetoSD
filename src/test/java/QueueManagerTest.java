@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.rmi.RemoteException;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -17,12 +18,14 @@ public class QueueManagerTest {
     private Socket mockSocket;
     private ServerSocket mockServerSocket;
 
+    private DownloaderManager downloaderManager;
+
     @BeforeEach
     public void setup() throws IOException {
         queueManager = new QueueManager();
         mockSocket = mock(Socket.class);
         mockServerSocket = mock(ServerSocket.class);
-
+        downloaderManager = new DownloaderManager();
         when(mockSocket.getOutputStream()).thenReturn(System.out);
         when(mockSocket.getInputStream()).thenReturn(System.in);
         when(mockServerSocket.accept()).thenReturn(mockSocket);
@@ -44,7 +47,11 @@ public class QueueManagerTest {
 
         // Run a downloadManager in a thread separately
         new Thread(() -> {
-            //DownloadManager.main(new String[0]);
+            try {
+                DownloaderManager.main(new String[0]);
+            } catch (RemoteException e) {
+                throw new RuntimeException(e);
+            }
         }).start();
 
         assertTrue(queueManager.connectToDownloadManager());
