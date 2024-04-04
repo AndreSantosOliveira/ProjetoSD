@@ -123,7 +123,9 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
      */
     @Override
     public List<URLData> search(String words) throws RemoteException {
+        // Add the search to the top 10 searches
         addSearch(words);
+
         // Measure the time it takes to search for the input
         long startTime = System.currentTimeMillis();
         Tuple<String, List<URLData>> res = metodosBarrelManager.searchInput(words);
@@ -162,7 +164,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     }
 
     //-----------------------------------------ADMIN STUFF-----------------------------------------
-    
+
     final Map<String, Integer> top10Searches = new HashMap<>();
 
     @Override
@@ -191,7 +193,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
             return "BarrelManager is not connected. Something went wrong.";
         }
         return "\nActive Barrels:" +
-                (metodosBarrelManager.getActiveBarrels().isEmpty() ? "No active barrels.\n" : metodosBarrelManager.getActiveBarrels() + "\n");
+                metodosBarrelManager.getActiveBarrels() + "\n";
     }
 
     private String getAverageResponseTimes() {

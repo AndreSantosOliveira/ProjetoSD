@@ -6,13 +6,9 @@ import org.mockito.MockitoAnnotations;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 class GatewayTest {

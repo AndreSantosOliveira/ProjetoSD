@@ -7,10 +7,9 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.SQLOutput;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
@@ -157,6 +156,8 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
         return null;
     }
 
+    static AtomicInteger barrelCounter = new AtomicInteger();
+
     /**
      * Searches for URLData objects.
      *
@@ -165,40 +166,45 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     @Override
-    //TODO: Distribuir carga entre barrels.
     public Tuple<String, List<URLData>> searchInput(String pesquisa) throws RemoteException {
-        boolean error = true;
+        if (Objects.equals(getActiveBarrels(), "\nNone.\n"))
+            return new Tuple<>("none", Collections.singletonList(new URLData("Please wait...", "Trying to reconnect to the barrels..", 0)));
+
         String id = "none";
         Map<String, String> urlTitulo = new HashMap<>();
         Map<String, Integer> relevace = new HashMap<>();
         synchronized (barrels) {
-            for (MetodosRMIBarrel barrel : barrels.values()) {
-                if (barrel != null) {
-                    try {
-                        Tuple<String, List<URLData>> dadosBarrel = barrel.searchInput(pesquisa);
-                        if (dadosBarrel != null) {
-                            id = dadosBarrel.getFirst();
-                            for (URLData urlData : dadosBarrel.getSecond()) {
-                                if (!urlTitulo.containsKey(urlData.getURL())) {
-                                    urlTitulo.put(urlData.getURL(), urlData.getPageTitle());
-                                    relevace.put(urlData.getURL(), urlData.getRelevance());
-                                }
-                            }
-                            error = false;
-                        }
-                    } catch (RemoteException e) {
-                        // vamos tentar o próximo barrel
-                        continue;
-                    }
-                    break; // so precisamos de um barrel funcional
-                }
+
+            if (barrelCounter.get() >= barrels.size()) {
+                barrelCounter.set(0);
             }
 
-            if (error) {
-                return new Tuple<>(id, Collections.singletonList(new URLData("Please wait...", "Trying to reconnect to the barrels..", 0)));
-            } else {
-                return new Tuple<>(id, urlTitulo.entrySet().stream().map(entry -> new URLData(entry.getKey(), entry.getValue(), relevace.get(entry.getKey()))).collect(Collectors.toList()));
+            try {
+
+                // Get barrel at the current index from counter
+                Connection connection = (Connection) barrels.keySet().toArray()[barrelCounter.get()];
+                MetodosRMIBarrel barrel = (MetodosRMIBarrel) Naming.lookup("rmi://" + connection.getIP() + ":" + connection.getPorta() + "/" + connection.getRMIName());
+
+                System.out.println("Searching in barrel " + barrel.getBarrelID() + "...");
+                Tuple<String, List<URLData>> dadosBarrel = barrel.searchInput(pesquisa);
+                if (dadosBarrel != null) {
+                    id = dadosBarrel.getFirst();
+                    for (URLData urlData : dadosBarrel.getSecond()) {
+                        if (!urlTitulo.containsKey(urlData.getURL())) {
+                            urlTitulo.put(urlData.getURL(), urlData.getPageTitle());
+                            relevace.put(urlData.getURL(), urlData.getRelevance());
+                        }
+                    }
+                    barrelCounter.incrementAndGet();
+                    return new Tuple<>(id, urlTitulo.entrySet().stream().map(entry -> new URLData(entry.getKey(), entry.getValue(), relevace.get(entry.getKey()))).collect(Collectors.toList()));
+                }
+            } catch (MalformedURLException | NotBoundException | RemoteException e) {
+                // Barrel is offline, return with the next one
+                barrelCounter.incrementAndGet();
+                return searchInput(pesquisa);
             }
+
+            return new Tuple<>(id, Collections.singletonList(new URLData("Please wait...", "Trying to reconnect to the barrels..", 0)));
         }
     }
 
@@ -220,6 +226,8 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
 
     @Override
     public String getActiveBarrels() throws RemoteException {
+        // Count the number of active barrels
+        int ctr = 0;
         StringBuilder sb = new StringBuilder();
         sb.append("\n");
         synchronized (barrels) {
@@ -227,13 +235,14 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                 try {
                     MetodosRMIBarrel res = (MetodosRMIBarrel) Naming.lookup("rmi://" + connection.getIP() + ":" + connection.getPorta() + "/" + connection.getRMIName());
                     res.getBarrelID();
-                    sb.append("- ").append(connection.getRMIName()).append(" - ").append(connection.getIP()).append(":").append(connection.getPorta()).append("\n");
+                    ++ctr;
+                    sb.append("- ").append(connection.getRMIName()).append(" @ ").append(connection.getIP()).append(":").append(connection.getPorta()).append("\n");
                 } catch (MalformedURLException | NotBoundException | RemoteException e) {
                     continue;
                 }
             }
         }
-        return sb.toString();
+        return ctr == 0 ? "\nNone.\n" : sb.toString();
     }
 
     @Override

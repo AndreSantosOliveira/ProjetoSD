@@ -196,7 +196,7 @@ public class ClienteRMI implements Serializable, Remote {
 
                         case "index": //     index https://sapo.pt
                             StringBuilder url = new StringBuilder(splitOption[1]);
-                            //only add https:// if it is not already there
+                            // Only add https:// if it is not already there
                             if (!url.toString().contains("https://")) {
                                 url.insert(0, "https://");
                             }
@@ -204,6 +204,7 @@ public class ClienteRMI implements Serializable, Remote {
                             break;
 
                         case "search":
+                            // Parse the search query
                             StringBuilder pesquisa = new StringBuilder();
                             for (int i = 1; i < splitOption.length; ++i) {
                                 if (i == splitOption.length - 1) {
@@ -341,6 +342,7 @@ public class ClienteRMI implements Serializable, Remote {
 
         } catch (RemoteException e) {
             System.out.println("Exception in RMI client: " + e.getMessage());
+            e.printStackTrace();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

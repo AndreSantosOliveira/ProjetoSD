@@ -129,6 +129,7 @@ public class DownloaderManager implements Serializable {
      */
     private static void synchronizeDownloaders(String urlParaScrape) {
         synchronized (downloaders) {
+
             if (downloaderCounter.get() >= downloaders.size()) {
                 downloaderCounter.set(0);
             }
@@ -147,6 +148,7 @@ public class DownloaderManager implements Serializable {
                 }
             } catch (RemoteException e) {
                 System.out.println("Failed to connect to a downloader for indexing. Retrying in 1 second...");
+                //TODO: Reconnect to downloaders
                 connectToDownloaders();
                 synchronizeDownloaders(urlParaScrape);
             }
