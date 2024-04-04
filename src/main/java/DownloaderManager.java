@@ -184,6 +184,9 @@ public class DownloaderManager implements Serializable {
                             System.out.println("Failed to send URL to Downloader : " + urlParaScrape);
                         }
                     }).start();
+                } else {
+                    downloaderCounter.incrementAndGet();
+                    synchronizeDownloaders(urlParaScrape);
                 }
             } catch (RemoteException e) {
                 System.out.println("Failed to connect to a downloader for indexing. Redirecting to another downloader.");

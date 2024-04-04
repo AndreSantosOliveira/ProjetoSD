@@ -89,9 +89,8 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
                 // Accept a connection
                 Socket connectionSocket = serverSocket.accept();
 
-                if (!Objects.equals(connectionSocket.getInetAddress().getHostAddress(), "127.0.0.1"))
-                    // Information about the connection:
-                    System.out.println("QueueManager received connection from: " + connectionSocket.getInetAddress().getHostAddress() + ":" + connectionSocket.getPort());
+                // Information about the connection:
+                System.out.println("QueueManager received connection from: " + connectionSocket.getInetAddress().getHostAddress() + ":" + connectionSocket.getPort());
                 // Create a thread to handle the connection
                 new Thread(() -> {
                     try {
