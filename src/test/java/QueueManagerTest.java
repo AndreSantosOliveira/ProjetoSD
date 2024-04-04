@@ -14,16 +14,12 @@ import static org.mockito.Mockito.*;
 public class QueueManagerTest {
 
     private QueueManager queueManager;
-    private PrintWriter mockPrintWriter;
-    private BufferedReader mockBufferedReader;
     private Socket mockSocket;
     private ServerSocket mockServerSocket;
 
     @BeforeEach
     public void setup() throws IOException {
         queueManager = new QueueManager();
-        mockPrintWriter = mock(PrintWriter.class);
-        mockBufferedReader = mock(BufferedReader.class);
         mockSocket = mock(Socket.class);
         mockServerSocket = mock(ServerSocket.class);
 
@@ -34,6 +30,16 @@ public class QueueManagerTest {
 
     @Test
     public void shouldConnectToDownloadManagerSuccessfully() throws IOException {
+        // Run QueueManager in a thread separately
+        new Thread(() -> {
+            QueueManager.main(new String[0]);
+        }).start();
+
+        // Run dl1 in a thread separately
+        new Thread(() -> {
+            Downloader.main(new String[]{"5436", "dl1"});
+            Downloader.main(new String[]{"5434", "dl2"});
+        }).start();
 
 
         // Run a downloadManager in a thread separately
@@ -46,15 +52,6 @@ public class QueueManagerTest {
             }
         }).start();
 
-        // Run dl1 in a thread separately
-        new Thread(() -> {
-            Downloader.main(new String[]{"5436", "dl1"});
-        }).start();
-
-        // Run dl2 in a thread separately
-        new Thread(() -> {
-            Downloader.main(new String[]{"5434", "dl2"});
-        }).start();
 
         assertTrue(queueManager.connectToDownloadManager());
     }
@@ -66,21 +63,5 @@ public class QueueManagerTest {
         assertFalse(queueManager.connectToDownloadManager());
     }
 
-    /*
-    @Test
-    public void shouldAddUrlToQueueWhenReceivedFromGateway() throws IOException {
-        when(mockBufferedReader.readLine()).thenReturn("http://example.com");
-        queueManager.handleGatewayConnection(mockBufferedReader);
-        assertEquals(1, queueManager.queue.size());
-    }
 
-    @Test
-    public void shouldNotAddUrlToQueueWhenQueueIsFull() throws IOException {
-        for (int i = 0; i < 50; ++i) {
-            queueManager.queue.offer("http://example.com/" + i);
-        }
-        when(mockBufferedReader.readLine()).thenReturn("http://example.com/extra");
-        queueManager.handleGatewayConnection(mockBufferedReader);
-        assertEquals(50, queueManager.queue.size());
-    }*/
 }
