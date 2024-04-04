@@ -14,10 +14,11 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.rmi.RemoteException;
-import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 class DownloaderTest {
 
@@ -46,7 +47,7 @@ class DownloaderTest {
         downloader.queueManager = mockPrintWriter;
 
         // Act
-        downloader.crawlURL(validURL);
+        downloader.crawlURL(validURL, 0);
 
         // Figure out if crawl was successful
         Connection.Response response = Jsoup.connect(validURL).execute();
@@ -69,7 +70,7 @@ class DownloaderTest {
         downloader.queueManager = mockPrintWriter;
 
         // Act
-        downloader.crawlURL(invalidURL);
+        downloader.crawlURL(invalidURL, 0);
 
         // Assert
         verifyNoInteractions(mockPrintWriter);

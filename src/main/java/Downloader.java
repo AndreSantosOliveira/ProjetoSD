@@ -142,11 +142,17 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     @Override
-    public void crawlURL(String url) throws RemoteException {
+    public void crawlURL(String url, int tentativa) throws RemoteException {
+        if (tentativa == 3) {
+            busy = false;
+            return;
+        }
+
         if (!isValidURL(url)) {
             System.out.println("Invalid URL: " + url + " - discarding.");
             return;
         }
+
         if (url.endsWith("/")) {
             url = url.substring(0, url.length() - 1);
         }
@@ -196,9 +202,9 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
             // Downloader is no longer busy
             busy = false;
         } catch (IOException e) {
-            if (!e.getMessage().contains("PKIX")) { // ignore problems with security certs lol
+            if (!e.getMessage().contains("PKIX") && !e.getMessage().contains("404")) { // ignore problems with security certs lol
                 System.out.println("Error while trying to scrape data -> " + e.getMessage());
-                crawlURL(url);
+                crawlURL(url, tentativa + 1);
             }
             /*
             queueManager.println(url);

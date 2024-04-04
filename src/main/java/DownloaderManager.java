@@ -1,11 +1,16 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -173,7 +178,7 @@ public class DownloaderManager implements Serializable {
                 if (!downloader.isBusy()) {
                     new Thread(() -> {
                         try {
-                            downloader.crawlURL(urlParaScrape);
+                            downloader.crawlURL(urlParaScrape, 0);
                             downloaderCounter.incrementAndGet();
                         } catch (RemoteException e) {
                             System.out.println("Failed to send URL to Downloader : " + urlParaScrape);
