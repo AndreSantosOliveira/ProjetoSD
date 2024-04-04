@@ -1,3 +1,3 @@
 TODO:
 Quando adiciona novo barrel (ou ele é morto), adicionado ao barrel manager, enviamos os dados totais de 1 q esteja online para o novo barrel, copiar dados de barrel1 para outro, mas melhor automatico
-Heartbeat para os downloader
+index https://crawler-test.com/links/page_with_external_links

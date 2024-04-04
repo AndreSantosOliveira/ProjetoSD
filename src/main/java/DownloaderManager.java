@@ -92,31 +92,26 @@ public class DownloaderManager implements Serializable {
      * @return MetodosRMIDownloader object if the connection is successful, null otherwise.
      */
     private static MetodosRMIDownloader tentarLigarADownloader(Connection descritorIPPorta) {
+
+
         MetodosRMIDownloader metodosGateway = null;
-        int retryCount = 0;
-        int maxRetries = 5;
-        while (metodosGateway == null && retryCount < maxRetries) {
+        while (true) {
             try {
                 metodosGateway = (MetodosRMIDownloader) Naming.lookup("rmi://" + descritorIPPorta.getIP() + ":" + descritorIPPorta.getPorta() + "/" + descritorIPPorta.getRMIName());
                 System.out.println("Connected to Downloader " + descritorIPPorta.getRMIName() + "!");
                 return metodosGateway;
             } catch (RemoteException | NotBoundException e) {
-                ++retryCount;
-                if (retryCount < maxRetries) {
-                    System.out.println("Failed to connect to Downloader: " + descritorIPPorta.getRMIName() + " (" + retryCount + "/" + maxRetries + "). Retrying...");
-                    // Sleep to avoid consecutive connection attempts
-                    try {
-                        Thread.sleep(1001);
-                    } catch (InterruptedException ex) {
-                        Thread.currentThread().interrupt();
-                    }
+                System.out.println("Failed to connect to Downloader: " + descritorIPPorta.getRMIName() + ". Retrying in 5 seconds...");
+                // Sleep to avoid consecutive connection attempts
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
                 }
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
         }
-        System.out.println("Failed to connect to Downloader: " + descritorIPPorta.getRMIName() + ". :(");
-        return null;
     }
 
 
@@ -134,6 +129,7 @@ public class DownloaderManager implements Serializable {
                 downloaderCounter.set(0);
             }
 
+            // If
             MetodosRMIDownloader downloader = downloaders.get(downloaderCounter.get());
             try {
                 if (downloader != null && !downloader.isBusy()) {

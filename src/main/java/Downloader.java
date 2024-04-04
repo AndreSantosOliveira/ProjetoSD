@@ -29,7 +29,7 @@ import java.util.StringTokenizer;
 public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloader, Serializable {
 
     // Map to store URLData objects
-    static Map<String, URLData> urlData = new HashMap<>();
+    Map<String, URLData> urlData = new HashMap<>();
 
     // Flag to indicate if the Downloader is busy
     private boolean busy = false;
@@ -162,9 +162,13 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
                         for (String s : titulo.split(" ")) {
                             s = s.toLowerCase();
                             if (s.length() > 3) {
-                                if (!urlData.containsKey(link)) {
-                                    urlData.put(link, new URLData(link, titulo, url));
-                                }
+
+                                synchronized (urlData) {
+                                    if (!urlData.containsKey(link)) {
+                                        urlData.put(link, new URLData(link, titulo, url));
+                                    }
+                                } // modificacoes concorrentes exception
+
                             }
                         }
                     }
@@ -172,13 +176,17 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
             }
 
             // Url keys
-            urlData.keySet().forEach(queueManager::println);
 
-            // Send the result to ISB via multicast
-            sendResultToISBviaMulticast(new ArrayList<>(urlData.values()));
+            synchronized (urlData) {
+                Map<String, URLData> urlDataCopia = new HashMap<>(urlData);
+                urlDataCopia.keySet().forEach(queueManager::println);
 
-            System.out.println("Scraping done! " + url + "\n " + urlData.size() + " -> unique URLs sent to QueueManager.");
-            urlData.clear();
+                sendResultToISBviaMulticast(new ArrayList<>(urlDataCopia.values()));
+
+                System.out.println("Scraping done! " + url + "\n " + urlDataCopia.size() + " -> unique URLs sent to QueueManager.");
+                urlData.clear();
+            }
+
 
             // Downloader is no longer busy
             busy = false;
