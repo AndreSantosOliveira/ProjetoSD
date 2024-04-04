@@ -389,6 +389,8 @@ public class ClienteRMI implements Serializable, Remote {
         System.out.println("index <url> - Indexes a URL");
         System.out.println("search <words> - Searches for pages that contain the specified words");
         System.out.println("list <url> - Lists pages that contain a link to the specified URL");
+        System.out.println("copy <from> <to> - Copies the content of one barrel to another");
+        System.out.println("clear/cls - Clears the console");
         System.out.println("save - Saves the content of the barrels");
         System.out.println("admin - Displays administrative statistics");
         System.out.println("shutdown - Shuts down all components");
