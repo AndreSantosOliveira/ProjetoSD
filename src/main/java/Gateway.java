@@ -8,6 +8,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -123,6 +124,10 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
      */
     @Override
     public List<URLData> search(String words) throws RemoteException {
+        if (metodosBarrelManager == null) {
+            return Collections.singletonList(new URLData("BarrelManager is not connected to the Gateway. Something went wrong.", "Please try again later", -1));
+        }
+
         // Add the search to the top 10 searches
         addSearch(words);
 

@@ -7,8 +7,11 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
-import java.sql.SQLOutput;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -168,7 +171,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
     @Override
     public Tuple<String, List<URLData>> searchInput(String pesquisa) throws RemoteException {
         if (Objects.equals(getActiveBarrels(), "\nNone.\n"))
-            return new Tuple<>("none", Collections.singletonList(new URLData("Please wait...", "Trying to reconnect to the barrels..", 0)));
+            return new Tuple<>("none", Collections.singletonList(new URLData("Please wait...", "Trying to reconnect to the barrels..", -1)));
 
         String id = "none";
         Map<String, String> urlTitulo = new HashMap<>();
@@ -204,7 +207,7 @@ public class BarrelManager implements MetodosRMIBarrel, Serializable {
                 return searchInput(pesquisa);
             }
 
-            return new Tuple<>(id, Collections.singletonList(new URLData("Please wait...", "Trying to reconnect to the barrels..", 0)));
+            return new Tuple<>(id, Collections.singletonList(new URLData("Please wait...", "Trying to reconnect to the barrels..", -1)));
         }
     }
 

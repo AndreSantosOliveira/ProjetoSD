@@ -214,6 +214,7 @@ public class ClienteRMI implements Serializable, Remote {
                                 pesquisa.append(splitOption[i]).append(" ");
                             }
 
+
                             List<URLData> lista = metodosGateway.search(pesquisa.toString());
 
                             List<List<URLData>> resultados = separateList(lista, 10);
@@ -224,7 +225,7 @@ public class ClienteRMI implements Serializable, Remote {
                             }
                             if (resultados.size() == 1) {
                                 for (URLData urlData : resultados.get(0)) {
-                                    System.out.println(urlData.getPageTitle() + " (" + urlData.getRelevance() + " references)");
+                                    System.out.println(urlData.getPageTitle() + (urlData.getRelevance() != -1 ? " (" + urlData.getRelevance() + " references)" : ""));
                                     System.out.println(" -> " + urlData.getURL());
                                 }
                                 break;
