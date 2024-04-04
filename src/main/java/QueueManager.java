@@ -108,7 +108,7 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
                             // Check if dado is already in jaVisitados
                             if (jaVisitados.contains(dados)) {
                                 System.out.println("URL already visited: " + dados);
-                                break;
+                                continue;
                             }
 
                             if (dados.equalsIgnoreCase("shutdown")) {
