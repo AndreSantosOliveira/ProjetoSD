@@ -178,7 +178,7 @@ public class DownloaderManager implements Serializable {
                 if (!downloader.isBusy()) {
                     new Thread(() -> {
                         try {
-                            downloader.crawlURL(urlParaScrape, 0);
+                            downloader.crawlURL(urlParaScrape);
                             downloaderCounter.incrementAndGet();
                         } catch (RemoteException e) {
                             System.out.println("Failed to send URL to Downloader : " + urlParaScrape);
