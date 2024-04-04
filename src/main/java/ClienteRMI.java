@@ -36,9 +36,9 @@ public class ClienteRMI implements Serializable, Remote {
     /**
      * Separares a bigger list into smaller lists.
      *
-     * @param inputList
-     * @param sublistSize
-     * @return
+     * @param inputList   list to be separated
+     * @param sublistSize size of the smaller lists
+     * @return a list of lists
      */
     public static List<List<URLData>> separateList(List<URLData> inputList, int sublistSize) {
         List<List<URLData>> result = new ArrayList<>();
@@ -113,24 +113,25 @@ public class ClienteRMI implements Serializable, Remote {
                 }
             }
 
+            // If it is not possible to connect to the Gateway, terminate the program
+            if (metodosGateway == null) {
+                System.out.println("Failed to connect to Gateway after maximum retry attempts. Exiting...");
+                return;
+            }
+
             MetodosRMIGateway finalMetodosGateway = metodosGateway;
             new Thread(() -> {
                 while (true) {
                     try {
                         Thread.sleep(1000);
-                        finalMetodosGateway.getAdministrativeStatistics();
+                        if (finalMetodosGateway != null)
+                            finalMetodosGateway.getAdministrativeStatistics();
                     } catch (RemoteException | InterruptedException e) {
                         System.out.println("Gateway went offline. Exiting...");
                         System.exit(0);
                     }
                 }
             }).start();
-
-            // If it is not possible to connect to the Gateway, terminate the program
-            if (metodosGateway == null) {
-                System.out.println("Failed to connect to Gateway after maximum retry attempts. Exiting...");
-                return;
-            }
 
             // Read input and send to the Queue
             String command;
@@ -181,7 +182,7 @@ public class ClienteRMI implements Serializable, Remote {
                                     System.out.println("Invalid syntax: copy <from> <to>");
                                     break;
                                 }
-                                
+
                                 // get 2 barrel IDs
                                 String de = splitOption[1];
                                 if (de == null || de.isEmpty()) {

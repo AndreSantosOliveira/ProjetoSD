@@ -48,8 +48,6 @@ public class QueueManager extends UnicastRemoteObject implements Serializable {
             // Create a server socket for receiving connections from the Gateway
             ServerSocket serverSocket = new ServerSocket(ConnectionsEnum.QUEUE_MANAGER.getPort());
 
-            ConnectionsEnum.QUEUE_MANAGER.printINIT("DownloadManager");
-
             // Attempt to connect to the DownloadManager
             if (!connectToDownloadManager()) {
                 System.out.println("Failed to connect to DownloadManager.");
