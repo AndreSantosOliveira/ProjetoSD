@@ -195,6 +195,7 @@ public class ClienteRMI implements Serializable, Remote {
                             break;
 
                         case "index": //     index https://sapo.pt
+                            // index https://crawler-test.com/links/page_with_external_links
                             StringBuilder url = new StringBuilder(splitOption[1]);
                             // Only add https:// if it is not already there
                             if (!url.toString().contains("https://")) {
