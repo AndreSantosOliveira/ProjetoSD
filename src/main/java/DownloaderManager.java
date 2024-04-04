@@ -5,8 +5,7 @@ import java.net.Socket;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -17,26 +16,20 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class DownloaderManager implements Serializable {
     // Map to store downloaders
-    private static List<MetodosRMIDownloader> downloaders = new ArrayList<>();
+    private Map<Connection, MetodosRMIDownloader> downloaders = new HashMap<>();
 
     // Counter to keep track of the downloader to send the URL to
     static AtomicInteger downloaderCounter = new AtomicInteger();
 
 
-    /**
-     * Connects to the downloaders.
-     * It loads downloaders from the text file downloaders.txt (IP, port, rmiName).
-     * For each downloader, it attempts to connect to the downloader and adds it to the list of downloaders.
-     * If no downloaders are connected, it exits the program.
-     *
-     * @see Connection
-     * @see MetodosRMIDownloader
-     * @see #tentarLigarADownloader(Connection)
-     */
-    public static void connectToDownloaders() {
-        downloaderCounter.set(0);
-        downloaders.clear();
+    // Constructor
+    public DownloaderManager() throws RemoteException {
+        super();
+        connectToDownloaders();
+    }
 
+
+    private void connectToDownloaders() {
         // Load downloaders from the text file downloaders.txt (IP, port, rmiName)
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/java/downloaders.txt"))) {
             String line;
@@ -47,12 +40,9 @@ public class DownloaderManager implements Serializable {
                         String ip = parts[0];
                         int porta = Integer.parseInt(parts[1]);
                         String rmiName = parts[2];
-
-                        MetodosRMIDownloader res = tentarLigarADownloader(new Connection(ip, porta, rmiName));
-                        if (res != null) {
-                            downloaders.add(res);
-                        }
-
+                        Connection descritor = new Connection(ip, porta, rmiName);
+                        MetodosRMIDownloader res = tentarLigarADownloader(descritor, true);
+                        downloaders.put(new Connection(ip, porta, rmiName), res);
                     } catch (NumberFormatException e) {
                         System.err.println("Error processing the port for a downloader: " + line);
                     }
@@ -60,14 +50,18 @@ public class DownloaderManager implements Serializable {
                     System.err.println("Line in invalid format: " + line);
                 }
             }
+
+            if (this.downloaders.isEmpty()) {
+                System.err.println("No downloaders connected. Exiting program.");
+                System.exit(1);
+            }
+
+
         } catch (IOException e) {
             System.err.println("Error reading the downloader file: " + e.getMessage());
+            e.printStackTrace();
         }
 
-        if (downloaders.isEmpty()) {
-            System.err.println("No barrel has been connected. Exiting...");
-            System.exit(1);
-        }
     }
 
     /**
@@ -77,9 +71,40 @@ public class DownloaderManager implements Serializable {
      *
      * @param args command line arguments
      */
-    public static void main(String[] args) throws IOException {
-        connectToDownloaders();
-        socketQueueManagerToDownloadManager();
+    public static void main(String[] args) throws RemoteException {
+        try {
+            DownloaderManager downloaderManager = new DownloaderManager();
+
+            // Create heartbeat system for each downloader
+            for (Connection connection : downloaderManager.downloaders.keySet()) {
+                // Make individual heartbeat system for each downloader in separate threads
+                new Thread(() -> {
+                    try {
+                        downloaderManager.heartbeat(connection);
+                    } catch (InterruptedException | RemoteException e) {
+                        throw new RuntimeException(e);
+                    }
+                }).start();
+            }
+
+            downloaderManager.socketQueueManagerToDownloadManager();
+
+        } catch (IOException e) {
+            System.err.println("Error creating the DownloaderManager: " + e.getMessage());
+        }
+    }
+
+    private void heartbeat(Connection downloaderCon) throws RemoteException, InterruptedException {
+        while (true) {
+            Thread.sleep(5000);
+            MetodosRMIDownloader downloader = tentarLigarADownloader(downloaderCon, false);
+            if (downloader != null) {
+                System.out.println("Downloader " + downloaderCon.getRMIName() + " is alive.");
+            } else {
+                System.out.println("Downloader " + downloaderCon.getRMIName() + " is offline.");
+                reconnectToDownloader(downloaderCon);
+            }
+        }
     }
 
     /**
@@ -91,27 +116,33 @@ public class DownloaderManager implements Serializable {
      * @param descritorIPPorta descriptor of the downloader to connect to
      * @return MetodosRMIDownloader object if the connection is successful, null otherwise.
      */
-    private static MetodosRMIDownloader tentarLigarADownloader(Connection descritorIPPorta) {
-
-
-        MetodosRMIDownloader metodosGateway = null;
-        while (true) {
+    private static MetodosRMIDownloader tentarLigarADownloader(Connection descritorIPPorta, boolean retrySystemOff) {
+        MetodosRMIDownloader metodosDownloader = null;
+        int retryCount = 0;
+        int maxRetries = 5;
+        while (retryCount < maxRetries) {
             try {
-                metodosGateway = (MetodosRMIDownloader) Naming.lookup("rmi://" + descritorIPPorta.getIP() + ":" + descritorIPPorta.getPorta() + "/" + descritorIPPorta.getRMIName());
-                System.out.println("Connected to Downloader " + descritorIPPorta.getRMIName() + "!");
-                return metodosGateway;
+                metodosDownloader = (MetodosRMIDownloader) Naming.lookup("rmi://" + descritorIPPorta.getIP() + ":" + descritorIPPorta.getPorta() + "/" + descritorIPPorta.getRMIName());
+                if (retrySystemOff)
+                    System.out.println("Connected to Downloader " + descritorIPPorta.getRMIName() + "!");
+                return metodosDownloader;
             } catch (RemoteException | NotBoundException e) {
-                System.out.println("Failed to connect to Downloader: " + descritorIPPorta.getRMIName() + ". Retrying in 5 seconds...");
-                // Sleep to avoid consecutive connection attempts
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
+                ++retryCount;
+                if (retryCount < maxRetries) {
+                    System.out.println("Failed to connect to Downloader: " + descritorIPPorta.getRMIName() + " (" + retryCount + "/" + maxRetries + "). Retrying...");
+                    // Sleep to avoid consecutive connection attempts
+                    try {
+                        Thread.sleep(1001);
+                    } catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                    }
                 }
             } catch (MalformedURLException e) {
                 throw new RuntimeException(e);
             }
         }
+        System.out.println("Failed to connect to Downloader: " + descritorIPPorta.getRMIName() + ". :(");
+        return null;
     }
 
 
@@ -122,17 +153,24 @@ public class DownloaderManager implements Serializable {
      *
      * @param urlParaScrape the URL to scrape
      */
-    private static void synchronizeDownloaders(String urlParaScrape) {
-        synchronized (downloaders) {
+    public void synchronizeDownloaders(String urlParaScrape) throws MalformedURLException, NotBoundException, RemoteException {
+        if (getActiveDownloaders() == 0) {
+            System.out.println("No downloader available to scrape URL. Please wait for a downloader to be available.");
+            return;
+        }
 
+        synchronized (downloaders) {
             if (downloaderCounter.get() >= downloaders.size()) {
                 downloaderCounter.set(0);
             }
 
-            // If
-            MetodosRMIDownloader downloader = downloaders.get(downloaderCounter.get());
+
             try {
-                if (downloader != null && !downloader.isBusy()) {
+                // Get downloader and connection
+                Connection connection = (Connection) downloaders.keySet().toArray()[downloaderCounter.get()];
+                MetodosRMIDownloader downloader = (MetodosRMIDownloader) Naming.lookup("rmi://" + connection.getIP() + ":" + connection.getPorta() + "/" + connection.getRMIName());
+
+                if (!downloader.isBusy()) {
                     new Thread(() -> {
                         try {
                             downloader.crawlURL(urlParaScrape);
@@ -143,10 +181,38 @@ public class DownloaderManager implements Serializable {
                     }).start();
                 }
             } catch (RemoteException e) {
-                System.out.println("Failed to connect to a downloader for indexing. Retrying in 1 second...");
-                //TODO: Reconnect to downloaders
-                connectToDownloaders();
+                System.out.println("Failed to connect to a downloader for indexing. Redirecting to another downloader.");
+                downloaderCounter.incrementAndGet();
                 synchronizeDownloaders(urlParaScrape);
+            }
+        }
+    }
+
+    public int getActiveDownloaders() {
+        // Count the number of active downloaders
+        int ctr = 0;
+        synchronized (downloaders) {
+            for (Connection connection : downloaders.keySet()) {
+                try {
+                    MetodosRMIDownloader res = (MetodosRMIDownloader) Naming.lookup("rmi://" + connection.getIP() + ":" + connection.getPorta() + "/" + connection.getRMIName());
+                    res.getDownloaderID();
+                    ++ctr;
+                } catch (MalformedURLException | NotBoundException | RemoteException ignored) {
+
+                }
+            }
+        }
+        return ctr;
+    }
+
+    private void reconnectToDownloader(Connection downloaderCon) throws InterruptedException {
+        System.out.println("Trying to reconnect to Downloader " + downloaderCon.getRMIName() + "...");
+        while (true) {
+            Thread.sleep(5000);
+            MetodosRMIDownloader downloader = tentarLigarADownloader(downloaderCon, false);
+            if (downloader != null) {
+                System.out.println("Reconnected to Downloader " + downloaderCon.getRMIName() + "!");
+                break;
             }
         }
     }
@@ -156,7 +222,7 @@ public class DownloaderManager implements Serializable {
      * It creates a server socket and continuously accepts connections.
      * For each connection, it creates a new thread to handle the connection.
      */
-    private static void socketQueueManagerToDownloadManager() throws IOException {
+    private void socketQueueManagerToDownloadManager() throws IOException {
         ServerSocket serverSocket = new ServerSocket(ConnectionsEnum.DOWNLOAD_MANAGER.getPort());
 
         // download manager ready
@@ -187,16 +253,17 @@ public class DownloaderManager implements Serializable {
 
                         synchronizeDownloaders(urlParaScrape);
                     }
-                } catch (IOException e) {
+                } catch (IOException | NotBoundException e) {
                     e.printStackTrace();
                 }
             }).start();
         }
     }
 
-    private static void shutdownDownloaders() {
+    private void shutdownDownloaders() {
+        // Shutdown all downloaders
         synchronized (downloaders) {
-            for (MetodosRMIDownloader downloader : downloaders) {
+            for (MetodosRMIDownloader downloader : downloaders.values()) {
                 try {
                     downloader.shutdown();
                 } catch (RemoteException e) {

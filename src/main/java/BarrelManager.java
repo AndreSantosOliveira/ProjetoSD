@@ -250,8 +250,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
                     res.getBarrelID();
                     ++ctr;
                     sb.append("- ").append(connection.getRMIName()).append(" @ ").append(connection.getIP()).append(":").append(connection.getPorta()).append("\n");
-                } catch (MalformedURLException | NotBoundException | RemoteException e) {
-                    continue;
+                } catch (MalformedURLException | NotBoundException | RemoteException ignored) {
                 }
             }
         }

@@ -48,6 +48,11 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
         super();
     }
 
+    // Get dlID
+    @Override
+    public String getDownloaderID() {
+        return dlID;
+    }
 
     /**
      * Main method for the Downloader class.

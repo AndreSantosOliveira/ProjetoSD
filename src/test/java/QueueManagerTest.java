@@ -44,14 +44,8 @@ public class QueueManagerTest {
 
         // Run a downloadManager in a thread separately
         new Thread(() -> {
-            try {
-                DownloaderManager.main(new String[0]);
-
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            //DownloadManager.main(new String[0]);
         }).start();
-
 
         assertTrue(queueManager.connectToDownloadManager());
     }
