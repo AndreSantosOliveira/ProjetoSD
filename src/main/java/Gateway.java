@@ -170,7 +170,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     }
 
     @Override
-    public void saveBarrelsContent() throws RemoteException, MalformedURLException, NotBoundException {
+    public void saveBarrelsContent() throws RemoteException {
         metodosBarrelManager.saveBarrelsContent();
     }
 

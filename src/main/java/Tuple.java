@@ -8,7 +8,9 @@ import java.io.Serializable;
  * @param <B> the type of the second value
  */
 public class Tuple<A, B> implements Serializable {
+    // The first value of this Tuple
     private final A first;
+    // The second value of this Tuple
     private final B second;
 
     /**

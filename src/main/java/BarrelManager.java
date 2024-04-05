@@ -243,7 +243,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
     }
 
     @Override
-    public void saveBarrelsContent() throws RemoteException, NotBoundException {
+    public void saveBarrelsContent() throws RemoteException {
         synchronized (barrels) {
             for (Connection connection : barrels.keySet()) {
                 try {
