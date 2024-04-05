@@ -309,17 +309,6 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         System.out.println("Shutting down BarrelManager: " + motive);
     }
 
-    public MetodosRMIBarrel getBarrel(String rmiName) {
-        synchronized (barrels) {
-            for (Connection connection : barrels.keySet()) {
-                if (connection.getRMIName().equalsIgnoreCase(rmiName)) {
-                    return barrels.get(connection);
-                }
-            }
-        }
-        return null;
-    }
-
     public Connection getBarrelConnection(String rmiName) {
         synchronized (barrels) {
             for (Connection connection : barrels.keySet()) {
@@ -334,24 +323,27 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
     @Override
     public String copyBarrel(String from, String to) throws RemoteException {
         // get the barrels
-        MetodosRMIBarrel fromBarrel = getBarrel(from);
-        if (fromBarrel == null) return "Barrel from: " + from + " not found.";
-        try {
-            fromBarrel.getBarrelID();
-        } catch (RemoteException e) {
-            return "Barrel from: " + from + " is offline.";
-        }
+        Connection toBarrel = getBarrelConnection(to);
 
-        MetodosRMIBarrel toBarrel = getBarrel(to);
         if (toBarrel == null) return "Barrel to: " + to + " not found.";
         try {
-            toBarrel.getBarrelID();
-        } catch (RemoteException e) {
+            MetodosRMIBarrel res = (MetodosRMIBarrel) Naming.lookup("rmi://" + toBarrel.getIP() + ":" + toBarrel.getPorta() + "/" + toBarrel.getRMIName());
+            res.getBarrelID();
+
+        } catch (RemoteException | MalformedURLException | NotBoundException e) {
             return "Barrel to: " + to + " is offline.";
         }
 
+        Connection fromBarrel = getBarrelConnection(from);
+
         if (fromBarrel == toBarrel) return "Barrel from and to can't be the same.";
 
-        return fromBarrel.copyBarrelContents(getBarrelConnection(to));
+        if (fromBarrel == null) return "Barrel from: " + from + " not found.";
+        try {
+            MetodosRMIBarrel res = (MetodosRMIBarrel) Naming.lookup("rmi://" + fromBarrel.getIP() + ":" + fromBarrel.getPorta() + "/" + fromBarrel.getRMIName());
+            return res.copyBarrelContents(toBarrel);
+        } catch (RemoteException | MalformedURLException | NotBoundException e) {
+            return "Barrel from: " + from + " is offline.";
+        }
     }
 }
