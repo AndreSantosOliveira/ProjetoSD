@@ -221,7 +221,11 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
 
     @Override
     public void shutdown(String motive) throws RemoteException {
-        queueManager.println("shutdown");
+        if (queueManager == null) {
+            System.out.println("Could not connect in time to QueueManager to shut it down.");
+        } else {
+            queueManager.println("shutdown");
+        }
         System.out.println(motive + ". Shutting down.");
         try {
             metodosBarrelManager.shutdownBarrels(motive);
