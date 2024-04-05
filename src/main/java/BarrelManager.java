@@ -95,7 +95,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
 
                     try {
                         barrelManager.heartbeat(connection);
-                    } catch (RemoteException | InterruptedException e) {
+                    } catch (RemoteException | InterruptedException | MalformedURLException | NotBoundException e) {
                         throw new RuntimeException(e);
                     }
                 }).start();
@@ -111,7 +111,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         }
     }
 
-    private void heartbeat(Connection barrelCon) throws RemoteException, InterruptedException {
+    private void heartbeat(Connection barrelCon) throws RemoteException, InterruptedException, MalformedURLException, NotBoundException {
         while (true) {
             Thread.sleep(5000);
             MetodosRMIBarrel barrel = tentarLigarABarrel(barrelCon, false);
@@ -127,7 +127,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
     }
 
 
-    private void reconnectToBarrel(Connection barrelCon) throws InterruptedException, RemoteException {
+    private void reconnectToBarrel(Connection barrelCon) throws InterruptedException, RemoteException, MalformedURLException, NotBoundException {
         System.out.println("Trying to reconnect to Barrel " + barrelCon.getRMIName() + "...");
         while (true) {
             Thread.sleep(5000);
@@ -139,9 +139,13 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
 
                 for (Connection connection : barrels.keySet()) {
                     if (!connection.equals(barrelCon)) {
-                        MetodosRMIBarrel barrel1 = barrels.get(connection);
-                        //System.out.printf("Copying contents automatically from Barrel %s to Barrel %s...%n", barrels.get(connection).getBarrelID(), barrelCon.getRMIName());
-                        if (barrel1 != null) barrel1.copyBarrelContents(barrelCon);
+
+                        try {
+                            MetodosRMIBarrel res = (MetodosRMIBarrel) Naming.lookup("rmi://" + connection.getIP() + ":" + connection.getPorta() + "/" + connection.getRMIName());
+                            if (res != null) res.copyBarrelContents(barrelCon);
+                        } catch (RemoteException | NotBoundException e) {
+                            continue; // found another barrel different from itself, but the barrel wasn't on, so it can't copy
+                        }
                         break;
                     }
                 }

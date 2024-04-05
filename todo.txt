@@ -1,6 +1,4 @@
 Fix index referentes a um url adicionado no topo da deque
-Fix shutdown (barrelManager nao desliga)
 
 Relatório
 
-FEITO: Fix barrel save content (só funciona da BD para o user e não ao contrário
