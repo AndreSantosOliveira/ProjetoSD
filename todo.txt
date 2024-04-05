@@ -1,2 +1,5 @@
+Fix index referentes a um url adicionado no topo da deque
 Fix barrel save content (só funciona da BD para o user e não ao contrário
 Fix shutdown (barrelManager nao desliga)
+
+Relatório
