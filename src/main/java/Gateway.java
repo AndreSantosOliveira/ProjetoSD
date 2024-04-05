@@ -265,6 +265,10 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         return metodosBarrelManager.copyBarrel(from, to);
     }
 
+    @Override
+    public void heartBeat() {
+    }
+
     public void addSearch(String search) {
         int count = top10Searches.getOrDefault(search, 0);
         top10Searches.put(search, count + 1);

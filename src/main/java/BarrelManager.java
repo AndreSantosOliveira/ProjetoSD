@@ -85,6 +85,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
             barrelManager = new BarrelManager();
             LocateRegistry.createRegistry(ConnectionsEnum.BARREL_MANAGER.getPort()).rebind("barrelmanager", barrelManager);
 
+
             for (Connection connection : barrelManager.barrels.keySet()) {
                 // Make individual heartbeat system for each barrel in separate threads
                 new Thread(() -> {
@@ -100,8 +101,13 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
                 }).start();
             }
 
-        } catch (IOException re) {
-            System.out.println("Exception in BarrelManager: " + re);
+            while (true) {
+                MetodosRMIGateway gateway = (MetodosRMIGateway) Naming.lookup("rmi://" + ConnectionsEnum.GATEWAY.getIP() + ":" + ConnectionsEnum.GATEWAY.getPort() + "/gateway");
+                gateway.heartBeat();
+            }
+
+        } catch (Exception e) {
+            System.exit(0);
         }
     }
 

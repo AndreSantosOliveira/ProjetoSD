@@ -75,4 +75,6 @@ public interface MetodosRMIGateway extends Remote {
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     String copyBarrel(String from, String to) throws RemoteException;
+
+    void heartBeat() throws RemoteException;
 }
