@@ -36,9 +36,6 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     // The ID of the barrel
     static String barrelID;
 
-    // The port of the barrel
-    static String barrelPort;
-
     /**
      * Default constructor for Barrel.
      *
@@ -65,7 +62,6 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
         }
 
         try {
-            barrelPort = args[0];
             int porta = Integer.parseInt(args[0]);
             barrelID = args[1];
 
@@ -164,6 +160,11 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
         return new Tuple<>(barrelID, dadosBarrel);
     }
 
+    /**
+     * This method is used to save the contents of the barrel to a file.
+     *
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
     @Override
     public void saveBarrelContent() throws RemoteException {
         // Write contents of this barrel (index) to a object file
@@ -178,7 +179,12 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
         }
     }
 
-
+    /**
+     * This method is used to get the list of indexes for an url.
+     *
+     * @return HashMap of the index of the barrel
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
     @Override
     public List<String> linksListForURL(String url) throws RemoteException {
         // Print the URL and the URLs that link to it
