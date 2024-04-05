@@ -170,7 +170,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
         try {
             FileOutputStream fos = new FileOutputStream("src/main/java/barrelContent." + barrelID);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
-            oos.writeObject(new Tuple<>(index, urlEApontadoresParaURL));
+            oos.writeObject(new Tuple<>(new HashMap<>(index), new HashMap<>(urlEApontadoresParaURL)));
             oos.close();
             fos.close();
         } catch (IOException ioe) {
@@ -202,7 +202,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
         try {
             System.out.println("Copying barrel contents to destination barrel " + connection.getRMIName() + " @ " + connection);
             MetodosRMIBarrel res = (MetodosRMIBarrel) Naming.lookup("rmi://" + connection.getIP() + ":" + connection.getPorta() + "/" + connection.getRMIName());
-            return res.receiveBarrelContents(barrelID, index, urlEApontadoresParaURL);
+            return res.receiveBarrelContents(barrelID, new HashMap<>(index), new HashMap<>(urlEApontadoresParaURL));
         } catch (MalformedURLException | NotBoundException | RemoteException e) {
             return "Error connecting to destination barrel: " + e.getMessage();
         }

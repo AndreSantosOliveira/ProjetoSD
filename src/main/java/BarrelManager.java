@@ -125,8 +125,8 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
                 for (Connection connection : barrels.keySet()) {
                     if (!connection.equals(barrelCon)) {
                         MetodosRMIBarrel barrel1 = barrels.get(connection);
-                        System.out.printf("Copying contents automatically from Barrel %s to Barrel %s...%n", barrels.get(connection).getBarrelID(), barrelCon.getRMIName());
-                        barrel1.copyBarrelContents(barrelCon);
+                        //System.out.printf("Copying contents automatically from Barrel %s to Barrel %s...%n", barrels.get(connection).getBarrelID(), barrelCon.getRMIName());
+                        if (barrel1 != null) barrel1.copyBarrelContents(barrelCon);
                         break;
                     }
                 }
@@ -145,7 +145,8 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
     private static MetodosRMIBarrel tentarLigarABarrel(Connection descritorIPPorta, boolean retrySystemOff) {
         MetodosRMIBarrel metodosBarrel = null;
         int retryCount = 0;
-        int maxRetries = 5;
+        int maxRetries = retrySystemOff ? 5 : 1;
+
         while (retryCount < maxRetries) {
             try {
                 metodosBarrel = (MetodosRMIBarrel) Naming.lookup("rmi://" + descritorIPPorta.getIP() + ":" + descritorIPPorta.getPorta() + "/" + descritorIPPorta.getRMIName());
