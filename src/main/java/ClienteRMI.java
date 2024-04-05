@@ -378,7 +378,7 @@ public class ClienteRMI implements Serializable, Remote {
         } catch (RemoteException e) {
             System.out.println("Exception in RMI client: " + e.getMessage());
             e.printStackTrace();
-        } catch (IOException e) {
+        } catch (IOException | NotBoundException e) {
             throw new RuntimeException(e);
         }
     }

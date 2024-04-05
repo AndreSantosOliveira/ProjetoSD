@@ -1,4 +1,6 @@
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -31,7 +33,7 @@ public interface MetodosRMIGateway extends Remote {
     /**
      * Saves the content of the barrels.
      */
-    void saveBarrelsContent() throws RemoteException;
+    void saveBarrelsContent() throws RemoteException, MalformedURLException, NotBoundException;
 
     /**
      * Gets the administrative statistics.

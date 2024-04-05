@@ -243,17 +243,15 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
     }
 
     @Override
-    public void saveBarrelsContent() throws RemoteException {
+    public void saveBarrelsContent() throws RemoteException, NotBoundException {
         synchronized (barrels) {
-            for (MetodosRMIBarrel value : barrels.values()) {
-                if (value != null) {
-                    try {
-                        value.saveBarrelContent();
-                    } catch (RemoteException e) {
-                        System.out.println("Error saving barrels content");
-                    }
+            for (Connection connection : barrels.keySet()) {
+                try {
+                    MetodosRMIBarrel res = (MetodosRMIBarrel) Naming.lookup("rmi://" + connection.getIP() + ":" + connection.getPorta() + "/" + connection.getRMIName());
+                    res.saveBarrelContent();
+                } catch (Exception e) {
+                    System.out.println("Error saving barrels content. Barrel is offline.");
                 }
-                break; // so precisamos de um barrel funcional
             }
         }
     }

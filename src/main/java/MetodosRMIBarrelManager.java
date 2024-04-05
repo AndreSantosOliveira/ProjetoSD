@@ -1,3 +1,5 @@
+import java.net.MalformedURLException;
+import java.rmi.NotBoundException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -23,7 +25,7 @@ public interface MetodosRMIBarrelManager extends Remote {
      *
      * @throws RemoteException if an error occurs during remote method invocation.
      */
-    void saveBarrelsContent() throws RemoteException;
+    void saveBarrelsContent() throws RemoteException, MalformedURLException, NotBoundException;
 
     /**
      * Gets the active barrels.

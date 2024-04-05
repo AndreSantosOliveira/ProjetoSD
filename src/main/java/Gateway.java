@@ -3,6 +3,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.net.MalformedURLException;
 import java.net.Socket;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -169,7 +170,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     }
 
     @Override
-    public void saveBarrelsContent() throws RemoteException {
+    public void saveBarrelsContent() throws RemoteException, MalformedURLException, NotBoundException {
         metodosBarrelManager.saveBarrelsContent();
     }
 
