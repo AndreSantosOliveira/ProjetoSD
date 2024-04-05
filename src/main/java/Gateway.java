@@ -108,6 +108,10 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
      */
     @Override
     public String indexURLString(String url) {
+        if (queueManager == null) {
+            return "QueueManager is not connected. Waiting for downloaders to connect.";
+        }
+
         queueManager.println(url);
         String txt = url + " enviado para o QueueManager.";
         System.out.println(txt);
@@ -145,19 +149,20 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         long endTime = System.currentTimeMillis();
 
         String barrelId = res.getFirst();
+        if (!barrelId.equalsIgnoreCase("none")) {
+            // Update the response time
+            if (barrelResponseTime.containsKey(barrelId)) {
+                barrelResponseTime.put(barrelId, barrelResponseTime.get(res.getFirst()) + (endTime - startTime));
+            } else {
+                barrelResponseTime.put(barrelId, (double) (endTime - startTime));
+            }
 
-        // Update the response time
-        if (barrelResponseTime.containsKey(barrelId)) {
-            barrelResponseTime.put(barrelId, barrelResponseTime.get(res.getFirst()) + (endTime - startTime));
-        } else {
-            barrelResponseTime.put(barrelId, (double) (endTime - startTime));
-        }
-
-        // Update the request count
-        if (barrelRequestCount.containsKey(barrelId)) {
-            barrelRequestCount.put(barrelId, barrelRequestCount.get(barrelId) + 1);
-        } else {
-            barrelRequestCount.put(barrelId, 1);
+            // Update the request count
+            if (barrelRequestCount.containsKey(barrelId)) {
+                barrelRequestCount.put(barrelId, barrelRequestCount.get(barrelId) + 1);
+            } else {
+                barrelRequestCount.put(barrelId, 1);
+            }
         }
 
         return lista;

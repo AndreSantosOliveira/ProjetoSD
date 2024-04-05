@@ -1,8 +1,5 @@
 import java.io.Serializable;
-import java.util.ArrayDeque;
-import java.util.HashSet;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
 /**
  * UniqueQueue is a generic class that represents a queue with unique elements.
@@ -14,7 +11,7 @@ import java.util.Set;
 public class UniqueQueue<E> implements Serializable {
 
     // Queue to store elements
-    private final Queue<E> queue = new ArrayDeque<>();
+    private final Deque<E> queue = new ArrayDeque<>();
     // Set to store unique elements
     private final Set<E> set = new HashSet<>();
     // Maximum size of the queue
@@ -44,7 +41,7 @@ public class UniqueQueue<E> implements Serializable {
             return false;
         } else if (queue.size() < maxSize) {
             set.add(e);
-            queue.offer(e);
+            queue.offerFirst(e);
             return true;
         }
         return false;
