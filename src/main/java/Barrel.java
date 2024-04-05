@@ -204,7 +204,14 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
             MetodosRMIBarrel res = (MetodosRMIBarrel) Naming.lookup("rmi://" + connection.getIP() + ":" + connection.getPorta() + "/" + connection.getRMIName());
             return res.receiveBarrelContents(barrelID, new HashMap<>(index), new HashMap<>(urlEApontadoresParaURL));
         } catch (MalformedURLException | NotBoundException | RemoteException e) {
-            return "Error connecting to destination barrel: " + e.getMessage();
+            // try with external ip
+            try {
+                System.out.println("Trying to connect to external IP: " + connection.getExternalIP());
+                MetodosRMIBarrel res = (MetodosRMIBarrel) Naming.lookup("rmi://" + connection.getExternalIP() + ":" + connection.getPorta() + "/" + connection.getRMIName());
+                return res.receiveBarrelContents(barrelID, new HashMap<>(index), new HashMap<>(urlEApontadoresParaURL));
+            } catch (MalformedURLException | NotBoundException | RemoteException e2) {
+                return "Error connecting to destination barrel: " + e.getMessage();
+            }
         }
     }
 

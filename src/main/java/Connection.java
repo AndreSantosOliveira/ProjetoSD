@@ -7,10 +7,9 @@ import java.io.Serializable;
 public class Connection implements Serializable {
 
     // The IP address and rmi name
-    private final String ip, rmiName;
+    private final String ip, rmiName, externalIP;
     // The port number
     private final int porta;
-
 
     /**
      * Constructor for Connection.
@@ -24,6 +23,22 @@ public class Connection implements Serializable {
         this.ip = ip;
         this.porta = porta;
         this.rmiName = rmiName;
+        this.externalIP = ip;
+    }
+
+    /**
+     * Constructor for Connection.
+     * This constructor initializes the IP address, port number, RMI name and external IP address.
+     *
+     * @param ip      the IP address
+     * @param porta   the port number
+     * @param rmiName the RMI name
+     */
+    public Connection(String ip, int porta, String rmiName, String externalIP) {
+        this.ip = ip;
+        this.porta = porta;
+        this.rmiName = rmiName;
+        this.externalIP = externalIP;
     }
 
     /**
@@ -33,6 +48,10 @@ public class Connection implements Serializable {
      */
     public String getIP() {
         return ip;
+    }
+
+    public String getExternalIP() {
+        return externalIP;
     }
 
     /**

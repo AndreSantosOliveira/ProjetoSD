@@ -24,6 +24,8 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
     // Map to store barrels
     private Map<Connection, MetodosRMIBarrel> barrels = new HashMap<>();
 
+    static BarrelManager barrelManager;
+
     /**
      * Default constructor for BarrelManager.
      *
@@ -34,6 +36,8 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         connectToBarrels();
     }
 
+    boolean killSwitch = false;
+
     private void connectToBarrels() {
 
         // Load barrels from the text file barrels.txt (IP, port, rmiName)
@@ -41,12 +45,13 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(":");
-                if (parts.length == 3) {
+                if (parts.length == 4) {
                     try {
                         String ip = parts[0];
                         int porta = Integer.parseInt(parts[1]);
                         String rmiName = parts[2];
-                        Connection descritor = new Connection(ip, porta, rmiName);
+                        String externalIP = parts[3];
+                        Connection descritor = new Connection(ip, porta, rmiName, externalIP);
                         MetodosRMIBarrel res = tentarLigarABarrel(descritor, true);
                         barrels.put(descritor, res);
                     } catch (NumberFormatException e) {
@@ -77,12 +82,16 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
      */
     public static void main(String[] args) throws RemoteException {
         try {
-            BarrelManager barrelManager = new BarrelManager();
+            barrelManager = new BarrelManager();
             LocateRegistry.createRegistry(ConnectionsEnum.BARREL_MANAGER.getPort()).rebind("barrelmanager", barrelManager);
 
             for (Connection connection : barrelManager.barrels.keySet()) {
                 // Make individual heartbeat system for each barrel in separate threads
                 new Thread(() -> {
+                    if (barrelManager.killSwitch) {
+                        System.exit(0);
+                    }
+
                     try {
                         barrelManager.heartbeat(connection);
                     } catch (RemoteException | InterruptedException e) {
@@ -289,22 +298,26 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
                 }
             }
         }
-        System.exit(0);
+        System.out.println("Shutting down BarrelManager: " + motive);
     }
 
     public MetodosRMIBarrel getBarrel(String rmiName) {
-        for (Connection connection : barrels.keySet()) {
-            if (connection.getRMIName().equalsIgnoreCase(rmiName)) {
-                return barrels.get(connection);
+        synchronized (barrels) {
+            for (Connection connection : barrels.keySet()) {
+                if (connection.getRMIName().equalsIgnoreCase(rmiName)) {
+                    return barrels.get(connection);
+                }
             }
         }
         return null;
     }
 
     public Connection getBarrelConnection(String rmiName) {
-        for (Connection connection : barrels.keySet()) {
-            if (connection.getRMIName().equalsIgnoreCase(rmiName)) {
-                return connection;
+        synchronized (barrels) {
+            for (Connection connection : barrels.keySet()) {
+                if (connection.getRMIName().equalsIgnoreCase(rmiName)) {
+                    return connection;
+                }
             }
         }
         return null;
