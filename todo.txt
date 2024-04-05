@@ -1,4 +1,3 @@
-Fix index referentes a um url adicionado no topo da deque
 
 Relatório
 
