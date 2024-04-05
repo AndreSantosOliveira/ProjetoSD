@@ -338,9 +338,19 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         // get the barrels
         MetodosRMIBarrel fromBarrel = getBarrel(from);
         if (fromBarrel == null) return "Barrel from: " + from + " not found.";
+        try {
+            fromBarrel.getBarrelID();
+        } catch (RemoteException e) {
+            return "Barrel from: " + from + " is offline.";
+        }
 
         MetodosRMIBarrel toBarrel = getBarrel(to);
         if (toBarrel == null) return "Barrel to: " + to + " not found.";
+        try {
+            toBarrel.getBarrelID();
+        } catch (RemoteException e) {
+            return "Barrel to: " + to + " is offline.";
+        }
 
         if (fromBarrel == toBarrel) return "Barrel from and to can't be the same.";
 
