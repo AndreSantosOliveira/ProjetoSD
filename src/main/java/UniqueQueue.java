@@ -2,7 +2,7 @@ import java.io.Serializable;
 import java.util.*;
 
 /**
- * UniqueQueue is a class that represents a queue with unique elements.
+ * UniqueQueue is a generic class that represents a queue with unique elements.
  * It uses a Queue and a Set to ensure uniqueness and order of elements.
  * It also has a maximum size, and elements cannot be added once this size is reached.
  *

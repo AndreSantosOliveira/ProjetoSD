@@ -11,10 +11,12 @@ import java.util.List;
 import java.util.Scanner;
 
 /**
- * The ClienteRMI class is responsible for interacting with the search system through a command terminal.
- * It implements the Serializable and Remote interfaces.
- * It allows the user to index a new URL, search for pages that contain a set of terms,
+ * ClienteRMI class implements Serializable and Remote.
+ * This class allows the user to interact with the search system through a command terminal.
+ * The user can index a new URL, search for pages that contain a set of terms,
  * list pages with a link to a specific page, access the administration page and terminate the program.
+ * ClienteRMI is responsible for creating a new RMI registry for the client, connecting to the Gateway via RMI and
+ * sending commands to the Queue.
  */
 public class ClienteRMI implements Serializable, Remote {
 
@@ -33,11 +35,11 @@ public class ClienteRMI implements Serializable, Remote {
     }
 
     /**
-     * This method is used to separate a larger list into smaller lists.
+     * Separares a bigger list into smaller lists.
      *
-     * @param inputList   The list to be separated
-     * @param sublistSize The size of the smaller lists
-     * @return A list of lists
+     * @param inputList   list to be separated
+     * @param sublistSize size of the smaller lists
+     * @return a list of lists
      */
     public static List<List<URLData>> separateList(List<URLData> inputList, int sublistSize) {
         List<List<URLData>> result = new ArrayList<>();
@@ -55,9 +57,7 @@ public class ClienteRMI implements Serializable, Remote {
     }
 
     /**
-     * The main method for the ClienteRMI class.
-     * It creates an instance of ClienteRMI, binds it to the RMI registry,
-     * and starts the interaction with the search system.
+     * Main method for the ClienteRMI class.
      *
      * @param args command line arguments
      */
@@ -384,7 +384,7 @@ public class ClienteRMI implements Serializable, Remote {
     }
 
     /**
-     * This method is used to print the help message.
+     * Prints the help message.
      */
     private static void help() {
         System.out.println("Available commands:");

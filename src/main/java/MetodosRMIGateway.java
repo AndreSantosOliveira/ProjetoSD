@@ -6,7 +6,7 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 /**
- * The MetodosRMIGateway interface extends the Remote interface.
+ * MetodosRMIGateway interface extends Remote.
  * This interface defines the methods that a Gateway object must implement.
  * These methods allow the Gateway to index a URL, search for URLs based on input, and list indexed pages.
  */
@@ -32,10 +32,6 @@ public interface MetodosRMIGateway extends Remote {
 
     /**
      * Saves the content of the barrels.
-     *
-     * @throws RemoteException       if an error occurs during remote method invocation.
-     * @throws MalformedURLException if the URL is not formatted correctly.
-     * @throws NotBoundException     if an attempt is made to lookup or unbind in the registry a name that has no associated binding.
      */
     void saveBarrelsContent() throws RemoteException, MalformedURLException, NotBoundException;
 
@@ -48,16 +44,15 @@ public interface MetodosRMIGateway extends Remote {
     String getAdministrativeStatistics() throws RemoteException;
 
     /**
-     * Lists indexed pages of a specific URL.
+     * Lists indexed pages of a specific.
      *
-     * @param url the URL to list indexed pages for
-     * @return a list of strings representing the indexed pages
+     * @return a list of URLData objects representing the indexed pages
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     List<String> linksListForURL(String url) throws RemoteException;
 
     /**
-     * Shuts down the system for a specific reason.
+     * Lists indexed pages.
      *
      * @param motive the reason for the shutdown
      * @throws RemoteException if an error occurs during remote method invocation.
@@ -69,8 +64,7 @@ public interface MetodosRMIGateway extends Remote {
      *
      * @param username the username of the client
      * @param password the password of the client
-     * @return an integer indicating account type, or -1 if the authentication failed
-     * @throws RemoteException if an error occurs during remote method invocation.
+     * @return an integer indicating account type, or if the authentication failed
      */
     int autenticarCliente(String username, String password) throws RemoteException;
 
@@ -84,10 +78,5 @@ public interface MetodosRMIGateway extends Remote {
      */
     String copyBarrel(String from, String to) throws RemoteException;
 
-    /**
-     * Sends a heartbeat signal to indicate that the system is still running.
-     *
-     * @throws RemoteException if an error occurs during remote method invocation.
-     */
     void heartBeat() throws RemoteException;
 }

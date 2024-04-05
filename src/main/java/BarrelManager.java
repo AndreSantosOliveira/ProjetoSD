@@ -16,10 +16,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
- * The BarrelManager class is responsible for managing a collection of barrels.
- * It implements the MetodosRMIBarrelManager interface and is Serializable.
- * It maintains a map of barrels and provides methods to connect to barrels,
- * perform searches, save barrel content, get active barrels, shutdown barrels, and copy barrels.
+ * BarrelManager class implements MetodosRMIBarrel and Serializable.
+ * This class is responsible for managing a collection of barrels.
  */
 public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
 
@@ -30,7 +28,6 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
 
     /**
      * Default constructor for BarrelManager.
-     * It calls the connectToBarrels method to establish connections with barrels.
      *
      * @throws RemoteException if an error occurs during remote object initialization.
      */
@@ -41,10 +38,6 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
 
     boolean killSwitch = false;
 
-    /**
-     * This method is used to establish connections with barrels.
-     * It reads the barrel details from a text file and attempts to connect to each barrel.
-     */
     private void connectToBarrels() {
 
         // Load barrels from the text file barrels.txt (IP, port, rmiName)
@@ -83,9 +76,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
     }
 
     /**
-     * The main method for the BarrelManager class.
-     * It creates an instance of BarrelManager, binds it to the RMI registry,
-     * and starts the heartbeat system for each barrel in separate threads.
+     * Main method for the BarrelManager class.
      *
      * @param args command line arguments
      */
@@ -135,12 +126,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         }
     }
 
-    /**
-     * This method is used to reconnect to a barrel that is offline.
-     * It continuously tries to connect to the barrel until it's successful.
-     *
-     * @param barrelCon The connection details of the barrel
-     */
+
     private void reconnectToBarrel(Connection barrelCon) throws InterruptedException, RemoteException, MalformedURLException, NotBoundException {
         System.out.println("Trying to reconnect to Barrel " + barrelCon.getRMIName() + "...");
         while (true) {
@@ -168,12 +154,11 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         }
     }
 
+
     /**
-     * This method is used to attempt a connection to a barrel.
-     * It tries to connect to the barrel a specified number of times and returns the barrel object if successful.
+     * Attempts to connect to a barrel.
      *
      * @param descritorIPPorta descriptor of the barrel to connect to
-     * @param retrySystemOff   flag to indicate if the retry system is off
      * @return MetodosRMIBarrel object if the connection is successful, null otherwise.
      */
     private static MetodosRMIBarrel tentarLigarABarrel(Connection descritorIPPorta, boolean retrySystemOff) {
@@ -208,11 +193,10 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
     static AtomicInteger barrelCounter = new AtomicInteger();
 
     /**
-     * This method is used to search for URLData objects.
-     * It searches in the barrels in a round-robin fashion and returns the search results.
+     * Searches for URLData objects.
      *
      * @param pesquisa String of words to search for
-     * @return Tuple containing the id of the barrel where the search was performed and a list of URLData objects that match the search criteria
+     * @return List of URLData objects that match the search criteria
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     @Override
@@ -259,7 +243,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
     }
 
     @Override
-    public void saveBarrelsContent() throws RemoteException {
+    public void saveBarrelsContent() throws RemoteException, NotBoundException {
         synchronized (barrels) {
             for (Connection connection : barrels.keySet()) {
                 try {
@@ -272,13 +256,6 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         }
     }
 
-    /**
-     * This method is used to get the list of active barrels.
-     * It counts the number of active barrels and returns their details.
-     *
-     * @return String containing the details of the active barrels
-     * @throws RemoteException if an error occurs during remote method invocation.
-     */
     @Override
     public String getActiveBarrels() throws RemoteException {
         // Count the number of active barrels
@@ -299,14 +276,6 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         return ctr == 0 ? "\nNone.\n" : sb.toString();
     }
 
-    /**
-     * This method is used to get the list of links for a given URL.
-     * It calls the linksListForURL method on a barrel and returns the list of links.
-     *
-     * @param url The URL to get the links for
-     * @return List of links for the given URL
-     * @throws RemoteException if an error occurs during remote method invocation.
-     */
     @Override
     public List<String> linksListForURL(String url) throws RemoteException {
         synchronized (barrels) {
@@ -324,13 +293,6 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         return Collections.emptyList();
     }
 
-    /**
-     * This method is used to shutdown the barrels.
-     * It calls the shutdown method on each barrel.
-     *
-     * @param motive The reason for shutting down the barrels
-     * @throws RemoteException if an error occurs during remote method invocation.
-     */
     @Override
     public void shutdownBarrels(String motive) throws RemoteException {
         synchronized (barrels) {
@@ -347,12 +309,6 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         System.out.println("Shutting down BarrelManager: " + motive);
     }
 
-    /**
-     * This method is used to get a barrel by its RMI name.
-     *
-     * @param rmiName The RMI name of the barrel
-     * @return The barrel with the given RMI name, or null if not found
-     */
     public MetodosRMIBarrel getBarrel(String rmiName) {
         synchronized (barrels) {
             for (Connection connection : barrels.keySet()) {
@@ -364,12 +320,6 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         return null;
     }
 
-    /**
-     * This method is used to get the connection details of a barrel by its RMI name.
-     *
-     * @param rmiName The RMI name of the barrel
-     * @return The connection details of the barrel with the given RMI name, or null if not found
-     */
     public Connection getBarrelConnection(String rmiName) {
         synchronized (barrels) {
             for (Connection connection : barrels.keySet()) {
@@ -381,15 +331,6 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         return null;
     }
 
-    /**
-     * This method is used to copy the contents of one barrel to another.
-     * It gets the barrels by their RMI names and calls the copyBarrelContents method on the source barrel.
-     *
-     * @param from The RMI name of the source barrel
-     * @param to   The RMI name of the destination barrel
-     * @return String indicating the result of the operation
-     * @throws RemoteException if an error occurs during remote method invocation.
-     */
     @Override
     public String copyBarrel(String from, String to) throws RemoteException {
         // get the barrels

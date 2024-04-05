@@ -8,6 +8,8 @@ import java.net.Socket;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashSet;
+import java.util.Objects;
+
 
 /**
  * QueueManager class extends UnicastRemoteObject and implements Serializable.

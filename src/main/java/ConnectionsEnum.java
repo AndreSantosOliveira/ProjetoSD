@@ -10,7 +10,7 @@ import java.io.Serializable;
  */
 public enum ConnectionsEnum implements Serializable {
 
-    // Enumerations representing different types of connections
+    // Connections
     MULTICAST, GATEWAY, QUEUE_MANAGER, BARREL_MANAGER, DOWNLOAD_MANAGER;
 
     // The IP address of the connection
@@ -18,10 +18,6 @@ public enum ConnectionsEnum implements Serializable {
     // The port number of the connection
     private int port;
 
-    /**
-     * Constructor for ConnectionsEnum.
-     * This constructor calls the loadConnectionInfo method to load the IP address and port number from the connections.txt file.
-     */
     ConnectionsEnum() {
         // Load IP address and port number from connections.txt
         loadConnectionInfo();
@@ -29,8 +25,6 @@ public enum ConnectionsEnum implements Serializable {
 
     /**
      * Loads IP address and port number from the connections.txt file.
-     * The file is expected to have each connection on a separate line in the format "connectionName|ipAddress:portNumber".
-     * If the connection name matches the name of the enumeration, the IP address and port number are stored.
      */
     private void loadConnectionInfo() {
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/java/connections.txt"))) {
@@ -75,7 +69,6 @@ public enum ConnectionsEnum implements Serializable {
 
     /**
      * Prints the initialization status of the connection.
-     * The status is printed in the format "[connection] name ready."
      *
      * @param name the name of the connection
      */
@@ -85,7 +78,6 @@ public enum ConnectionsEnum implements Serializable {
 
     /**
      * Converts the connection to a string.
-     * The string is formatted as "ip:port".
      *
      * @return the string representation of the connection
      */

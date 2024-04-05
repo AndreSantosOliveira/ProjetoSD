@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+
 /**
  * Gateway class extends UnicastRemoteObject and implements MetodosRMIGateway and Serializable.
  * This class is responsible for managing the communication between the client and the server.
@@ -169,7 +170,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     }
 
     @Override
-    public void saveBarrelsContent() throws RemoteException {
+    public void saveBarrelsContent() throws RemoteException, MalformedURLException, NotBoundException {
         metodosBarrelManager.saveBarrelsContent();
     }
 
@@ -177,13 +178,6 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
 
     final Map<String, Integer> top10Searches = new HashMap<>();
 
-    /**
-     * Returns administrative statistics.
-     * It includes the top 10 searches, active barrels, and average response times.
-     *
-     * @return a string containing the administrative statistics
-     * @throws RemoteException if an error occurs during remote method invocation.
-     */
     @Override
     public String getAdministrativeStatistics() throws RemoteException {
         StringBuilder sb = new StringBuilder();
@@ -274,15 +268,8 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
 
     @Override
     public void heartBeat() {
-        // Implementation omitted for brevity
     }
 
-    /**
-     * Adds a search to the top 10 searches.
-     * If there are more than 10 searches, it removes the least common search.
-     *
-     * @param search the search to add
-     */
     public void addSearch(String search) {
         int count = top10Searches.getOrDefault(search, 0);
         top10Searches.put(search, count + 1);

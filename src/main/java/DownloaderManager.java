@@ -14,11 +14,10 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * The DownloaderManager class is responsible for managing a collection of downloaders.
- * It implements the Serializable interface and maintains a map of downloaders.
- * It provides methods to connect to downloaders, perform heartbeats, attempt connections, synchronize downloaders,
- * get active downloaders, reconnect to downloaders, setup a socket to receive URLs from the QueueManager for scraping,
- * and shutdown downloaders.
+ * DownloaderManager class.
+ * This class is responsible for managing a collection of downloaders.
+ * It loads the downloaders from a text file, attempts to connect to each downloader,
+ * and sets up a socket to receive URLs from the QueueManager for scraping.
  */
 public class DownloaderManager implements Serializable {
     // Map to store downloaders
@@ -27,21 +26,14 @@ public class DownloaderManager implements Serializable {
     // Counter to keep track of the downloader to send the URL to
     static AtomicInteger downloaderCounter = new AtomicInteger();
 
-    /**
-     * Default constructor for DownloaderManager.
-     * It calls the connectToDownloaders method to establish connections with downloaders.
-     *
-     * @throws RemoteException if an error occurs during remote object initialization.
-     */
+
+    // Constructor
     public DownloaderManager() throws RemoteException {
         super();
         connectToDownloaders();
     }
 
-    /**
-     * This method is used to establish connections with downloaders.
-     * It reads the downloader details from a text file and attempts to connect to each downloader.
-     */
+
     private void connectToDownloaders() {
         // Load downloaders from the text file downloaders.txt (IP, port, rmiName)
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/java/downloaders.txt"))) {
@@ -78,9 +70,9 @@ public class DownloaderManager implements Serializable {
     }
 
     /**
-     * The main method for the DownloaderManager class.
-     * It creates an instance of DownloaderManager, binds it to the RMI registry,
-     * and starts the heartbeat system for each downloader in separate threads.
+     * Main method for the DownloaderManager class.
+     * It loads downloaders from a text file and attempts to connect to each downloader.
+     * It also sets up a socket to receive URLs from the QueueManager for scraping.
      *
      * @param args command line arguments
      */
@@ -107,12 +99,6 @@ public class DownloaderManager implements Serializable {
         }
     }
 
-    /**
-     * This method is used to check the heartbeat of a downloader.
-     * It continuously checks if the downloader is alive and tries to reconnect if it's offline.
-     *
-     * @param downloaderCon The connection details of the downloader
-     */
     private void heartbeat(Connection downloaderCon) throws RemoteException, InterruptedException {
         while (true) {
             Thread.sleep(5000);
@@ -127,11 +113,12 @@ public class DownloaderManager implements Serializable {
     }
 
     /**
-     * This method is used to attempt a connection to a downloader.
-     * It tries to connect to the downloader a specified number of times and returns the downloader object if successful.
+     * Attempts to connect to a downloader.
+     * It tries to connect to the downloader up to 5 times.
+     * If the connection is successful, it returns the MetodosRMIDownloader object.
+     * If the connection fails, it returns null.
      *
      * @param descritorIPPorta descriptor of the downloader to connect to
-     * @param retrySystemOff   flag to indicate if the retry system is off
      * @return MetodosRMIDownloader object if the connection is successful, null otherwise.
      */
     private static MetodosRMIDownloader tentarLigarADownloader(Connection descritorIPPorta, boolean retrySystemOff) {
@@ -163,8 +150,9 @@ public class DownloaderManager implements Serializable {
         return null;
     }
 
+
     /**
-     * This method is used to synchronize the downloaders to send a URL to scrape.
+     * Synchronizes the downloaders to send a URL to scrape.
      * It sends the URL to the downloader at the current index in the list of downloaders.
      * If an error occurs while sending the URL, it prints an error message.
      *
@@ -208,11 +196,6 @@ public class DownloaderManager implements Serializable {
         }
     }
 
-    /**
-     * This method is used to get the number of active downloaders.
-     *
-     * @return the number of active downloaders
-     */
     public int getActiveDownloaders() {
         // Count the number of active downloaders
         int ctr = 0;
@@ -230,12 +213,6 @@ public class DownloaderManager implements Serializable {
         return ctr;
     }
 
-    /**
-     * This method is used to reconnect to a downloader that is offline.
-     * It continuously tries to connect to the downloader until it's successful.
-     *
-     * @param downloaderCon The connection details of the downloader
-     */
     private void reconnectToDownloader(Connection downloaderCon) throws InterruptedException {
         System.out.println("Trying to reconnect to Downloader " + downloaderCon.getRMIName() + "...");
         while (true) {
@@ -249,7 +226,7 @@ public class DownloaderManager implements Serializable {
     }
 
     /**
-     * This method is used to setup a socket to receive URLs from the QueueManager for scraping.
+     * Sets up a socket to receive URLs from the QueueManager for scraping.
      * It creates a server socket and continuously accepts connections.
      * For each connection, it creates a new thread to handle the connection.
      */

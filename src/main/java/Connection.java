@@ -1,13 +1,12 @@
 import java.io.Serializable;
 
 /**
- * The Connection class is used to describe a network connection.
- * It includes an IP address, port number, and an optional RMI name.
- * This class implements the Serializable interface, allowing objects of this type to be written to streams.
+ * Connection class.
+ * This class is used to describe an IP address and port, along with an optional RMI name.
  */
 public class Connection implements Serializable {
 
-    // The IP address, RMI name, and external IP address
+    // The IP address and rmi name
     private final String ip, rmiName, externalIP;
     // The port number
     private final int porta;
@@ -29,12 +28,11 @@ public class Connection implements Serializable {
 
     /**
      * Constructor for Connection.
-     * This constructor initializes the IP address, port number, RMI name, and external IP address.
+     * This constructor initializes the IP address, port number, RMI name and external IP address.
      *
-     * @param ip         the IP address
-     * @param porta      the port number
-     * @param rmiName    the RMI name
-     * @param externalIP the external IP address
+     * @param ip      the IP address
+     * @param porta   the port number
+     * @param rmiName the RMI name
      */
     public Connection(String ip, int porta, String rmiName, String externalIP) {
         this.ip = ip;
@@ -52,11 +50,6 @@ public class Connection implements Serializable {
         return ip;
     }
 
-    /**
-     * Getter for the external IP address.
-     *
-     * @return the external IP address
-     */
     public String getExternalIP() {
         return externalIP;
     }
