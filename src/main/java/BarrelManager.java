@@ -38,8 +38,10 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
 
     boolean killSwitch = false;
 
+    /**
+     * Connects to the barrels.
+     */
     private void connectToBarrels() {
-
         // Load barrels from the text file barrels.txt (IP, port, rmiName)
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/java/barrels.txt"))) {
             String line;
@@ -70,8 +72,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
             ConnectionsEnum.BARREL_MANAGER.printINIT("BarrelManager");
 
         } catch (IOException e) {
-            System.err.println("Error reading the barrel file: ");
-            e.printStackTrace();
+            System.err.println("Error reading the barrel file: " + e.getMessage());
         }
     }
 
@@ -111,6 +112,15 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         }
     }
 
+    /**
+     * Heartbeat system for the barrels.
+     *
+     * @param barrelCon Connection object of the barrel
+     * @throws RemoteException    if an error occurs during remote method invocation.
+     * @throws InterruptedException if an error occurs during thread sleep.
+     * @throws MalformedURLException if an error occurs during URL creation.
+     * @throws NotBoundException if an error occurs during RMI binding.
+     */
     private void heartbeat(Connection barrelCon) throws RemoteException, InterruptedException, MalformedURLException, NotBoundException {
         while (true) {
             Thread.sleep(5000);
@@ -126,7 +136,15 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         }
     }
 
-
+    /**
+     * Reconnects to a barrel.
+     *
+     * @param barrelCon Connection object of the barrel
+     * @throws InterruptedException if an error occurs during thread sleep.
+     * @throws RemoteException    if an error occurs during remote method invocation.
+     * @throws MalformedURLException if an error occurs during URL creation.
+     * @throws NotBoundException if an error occurs during RMI binding.
+     */
     private void reconnectToBarrel(Connection barrelCon) throws InterruptedException, RemoteException, MalformedURLException, NotBoundException {
         System.out.println("Trying to reconnect to Barrel " + barrelCon.getRMIName() + "...");
         while (true) {
@@ -162,7 +180,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
      * @return MetodosRMIBarrel object if the connection is successful, null otherwise.
      */
     private static MetodosRMIBarrel tentarLigarABarrel(Connection descritorIPPorta, boolean retrySystemOff) {
-        MetodosRMIBarrel metodosBarrel = null;
+        MetodosRMIBarrel metodosBarrel;
         int retryCount = 0;
         int maxRetries = retrySystemOff ? 5 : 1;
 
@@ -190,6 +208,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         return null;
     }
 
+    // Counter to keep track of the barrel index
     static AtomicInteger barrelCounter = new AtomicInteger();
 
     /**
@@ -243,7 +262,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
     }
 
     @Override
-    public void saveBarrelsContent() throws RemoteException, NotBoundException {
+    public void saveBarrelsContent() throws RemoteException {
         synchronized (barrels) {
             for (Connection connection : barrels.keySet()) {
                 try {
@@ -300,15 +319,19 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
                 if (value != null) {
                     try {
                         value.shutdown(motive);
-                    } catch (RemoteException e) {
-                        continue;
-                    }
+                    } catch (RemoteException ignored) {}
                 }
             }
         }
         System.out.println("Shutting down BarrelManager: " + motive);
     }
 
+    /**
+     * Gets the barrel connection for the given rmiName
+     *
+     * @param rmiName RMI name of the barrel
+     * @return Connection of the barrel
+     */
     public Connection getBarrelConnection(String rmiName) {
         synchronized (barrels) {
             for (Connection connection : barrels.keySet()) {

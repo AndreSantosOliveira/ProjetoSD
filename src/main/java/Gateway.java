@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
 /**
  * Gateway class extends UnicastRemoteObject and implements MetodosRMIGateway and Serializable.
  * This class is responsible for managing the communication between the client and the server.
@@ -178,17 +177,20 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
 
     final Map<String, Integer> top10Searches = new HashMap<>();
 
+    /**
+     * Gets the administrative statistics.
+     * It returns a string containing the top 10 searches, the active barrels, and the average response times.
+     *
+     * @return a string containing the administrative statistics
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
     @Override
     public String getAdministrativeStatistics() throws RemoteException {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("\nTop 10 searches:\n")
-                .append(getTopSearches())
-                .append(getActiveBarrels())
-                .append(getAverageResponseTimes())
-                .append("\n");
-
-        return sb.toString();
+        return "\nTop 10 searches:\n" +
+                getTopSearches() +
+                getActiveBarrels() +
+                getAverageResponseTimes() +
+                "\n";
     }
 
     private String getTopSearches() {
@@ -220,6 +222,13 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         return metodosBarrelManager.linksListForURL(url);
     }
 
+    /**
+     * Shuts down the Gateway.
+     * It sends a shutdown command to the QueueManager and the BarrelManager, and then exits the program.
+     *
+     * @param motive the reason for shutting down
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
     @Override
     public void shutdown(String motive) throws RemoteException {
         if (queueManager == null) {
@@ -235,6 +244,16 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         System.exit(0);
     }
 
+    /**
+     * Authenticates a client.
+     * It checks the provided username and password against the accounts.txt file.
+     * If the username and password match an entry in the file, it returns the corresponding value.
+     * If the username and password do not match any entry in the file, it returns -1.
+     *
+     * @param username the username to authenticate
+     * @param password the password to authenticate
+     * @return the value corresponding to the username and password if they match an entry in the file, -1 otherwise
+     */
     @Override
     public int autenticarCliente(String username, String password) {
         String line;
@@ -270,6 +289,13 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     public void heartBeat() {
     }
 
+    /**
+     * Adds a search to the top 10 searches.
+     * It increments the count for the search in the top 10 searches map.
+     * If the map contains more than 10 entries, it removes the least common search.
+     *
+     * @param search the search to add
+     */
     public void addSearch(String search) {
         int count = top10Searches.getOrDefault(search, 0);
         top10Searches.put(search, count + 1);

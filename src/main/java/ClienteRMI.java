@@ -35,9 +35,9 @@ public class ClienteRMI implements Serializable, Remote {
     }
 
     /**
-     * Separares a bigger list into smaller lists.
+     * Splits a larger list into smaller lists.
      *
-     * @param inputList   list to be separated
+     * @param inputList   list to be split
      * @param sublistSize size of the smaller lists
      * @return a list of lists
      */
@@ -377,7 +377,6 @@ public class ClienteRMI implements Serializable, Remote {
 
         } catch (RemoteException e) {
             System.out.println("Exception in RMI client: " + e.getMessage());
-            e.printStackTrace();
         } catch (IOException | NotBoundException e) {
             throw new RuntimeException(e);
         }

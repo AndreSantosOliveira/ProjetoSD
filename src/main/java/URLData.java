@@ -15,6 +15,7 @@ public class URLData implements Serializable {
 
     /**
      * Constructor for URLData.
+     * Initializes a new instance of URLData with the provided URL, page title, and the URL where it was found.
      *
      * @param url                  the URL
      * @param pageTitle            the page title associated with the URL
@@ -28,6 +29,7 @@ public class URLData implements Serializable {
 
     /**
      * Constructor for URLData.
+     * Initializes a new instance of URLData with the provided URL, page title, and relevance.
      *
      * @param url       the URL
      * @param pageTitle the page title associated with the URL

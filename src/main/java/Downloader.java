@@ -122,6 +122,12 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
         return false;
     }
 
+    /**
+     * Checks if the provided URL is valid.
+     *
+     * @param urlString the URL to check
+     * @return true if the URL is valid, false otherwise
+     */
     public static boolean isValidURL(String urlString) {
         try {
             // Attempt to create a URL object
@@ -139,6 +145,7 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
      * It also sends the results to the ISB via multicast.
      *
      * @param url the URL to crawl
+     * @param tentativa the number of attempts made to crawl the URL
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     @Override
@@ -225,6 +232,11 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
         return busy;
     }
 
+    /**
+     * Shuts down the Downloader.
+     *
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
     @Override
     public void shutdown() throws RemoteException {
         System.out.println("Shutting down Downloader " + dlID);
@@ -237,7 +249,6 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
      *
      * @param resultado the result to send
      */
-    // Send the result to ISB via multicast
     public static void sendResultToISBviaMulticast(List<URLData> resultado) {
         try {
             // Create a multicast socket

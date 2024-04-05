@@ -78,5 +78,9 @@ public interface MetodosRMIGateway extends Remote {
      */
     String copyBarrel(String from, String to) throws RemoteException;
 
+    /**
+     * Heartbeat method used to check if the gateway is still alive.
+     * @throws RemoteException
+     */
     void heartBeat() throws RemoteException;
 }

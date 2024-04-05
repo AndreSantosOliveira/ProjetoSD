@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * DownloaderManager class.
+ * DownloaderManager class implements Serializable.
  * This class is responsible for managing a collection of downloaders.
  * It loads the downloaders from a text file, attempts to connect to each downloader,
  * and sets up a socket to receive URLs from the QueueManager for scraping.
@@ -26,14 +26,21 @@ public class DownloaderManager implements Serializable {
     // Counter to keep track of the downloader to send the URL to
     static AtomicInteger downloaderCounter = new AtomicInteger();
 
-
-    // Constructor
+    /**
+     * Default constructor for DownloaderManager.
+     * This constructor initializes the DownloaderManager and connects to the downloaders.
+     *
+     * @throws RemoteException if an error occurs during remote object initialization.
+     */
     public DownloaderManager() throws RemoteException {
         super();
         connectToDownloaders();
     }
 
-
+    /**
+     * Connects to the downloaders.
+     * This method loads the downloaders from the downloaders.txt file and attempts to connect to each downloader.
+     */
     private void connectToDownloaders() {
         // Load downloaders from the text file downloaders.txt (IP, port, rmiName)
         try (BufferedReader br = new BufferedReader(new FileReader("src/main/java/downloaders.txt"))) {
@@ -64,15 +71,13 @@ public class DownloaderManager implements Serializable {
 
         } catch (IOException e) {
             System.err.println("Error reading the downloader file: " + e.getMessage());
-            e.printStackTrace();
         }
 
     }
 
     /**
      * Main method for the DownloaderManager class.
-     * It loads downloaders from a text file and attempts to connect to each downloader.
-     * It also sets up a socket to receive URLs from the QueueManager for scraping.
+     * It creates a new DownloaderManager object, connects to the downloaders, and sets up a socket to receive URLs from the QueueManager for scraping.
      *
      * @param args command line arguments
      */
@@ -99,6 +104,14 @@ public class DownloaderManager implements Serializable {
         }
     }
 
+    /**
+     * Sends a heartbeat to a downloader.
+     * This method sends a heartbeat to a downloader every 5 seconds to check if the downloader is alive.
+     *
+     * @param downloaderCon the connection to the downloader
+     * @throws RemoteException if an error occurs during remote method invocation.
+     * @throws InterruptedException if the thread is interrupted while sleeping.
+     */
     private void heartbeat(Connection downloaderCon) throws RemoteException, InterruptedException {
         while (true) {
             Thread.sleep(5000);
@@ -114,15 +127,16 @@ public class DownloaderManager implements Serializable {
 
     /**
      * Attempts to connect to a downloader.
-     * It tries to connect to the downloader up to 5 times.
+     * This method attempts to connect to a downloader up to 5 times.
      * If the connection is successful, it returns the MetodosRMIDownloader object.
-     * If the connection fails, it returns null.
+     * If the connection fails after 5 attempts, it returns null.
      *
-     * @param descritorIPPorta descriptor of the downloader to connect to
-     * @return MetodosRMIDownloader object if the connection is successful, null otherwise.
+     * @param descritorIPPorta the descriptor of the downloader to connect to
+     * @param retrySystemOff a flag to indicate if the retry system is off
+     * @return the MetodosRMIDownloader object if the connection is successful, null otherwise.
      */
     private static MetodosRMIDownloader tentarLigarADownloader(Connection descritorIPPorta, boolean retrySystemOff) {
-        MetodosRMIDownloader metodosDownloader = null;
+        MetodosRMIDownloader metodosDownloader;
         int retryCount = 0;
         int maxRetries = 5;
         while (retryCount < maxRetries) {
@@ -150,13 +164,15 @@ public class DownloaderManager implements Serializable {
         return null;
     }
 
-
     /**
      * Synchronizes the downloaders to send a URL to scrape.
-     * It sends the URL to the downloader at the current index in the list of downloaders.
+     * This method sends the URL to the downloader at the current index in the list of downloaders.
      * If an error occurs while sending the URL, it prints an error message.
      *
      * @param urlParaScrape the URL to scrape
+     * @throws MalformedURLException if the URL is not in a valid format.
+     * @throws NotBoundException if the RMI name is not currently bound.
+     * @throws RemoteException if an error occurs during remote method invocation.
      */
     public void synchronizeDownloaders(String urlParaScrape) throws MalformedURLException, NotBoundException, RemoteException {
         if (getActiveDownloaders() == 0) {
@@ -196,6 +212,11 @@ public class DownloaderManager implements Serializable {
         }
     }
 
+    /**
+     * Gets the number of active downloaders.
+     *
+     * @return the number of active downloaders.
+     */
     public int getActiveDownloaders() {
         // Count the number of active downloaders
         int ctr = 0;
@@ -213,6 +234,13 @@ public class DownloaderManager implements Serializable {
         return ctr;
     }
 
+    /**
+     * Reconnects to a downloader.
+     * This method attempts to reconnect to a downloader every 5 seconds until the connection is successful.
+     *
+     * @param downloaderCon the connection to the downloader
+     * @throws InterruptedException if the thread is interrupted while sleeping.
+     */
     private void reconnectToDownloader(Connection downloaderCon) throws InterruptedException {
         System.out.println("Trying to reconnect to Downloader " + downloaderCon.getRMIName() + "...");
         while (true) {
@@ -227,8 +255,10 @@ public class DownloaderManager implements Serializable {
 
     /**
      * Sets up a socket to receive URLs from the QueueManager for scraping.
-     * It creates a server socket and continuously accepts connections.
+     * This method creates a server socket and continuously accepts connections.
      * For each connection, it creates a new thread to handle the connection.
+     *
+     * @throws IOException if an I/O error occurs when opening the socket.
      */
     private void socketQueueManagerToDownloadManager() throws IOException {
         ServerSocket serverSocket = new ServerSocket(ConnectionsEnum.DOWNLOAD_MANAGER.getPort());
@@ -262,7 +292,7 @@ public class DownloaderManager implements Serializable {
                         synchronizeDownloaders(urlParaScrape);
                     }
                 } catch (IOException | NotBoundException e) {
-                    e.printStackTrace();
+                    System.out.println("Error reading message from QueueManager: " + e.getMessage());
                 }
             }).start();
         }
@@ -274,8 +304,7 @@ public class DownloaderManager implements Serializable {
             for (MetodosRMIDownloader downloader : downloaders.values()) {
                 try {
                     downloader.shutdown();
-                } catch (RemoteException e) {
-                    continue;
+                } catch (RemoteException ignored) {
                 }
             }
         }

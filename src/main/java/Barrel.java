@@ -1,25 +1,10 @@
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.net.DatagramPacket;
-import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.MulticastSocket;
-import java.rmi.Naming;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
+import java.io.*;
+import java.net.*;
+import java.rmi.*;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 /**
  * The Barrel class is responsible for managing a collection of URLData objects.
@@ -48,7 +33,6 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
         super();
     }
 
-
     /**
      * The main method for the Barrel class.
      * It expects two command line arguments: the port number and the ID of the barrel.
@@ -57,7 +41,6 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
      * @param args command line arguments
      */
     public static void main(String[] args) {
-
         // Verify if the command line arguments are valid
         if (args.length < 2) {
             System.out.println("Barrel <PORT> <ID>");
@@ -174,10 +157,9 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
             oos.close();
             fos.close();
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            System.out.println("Error saving barrel content to file: " + ioe.getMessage());
         }
     }
-
 
     @Override
     public List<String> linksListForURL(String url) throws RemoteException {

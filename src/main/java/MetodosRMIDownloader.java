@@ -32,7 +32,7 @@ public interface MetodosRMIDownloader extends Remote {
     void shutdown() throws RemoteException;
 
     /**
-     * Get's the downloder ID.
+     * Gets the downloder ID.
      *
      * @return downloader id
      */

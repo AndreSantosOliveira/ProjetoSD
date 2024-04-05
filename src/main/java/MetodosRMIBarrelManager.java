@@ -51,6 +51,13 @@ public interface MetodosRMIBarrelManager extends Remote {
      */
     List<String> linksListForURL(String url) throws RemoteException;
 
+    /**
+     * Copies Barrel content to another Barrel.
+     * @param from barrel id source
+     * @param to barrel id destination
+     * @return outcome of the operation
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
     String copyBarrel(String from, String to) throws RemoteException;
 
 }
