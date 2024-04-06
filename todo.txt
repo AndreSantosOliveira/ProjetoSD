@@ -1,2 +1,19 @@
-Javadoc + Warnings
 Relatório
+    Imagem da arquitetura (roubar do enunciado e adicionar os managers e outros componentes a mais)
+    Aprofundar a secção de multicast (muito superficial)
+
+Para a entrega:
+    O projeto deverá ser entregue num arquivo ZIP. Esse arquivo deverá conter um ficheiro
+    README.md ou .txt com toda a informação necessária para instalar e executar o projeto
+    sem a presença dos alunos. Projetos sem informações suficientes, que não compilem ou
+    não executem corretamente não serão avaliados. O ficheiro ZIP deverá ter também
+    uma pasta com o código fonte completo do projeto. A ausência deste elemento
+    levará à anulação do projeto.
+
+    O ficheiro ZIP deverá conter um Javadoc/HTML com o relatório. O relatório deve
+    seguir a estrutura fornecida(ARCH, MULTICAST, RMI, Distribuicao de tarefas e Testes), dado que a avaliação irá incidir sobre cada um dos pontos.
+
+    ,ou seja,
+
+        Criar um ReadMe.txt como os profs podem meter o nosso projeto a correr
+        Criar um Javadoc/HTML com o relatório (?) (não percebi bem o que querem com isto, ig que é para mandar a dir javadoc)

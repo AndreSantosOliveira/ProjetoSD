@@ -12,14 +12,25 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
+/**
+ * This class contains unit tests for the QueueManager class.
+ */
 public class QueueManagerTest {
 
+    // The QueueManager instance used for testing
     private QueueManager queueManager;
+
+    // Mock objects used for testing
     private Socket mockSocket;
     private ServerSocket mockServerSocket;
 
+    // The DownloaderManager instance used for testing
     private DownloaderManager downloaderManager;
 
+    /**
+     * This method sets up the testing environment before each test.
+     * It initializes the mock objects and the QueueManager and DownloaderManager instances.
+     */
     @BeforeEach
     public void setup() throws IOException {
         queueManager = new QueueManager();
@@ -31,6 +42,10 @@ public class QueueManagerTest {
         when(mockServerSocket.accept()).thenReturn(mockSocket);
     }
 
+    /**
+     * This test checks the connectToDownloadManager method of the QueueManager class with a successful connection.
+     * It runs the QueueManager, Downloader, and DownloaderManager in separate threads and checks if the connection is successful.
+     */
     @Test
     public void shouldConnectToDownloadManagerSuccessfully() throws IOException {
         // Run QueueManager in a thread separately
@@ -57,12 +72,13 @@ public class QueueManagerTest {
         assertTrue(queueManager.connectToDownloadManager());
     }
 
-
+    /**
+     * This test checks the connectToDownloadManager method of the QueueManager class with a failed connection.
+     * It mocks the necessary objects and checks if the method correctly handles the failed connection.
+     */
     @Test
     public void shouldNotConnectToDownloadManagerAfterMaxAttempts() throws IOException {
         when(mockSocket.getOutputStream()).thenThrow(new IOException());
         assertFalse(queueManager.connectToDownloadManager());
     }
-
-
 }

@@ -20,22 +20,34 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+/**
+ * This class contains unit tests for the Downloader class.
+ */
 class DownloaderTest {
 
+    // The Downloader instance used for testing
     private Downloader downloader;
 
+    // Mock objects used for testing
     @Mock
     private Socket mockSocket;
-
     @Mock
     private PrintWriter mockPrintWriter;
 
+    /**
+     * This method sets up the testing environment before each test.
+     * It initializes the mock objects and the Downloader instance.
+     */
     @BeforeEach
     void setUp() throws RemoteException {
         MockitoAnnotations.initMocks(this);
         downloader = new Downloader();
     }
 
+    /**
+     * This test checks the crawlURL method of the Downloader class with a valid URL.
+     * It mocks the necessary objects and checks if the URL is correctly crawled.
+     */
     @Test
     void testCrawlURL_ValidURL() throws RemoteException, IOException {
         // Arrange
@@ -63,6 +75,10 @@ class DownloaderTest {
         }
     }
 
+    /**
+     * This test checks the crawlURL method of the Downloader class with an invalid URL.
+     * It mocks the necessary objects and checks if the method correctly handles the invalid URL.
+     */
     @Test
     void testCrawlURL_InvalidURL() throws RemoteException {
         // Arrange
@@ -76,6 +92,10 @@ class DownloaderTest {
         verifyNoInteractions(mockPrintWriter);
     }
 
+    /**
+     * This test checks the socketDownloadManagerToQueue method of the Downloader class with a successful connection.
+     * It mocks the necessary objects and checks if the method correctly handles the successful connection.
+     */
     @Test
     void testSocketDownloadManagerToQueue_SuccessfulConnection() throws IOException {
         // Arrange
@@ -96,6 +116,10 @@ class DownloaderTest {
         verifyNoInteractions(mockPrintWriter); // No need to interact with PrintWriter
     }
 
+    /**
+     * This test checks the socketDownloadManagerToQueue method of the Downloader class with a failed connection.
+     * It mocks the necessary objects and checks if the method correctly handles the failed connection.
+     */
     @Test
     void testSocketDownloadManagerToQueue_FailedConnection() {
         // Arrange

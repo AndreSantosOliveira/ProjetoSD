@@ -11,22 +11,32 @@ import java.rmi.RemoteException;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
+/**
+ * This class contains unit tests for the Gateway class.
+ */
 class GatewayTest {
 
+    // Mock objects used for testing
     @Mock
     Socket socketMock;
-
     @Mock
     PrintWriter printWriterMock;
-
     @Mock
     MetodosRMIBarrel metodosRMIBarrelMock;
 
+    /**
+     * This method sets up the testing environment before each test.
+     * It initializes the mock objects.
+     */
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
+    /**
+     * This test checks the indexURLString method of the Gateway class.
+     * It mocks the necessary objects and checks if the URL is correctly indexed.
+     */
     @Test
     void indexURLString() throws IOException {
         Gateway gateway = new Gateway();
@@ -38,6 +48,10 @@ class GatewayTest {
         verify(printWriterMock).println(url);
     }
 
+    /**
+     * This test checks the addSearch method of the Gateway class.
+     * It adds searches and checks if they are correctly added to the top10Searches map.
+     */
     @Test
     void addSearch() throws RemoteException {
         Gateway gateway = new Gateway();
@@ -50,7 +64,10 @@ class GatewayTest {
         assertEquals(1, gateway.top10Searches.get("term2"));
     }
 
-    // Helper method to mock PrintWriter creation
+    /**
+     * This is a helper method used for testing.
+     * It mocks the creation of a PrintWriter object.
+     */
     private PrintWriter createPrintWriter(Object any) {
         return printWriterMock;
     }
