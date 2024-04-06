@@ -1,3 +1,12 @@
+/*
+    ____  ____
+   / ___||  _ \     Projeto de Sistemas Distribuídos
+   \___ \| | | |    Meta 1 - LEI FCTUC 2024
+    ___) | |_| |    José Rodrigues - 2021235353
+   |____/|____/     André Oliveira - 2021226714
+
+*/
+
 import java.io.Serializable;
 import java.util.*;
 
@@ -61,15 +70,6 @@ public class UniqueQueue<E> implements Serializable {
     }
 
     /**
-     * Retrieves, but does not remove, the head of this queue, or returns null if this queue is empty.
-     *
-     * @return the head of this queue, or null if this queue is empty
-     */
-    public E peek() {
-        return queue.peek();
-    }
-
-    /**
      * Returns true if this queue contains the specified element.
      *
      * @param e element whose presence in this queue is to be tested
@@ -95,15 +95,6 @@ public class UniqueQueue<E> implements Serializable {
      */
     public boolean isEmpty() {
         return queue.isEmpty();
-    }
-
-    /**
-     * Returns the maximum size of this queue.
-     *
-     * @return the maximum size of this queue
-     */
-    public int getMaxSize() {
-        return maxSize;
     }
 
     /**

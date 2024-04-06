@@ -1,3 +1,12 @@
+/*
+    ____  ____
+   / ___||  _ \     Projeto de Sistemas Distribuídos
+   \___ \| | | |    Meta 1 - LEI FCTUC 2024
+    ___) | |_| |    José Rodrigues - 2021235353
+   |____/|____/     André Oliveira - 2021226714
+
+*/
+
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
 import java.rmi.Remote;
