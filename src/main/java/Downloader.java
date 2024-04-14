@@ -200,6 +200,16 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
                             }
                         }
                     }
+
+                    if (!doc.body().text().isEmpty()) { // if the body is not empty
+                        for (String s : doc.body().text().replaceAll("\n", "").split(" ")) { // split body by spaces
+                            synchronized (urlData) {
+                                if (!urlData.containsKey(url)) {
+                                    urlData.put(url, new URLData(url, s, url));
+                                }
+                            }
+                        }
+                    }
                 }
             }
 

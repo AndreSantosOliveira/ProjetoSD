@@ -1,2 +1,1 @@
 adicionar callback ao clienteRMI para avisar cliente de quanto barrel ou downloader vai abaixo
-indexar o conteudo dos sites, nao so o titulo mas o content em si nas barrels
