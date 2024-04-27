@@ -1,1 +1,3 @@
 adicionar callback ao clienteRMI para avisar cliente de quanto barrel ou downloader vai abaixo
+
+retries na ligação SearchController -> Gateway

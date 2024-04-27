@@ -7,6 +7,10 @@
 
 */
 
+import common.Connection;
+import common.ConnectionsEnum;
+import common.MetodosRMIDownloader;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -137,12 +141,12 @@ public class DownloaderManager implements Serializable {
     /**
      * Attempts to connect to a downloader.
      * This method attempts to connect to a downloader up to 5 times.
-     * If the connection is successful, it returns the MetodosRMIDownloader object.
+     * If the connection is successful, it returns the common.MetodosRMIDownloader object.
      * If the connection fails after 5 attempts, it returns null.
      *
      * @param descritorIPPorta the descriptor of the downloader to connect to
      * @param retrySystemOff a flag to indicate if the retry system is off
-     * @return the MetodosRMIDownloader object if the connection is successful, null otherwise.
+     * @return the common.MetodosRMIDownloader object if the connection is successful, null otherwise.
      */
     private static MetodosRMIDownloader tentarLigarADownloader(Connection descritorIPPorta, boolean retrySystemOff) {
         MetodosRMIDownloader metodosDownloader;

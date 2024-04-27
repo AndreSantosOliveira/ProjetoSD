@@ -1,4 +1,4 @@
-/*
+package common;/*
     ____  ____
    / ___||  _ \     Projeto de Sistemas Distribuídos
    \___ \| | | |    Meta 1 - LEI FCTUC 2024
@@ -10,12 +10,12 @@
 import java.io.Serializable;
 
 /**
- * URLData is a class that represents a URL and its associated page title.
+ * common.URLData is a class that represents a URL and its associated page title.
  * This class implements Serializable, allowing its instances to be written to an OutputStream.
  */
 public class URLData implements Serializable {
     // The URL, page title, and URL where it was found
-    private String url, pageTitle, urlOndeFoiEncontrado;
+    public String url, pageTitle, urlOndeFoiEncontrado;
 
     // The page number
     private int pageNumber = -1;
@@ -23,8 +23,8 @@ public class URLData implements Serializable {
     private int relevance = 0;
 
     /**
-     * Constructor for URLData.
-     * Initializes a new instance of URLData with the provided URL, page title, and the URL where it was found.
+     * Constructor for common.URLData.
+     * Initializes a new instance of common.URLData with the provided URL, page title, and the URL where it was found.
      *
      * @param url                  the URL
      * @param pageTitle            the page title associated with the URL
@@ -37,8 +37,8 @@ public class URLData implements Serializable {
     }
 
     /**
-     * Constructor for URLData.
-     * Initializes a new instance of URLData with the provided URL, page title, and relevance.
+     * Constructor for common.URLData.
+     * Initializes a new instance of common.URLData with the provided URL, page title, and relevance.
      *
      * @param url       the URL
      * @param pageTitle the page title associated with the URL
@@ -51,57 +51,57 @@ public class URLData implements Serializable {
     }
 
     /**
-     * Returns a string representation of the URLData object.
+     * Returns a string representation of the common.URLData object.
      *
-     * @return a string representation of the URLData object
+     * @return a string representation of the common.URLData object
      */
     @Override
     public String toString() {
-        return "URLData{" +
+        return "common.URLData{" +
                 "url='" + url + '\'' +
                 ", pageTitle='" + pageTitle + '\'' +
                 '}';
     }
 
     /**
-     * Returns a string representation of the URLData object in the format of a data packet.
+     * Returns a string representation of the common.URLData object in the format of a data packet.
      *
-     * @return a string representation of the URLData object in the format of a data packet
+     * @return a string representation of the common.URLData object in the format of a data packet
      */
     public String toStringDataPacket() {
         return url + "§±" + pageTitle + "§±" + urlOndeFoiEncontrado;
     }
 
     /**
-     * Returns the URL of the URLData object.
+     * Returns the URL of the common.URLData object.
      *
-     * @return the URL of the URLData object
+     * @return the URL of the common.URLData object
      */
     public String getURL() {
         return this.url;
     }
 
     /**
-     * Returns the URL where the URLData object was found.
+     * Returns the URL where the common.URLData object was found.
      *
-     * @return the URL where the URLData object was found
+     * @return the URL where the common.URLData object was found
      */
     public String getURLWhereItWasFound() {
         return this.urlOndeFoiEncontrado;
     }
 
     /**
-     * Returns the page title of the URLData object.
+     * Returns the page title of the common.URLData object.
      * If a page number is set, it is prepended to the page title.
      *
-     * @return the page title of the URLData object
+     * @return the page title of the common.URLData object
      */
     public String getPageTitle() {
         return pageNumber == -1 ? pageTitle : (pageNumber + ". " + pageTitle);
     }
 
     /**
-     * Adds a page number to the URLData object.
+     * Adds a page number to the common.URLData object.
      *
      * @param i the page number to add
      */
@@ -110,7 +110,7 @@ public class URLData implements Serializable {
     }
 
     /**
-     * Sets the relevance of the URLData object.
+     * Sets the relevance of the common.URLData object.
      *
      * @param relevance the relevance to set
      */
@@ -119,9 +119,9 @@ public class URLData implements Serializable {
     }
 
     /**
-     * Returns the relevance of the URLData object.
+     * Returns the relevance of the common.URLData object.
      *
-     * @return the relevance of the URLData object
+     * @return the relevance of the common.URLData object
      */
     public int getRelevance() {
         return this.relevance;

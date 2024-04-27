@@ -1,3 +1,4 @@
+import common.URLData;
 import org.junit.jupiter.api.Test;
 
 import java.rmi.RemoteException;
@@ -23,8 +24,8 @@ public class BarrelTest {
 
     /**
      * This test checks the archiveURL method of the Barrel class.
-     * It creates a URLData instance, archives it using the Barrel class,
-     * and then checks if the URLData instance was correctly archived.
+     * It creates a common.URLData instance, archives it using the Barrel class,
+     * and then checks if the common.URLData instance was correctly archived.
      */
     @Test
     void archiveURLTest() {
@@ -32,7 +33,7 @@ public class BarrelTest {
         try {
             Barrel.archiveURL(testData);
         } catch (RemoteException e) {
-            fail("RemoteException thrown while archiving URLData");
+            fail("RemoteException thrown while archiving common.URLData");
         }
 
         assertTrue(Barrel.index.containsKey("example"));
@@ -41,8 +42,8 @@ public class BarrelTest {
 
     /**
      * This test checks the searchInput method of the Barrel class.
-     * It creates two URLData instances, archives them using the Barrel class,
-     * and then checks if the searchInput method correctly returns the archived URLData instances.
+     * It creates two common.URLData instances, archives them using the Barrel class,
+     * and then checks if the searchInput method correctly returns the archived common.URLData instances.
      */
     @Test
     void searchInputTest() {
@@ -53,7 +54,7 @@ public class BarrelTest {
             Barrel.archiveURL(testData1);
             Barrel.archiveURL(testData2);
         } catch (RemoteException e) {
-            fail("RemoteException thrown while archiving URLData");
+            fail("RemoteException thrown while archiving common.URLData");
         }
 
         try {

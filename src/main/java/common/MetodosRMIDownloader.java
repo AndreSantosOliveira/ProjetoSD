@@ -1,4 +1,4 @@
-/*
+package common;/*
     ____  ____
    / ___||  _ \     Projeto de Sistemas Distribuídos
    \___ \| | | |    Meta 1 - LEI FCTUC 2024
@@ -11,7 +11,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
- * MetodosRMIDownloader interface extends Remote.
+ * common.MetodosRMIDownloader interface extends Remote.
  * This interface defines the methods that a Downloader object must implement.
  * These methods allow the Downloader to crawl a URL and check if it is busy.
  */

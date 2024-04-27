@@ -1,4 +1,4 @@
-/*
+package common;/*
     ____  ____
    / ___||  _ \     Projeto de Sistemas Distribuídos
    \___ \| | | |    Meta 1 - LEI FCTUC 2024
@@ -10,7 +10,7 @@
 import java.io.Serializable;
 
 /**
- * A Tuple class that holds two values of any type.
+ * A common.Tuple class that holds two values of any type.
  * This class is serializable, which means it can be converted into a byte stream.
  *
  * @param <A> the type of the first value
@@ -21,7 +21,7 @@ public class Tuple<A, B> implements Serializable {
     private final B second;
 
     /**
-     * Constructs a new Tuple with the given values.
+     * Constructs a new common.Tuple with the given values.
      *
      * @param first  the first value
      * @param second the second value
@@ -32,7 +32,7 @@ public class Tuple<A, B> implements Serializable {
     }
 
     /**
-     * Returns the first value of this Tuple.
+     * Returns the first value of this common.Tuple.
      *
      * @return the first value
      */
@@ -41,7 +41,7 @@ public class Tuple<A, B> implements Serializable {
     }
 
     /**
-     * Returns the second value of this Tuple.
+     * Returns the second value of this common.Tuple.
      *
      * @return the second value
      */
@@ -50,10 +50,10 @@ public class Tuple<A, B> implements Serializable {
     }
 
     /**
-     * Returns a string representation of this Tuple.
+     * Returns a string representation of this common.Tuple.
      * The string representation will be in the format "(first, second)".
      *
-     * @return a string representation of this Tuple
+     * @return a string representation of this common.Tuple
      */
     @Override
     public String toString() {
@@ -61,11 +61,11 @@ public class Tuple<A, B> implements Serializable {
     }
 
     /**
-     * Checks if this Tuple is equal to the specified object.
-     * The result is true if and only if the argument is not null and is a Tuple object that has the same first and second values as this object.
+     * Checks if this common.Tuple is equal to the specified object.
+     * The result is true if and only if the argument is not null and is a common.Tuple object that has the same first and second values as this object.
      *
-     * @param obj the object to compare this Tuple against
-     * @return true if the given object represents a Tuple equivalent to this Tuple, false otherwise
+     * @param obj the object to compare this common.Tuple against
+     * @return true if the given object represents a common.Tuple equivalent to this common.Tuple, false otherwise
      */
     @Override
     public boolean equals(Object obj) {
@@ -76,10 +76,10 @@ public class Tuple<A, B> implements Serializable {
     }
 
     /**
-     * Returns a hash code value for this Tuple.
+     * Returns a hash code value for this common.Tuple.
      * This method is supported for the benefit of hash tables such as those provided by java.util.HashMap.
      *
-     * @return a hash code value for this Tuple
+     * @return a hash code value for this common.Tuple
      */
     @Override
     public int hashCode() {

@@ -7,6 +7,12 @@
 
 */
 
+import common.ConnectionsEnum;
+import common.MetodosRMIBarrelManager;
+import common.MetodosRMIGateway;
+import common.Tuple;
+import common.URLData;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -26,7 +32,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Gateway class extends UnicastRemoteObject and implements MetodosRMIGateway and Serializable.
+ * Gateway class extends UnicastRemoteObject and implements common.MetodosRMIGateway and Serializable.
  * This class is responsible for managing the communication between the client and the server.
  * It maintains a list of URLs to be indexed, establishes a connection to the BarrelManager via RMI,
  * and sets up a socket to communicate with the QueueManager.
@@ -51,7 +57,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     // PrintWriter to communicate with the QueueManager
     static PrintWriter queueManager;
 
-    // MetodosRMIBarrelManager object to communicate with the BarrelManager
+    // common.MetodosRMIBarrelManager object to communicate with the BarrelManager
     static MetodosRMIBarrelManager metodosBarrelManager = null;
 
     /**
@@ -84,7 +90,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
                     Socket socket = new Socket(ConnectionsEnum.QUEUE_MANAGER.getIP(), ConnectionsEnum.QUEUE_MANAGER.getPort());
                     queueManager = new PrintWriter(socket.getOutputStream(), true);
 
-                    System.out.println("Sucessfull Connection to QueueManager! IP: " + ConnectionsEnum.QUEUE_MANAGER);
+                    System.out.println("Sucessfull common.Connection to QueueManager! IP: " + ConnectionsEnum.QUEUE_MANAGER);
                 } catch (Exception re) {
                     System.out.println("Could not connect to QueueManager: " + re);
                     //System.exit(1);
@@ -132,7 +138,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
      * It sends the search terms to the BarrelManager and returns the results.
      *
      * @param words the terms to search for
-     * @return a list of URLData objects that match the search terms
+     * @return a list of common.URLData objects that match the search terms
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     @Override

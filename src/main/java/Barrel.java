@@ -7,6 +7,12 @@
 
 */
 
+import common.Connection;
+import common.ConnectionsEnum;
+import common.MetodosRMIBarrel;
+import common.Tuple;
+import common.URLData;
+
 import java.io.*;
 import java.net.*;
 import java.rmi.*;
@@ -16,12 +22,12 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
- * The Barrel class is responsible for managing a collection of URLData objects.
- * It extends UnicastRemoteObject and implements MetodosRMIBarrel and Serializable.
+ * The Barrel class is responsible for managing a collection of common.URLData objects.
+ * It extends UnicastRemoteObject and implements common.MetodosRMIBarrel and Serializable.
  */
 public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Serializable {
 
-    // A HashMap to store URLData objects, where the key is a String and the value is a HashSet of URLData objects.
+    // A HashMap to store common.URLData objects, where the key is a String and the value is a HashSet of common.URLData objects.
     static HashMap<String, HashSet<URLData>> index = new HashMap<>();
 
     // Store in this hashmap the main URL and the urls that link to it
@@ -85,8 +91,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
                     System.out.println("Sucessfully synced with the barrel content available in the directory! Loaded " + index.size() + " words and " + urlEApontadoresParaURL.size() + " references to URLs.");
                 }
             } catch (IOException | ClassNotFoundException c) {
-                System.out.println("O conteúdo do ficheiro da barrel está desatualizado.");
-                System.exit(1);
+                System.out.println("O conteúdo do ficheiro da barrel está desatualizado. Será ignorado.");
             }
 
             System.out.println("Barrel " + barrelID + " ready: 127.0.0.1:" + porta);
@@ -99,16 +104,16 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     }
 
     /**
-     * This method is used to archive URLData objects.
-     * It splits the page title of the URLData object into words and adds the URLData object to the HashSet associated with each word in the index HashMap.
+     * This method is used to archive common.URLData objects.
+     * It splits the page title of the common.URLData object into words and adds the common.URLData object to the HashSet associated with each word in the index HashMap.
      *
-     * @param data URLData object to be archived
+     * @param data common.URLData object to be archived
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     public static void archiveURL(URLData data) throws RemoteException {
         System.out.println("Received " + data + " to index.");
 
-        // Split the page title into words and add the URLData object to the HashSet associated with each word in the index HashMap
+        // Split the page title into words and add the common.URLData object to the HashSet associated with each word in the index HashMap
         for (String palavra : data.getPageTitle().split(" ")) {
             palavra = palavra.toLowerCase();
             if (index.containsKey(palavra)) {
@@ -131,11 +136,11 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
     }
 
     /**
-     * This method is used to search for URLData objects.
-     * It splits the input string into words and returns a list of URLData objects that match any of the words.
+     * This method is used to search for common.URLData objects.
+     * It splits the input string into words and returns a list of common.URLData objects that match any of the words.
      *
      * @param palavras String of words to search for
-     * @return List of URLData objects that match the search criteria
+     * @return List of common.URLData objects that match the search criteria
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     @Override
@@ -146,7 +151,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
             for (String chaves : index.keySet()) {
                 if (chaves.toLowerCase().contains(s.toLowerCase())) {
                     HashSet<URLData> urlData = index.get(chaves);
-                    //Add relevance to each URLData object
+                    //Add relevance to each common.URLData object
                     urlData.forEach(urlData1 -> urlData1.setRelevance(urlEApontadoresParaURL.containsKey(urlData1.getURL()) ? urlEApontadoresParaURL.get(urlData1.getURL()).size() : 0));
                     dadosBarrel.addAll(urlData);
                 }

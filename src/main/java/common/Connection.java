@@ -1,4 +1,4 @@
-/*
+package common;/*
     ____  ____
    / ___||  _ \     Projeto de Sistemas Distribuídos
    \___ \| | | |    Meta 1 - LEI FCTUC 2024
@@ -10,7 +10,7 @@
 import java.io.Serializable;
 
 /**
- * The Connection class is used to describe an IP address and port, along with an optional RMI name.
+ * The common.Connection class is used to describe an IP address and port, along with an optional RMI name.
  * It implements Serializable interface.
  */
 public class Connection implements Serializable {
@@ -25,7 +25,7 @@ public class Connection implements Serializable {
     private final int porta;
 
     /**
-     * Constructor for Connection.
+     * Constructor for common.Connection.
      * This constructor initializes the IP address, port number, and RMI name.
      *
      * @param ip      the IP address
@@ -40,7 +40,7 @@ public class Connection implements Serializable {
     }
 
     /**
-     * Constructor for Connection.
+     * Constructor for common.Connection.
      * This constructor initializes the IP address, port number, RMI name and external IP address.
      *
      * @param ip         the IP address

@@ -1,4 +1,4 @@
-/*
+package common;/*
     ____  ____
    / ___||  _ \     Projeto de Sistemas Distribuídos
    \___ \| | | |    Meta 1 - LEI FCTUC 2024
@@ -14,7 +14,7 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 /**
- * MetodosRMIBarrel interface extends Remote.
+ * common.MetodosRMIBarrel interface extends Remote.
  * This interface defines the methods that a Barrel object must implement.
  * These methods allow the Barrel to archive URLs and search for URLs based on input.
  */
@@ -24,7 +24,7 @@ public interface MetodosRMIBarrelManager extends Remote {
      * Searches for URLs based on input.
      *
      * @param url the input to search for
-     * @return a list of URLData objects that match the search input
+     * @return a list of common.URLData objects that match the search input
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     Tuple<String, List<URLData>> searchInput(String url) throws RemoteException;
@@ -55,7 +55,7 @@ public interface MetodosRMIBarrelManager extends Remote {
     /**
      * Lists indexed pages of a specific.
      *
-     * @return a list of URLData objects representing the indexed pages
+     * @return a list of common.URLData objects representing the indexed pages
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     List<String> linksListForURL(String url) throws RemoteException;

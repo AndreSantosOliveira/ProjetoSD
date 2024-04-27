@@ -7,6 +7,10 @@
 
 */
 
+import common.ConnectionsEnum;
+import common.MetodosRMIGateway;
+import common.URLData;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.rmi.Naming;
@@ -332,6 +336,11 @@ public class ClienteRMI implements Serializable, Remote {
                                     break;
                                 }
                                 pesquisaLista.append(splitOption[i]).append(" ");
+                            }
+
+                            if (pesquisaLista.toString().isEmpty()) {
+                                System.out.println("Invalid URL. Please enter a valid URL.");
+                                break;
                             }
 
                             //only add https:// if it is not already there

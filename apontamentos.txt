@@ -5,9 +5,9 @@ OVERALL:
 
     O downloader faz o fetch do url da fila  - DONE
 
-    Guardar os resultados num HashMap<String, Hashset<URLData>> não pode ser uma lista: Bloom filter -> Pesquisar
+    Guardar os resultados num HashMap<String, Hashset<common.URLData>> não pode ser uma lista: Bloom filter -> Pesquisar
 
-    Guardar a URLData nos ISBs  - DONE
+    Guardar a common.URLData nos ISBs  - DONE
 
     Implementar um mecanismo de fault tolerance (um retry é suficiente)
 

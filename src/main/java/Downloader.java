@@ -7,6 +7,9 @@
 
 */
 
+import common.ConnectionsEnum;
+import common.MetodosRMIDownloader;
+import common.URLData;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -31,13 +34,13 @@ import java.util.Map;
 import java.util.StringTokenizer;
 
 /**
- * Downloader class extends UnicastRemoteObject and implements MetodosRMIDownloader and Serializable.
+ * Downloader class extends UnicastRemoteObject and implements common.MetodosRMIDownloader and Serializable.
  * This class is responsible for crawling URLs and sending the results to the QueueManager.
- * It maintains a map of URLData objects and a flag to indicate if the Downloader is busy.
+ * It maintains a map of common.URLData objects and a flag to indicate if the Downloader is busy.
  */
 public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloader, Serializable {
 
-    // Map to store URLData objects
+    // Map to store common.URLData objects
     Map<String, URLData> urlData = new HashMap<>();
 
     // Flag to indicate if the Downloader is busy
@@ -264,7 +267,7 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
 
     /**
      * Sends the result to ISB via multicast.
-     * It creates a multicast socket and sends a datagram packet for each URLData object in the result.
+     * It creates a multicast socket and sends a datagram packet for each common.URLData object in the result.
      *
      * @param resultado the result to send
      */

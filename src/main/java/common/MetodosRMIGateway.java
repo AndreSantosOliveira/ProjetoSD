@@ -1,4 +1,4 @@
-/*
+package common;/*
     ____  ____
    / ___||  _ \     Projeto de Sistemas Distribuídos
    \___ \| | | |    Meta 1 - LEI FCTUC 2024
@@ -15,7 +15,7 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 /**
- * MetodosRMIGateway interface extends Remote.
+ * common.MetodosRMIGateway interface extends Remote.
  * This interface defines the methods that a Gateway object must implement.
  * These methods allow the Gateway to index a URL, search for URLs based on input, and list indexed pages.
  */
@@ -34,7 +34,7 @@ public interface MetodosRMIGateway extends Remote {
      * Searches for URLs based on input.
      *
      * @param words the input to search for
-     * @return a list of URLData objects that match the search input
+     * @return a list of common.URLData objects that match the search input
      * @throws java.rmi.RemoteException if an error occurs during remote method invocation.
      */
     List<URLData> search(String words) throws java.rmi.RemoteException;
@@ -55,7 +55,7 @@ public interface MetodosRMIGateway extends Remote {
     /**
      * Lists indexed pages of a specific.
      *
-     * @return a list of URLData objects representing the indexed pages
+     * @return a list of common.URLData objects representing the indexed pages
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     List<String> linksListForURL(String url) throws RemoteException;

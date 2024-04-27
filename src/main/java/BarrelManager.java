@@ -7,6 +7,14 @@
 
 */
 
+import common.Connection;
+import common.ConnectionsEnum;
+import common.MetodosRMIBarrel;
+import common.MetodosRMIBarrelManager;
+import common.MetodosRMIGateway;
+import common.Tuple;
+import common.URLData;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -25,7 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 /**
- * BarrelManager class implements MetodosRMIBarrel and Serializable.
+ * BarrelManager class implements common.MetodosRMIBarrel and Serializable.
  * This class is responsible for managing a collection of barrels.
  */
 public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
@@ -95,7 +103,6 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
             barrelManager = new BarrelManager();
             LocateRegistry.createRegistry(ConnectionsEnum.BARREL_MANAGER.getPort()).rebind("barrelmanager", barrelManager);
 
-
             for (Connection connection : barrelManager.barrels.keySet()) {
                 // Make individual heartbeat system for each barrel in separate threads
                 new Thread(() -> {
@@ -124,7 +131,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
     /**
      * Heartbeat system for the barrels.
      *
-     * @param barrelCon Connection object of the barrel
+     * @param barrelCon common.Connection object of the barrel
      * @throws RemoteException    if an error occurs during remote method invocation.
      * @throws InterruptedException if an error occurs during thread sleep.
      * @throws MalformedURLException if an error occurs during URL creation.
@@ -148,7 +155,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
     /**
      * Reconnects to a barrel.
      *
-     * @param barrelCon Connection object of the barrel
+     * @param barrelCon common.Connection object of the barrel
      * @throws InterruptedException if an error occurs during thread sleep.
      * @throws RemoteException    if an error occurs during remote method invocation.
      * @throws MalformedURLException if an error occurs during URL creation.
@@ -186,7 +193,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
      * Attempts to connect to a barrel.
      *
      * @param descritorIPPorta descriptor of the barrel to connect to
-     * @return MetodosRMIBarrel object if the connection is successful, null otherwise.
+     * @return common.MetodosRMIBarrel object if the connection is successful, null otherwise.
      */
     private static MetodosRMIBarrel tentarLigarABarrel(Connection descritorIPPorta, boolean retrySystemOff) {
         MetodosRMIBarrel metodosBarrel;
@@ -221,10 +228,10 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
     static AtomicInteger barrelCounter = new AtomicInteger();
 
     /**
-     * Searches for URLData objects.
+     * Searches for common.URLData objects.
      *
      * @param pesquisa String of words to search for
-     * @return List of URLData objects that match the search criteria
+     * @return List of common.URLData objects that match the search criteria
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     @Override
@@ -339,7 +346,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
      * Gets the barrel connection for the given rmiName
      *
      * @param rmiName RMI name of the barrel
-     * @return Connection of the barrel
+     * @return common.Connection of the barrel
      */
     public Connection getBarrelConnection(String rmiName) {
         synchronized (barrels) {
