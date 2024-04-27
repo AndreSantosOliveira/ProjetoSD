@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Googl</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        form {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <h1>Bem-vindo ao Googl</h1>
+    <form action="/search" method="GET">
+        <input type="text" name="query" placeholder="Digite sua consulta">
+        <button type="submit">Pesquisar</button>
+    </form>
+    <form action="/statistics" method="GET">
+        <button type="submit">Ver Estatísticas</button>
+    </form>
+    <form action="/login" method="GET">
+        <button type="submit">Login</button>
+</div>
+</body>
+</html>
