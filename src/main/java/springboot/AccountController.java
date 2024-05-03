@@ -23,9 +23,10 @@ public class AccountController {
 
     // Login Action
     @PostMapping("/loginForm")
-    public String login(@RequestParam("username") String username,
+    public String loginForm(@RequestParam("username") String username,
                         @RequestParam("password") String password, HttpServletResponse response) {
 
+        // TODO: Implementar rmi para buscar o txt
         response.addCookie(new Cookie("username", username));
         response.addCookie(new Cookie("password", password));
 
