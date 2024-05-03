@@ -20,7 +20,14 @@
 </head>
 <body>
 <div>
-    <h1>Welcome to Googol!</h1>
+    <th:block th:if="${isLoggedIn}"> <!-- Check if user is logged in -->
+        <h1 th:text="'Welcome to Googol, ' + ${username} + '!'"></h1>
+    </th:block>
+
+    <th:block th:unless="${isLoggedIn}"> <!-- Check if user is not logged in -->
+        <h1>Welcome to Googol!</h1>
+    </th:block>
+
     <form action="/search" method="GET">
         <input type="text" name="query" placeholder="Input">
         <button type="submit">Pesquisar</button>
@@ -28,8 +35,36 @@
     <form action="/statistics" method="GET">
         <button type="submit">Statistics</button>
     </form>
-    <form action="/login" method="GET">
-        <button type="submit">Login</button>
+
+    <th:block th:if="${isLoggedIn}"> <!-- Check if user is logged in -->
+        <form action="/logout" method="POST" id="logoutForm">
+            <!-- Check if user is logged in -->
+            <th:block th:if="${isLoggedIn}">
+                <button type="submit">Logout</button>
+            </th:block>
+        </form>
+    </th:block>
+
+    <th:block th:unless="${isLoggedIn}"> <!-- Check if user is not logged in -->
+        <form action="/login" method="GET">
+            <button type="submit">Login</button>
+        </form>
+    </th:block>
+
+
 </div>
+
+<script>
+    // Function to clear the 'username' cookie
+    function clearCookie() {
+        document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    }
+
+    // Attach the clearCookie function to the logout form submission
+    document.getElementById("logoutForm").addEventListener("submit", function(event) {
+        clearCookie(); // Clear the cookie when the form is submitted
+    });
+</script>
+
 </body>
 </html>
