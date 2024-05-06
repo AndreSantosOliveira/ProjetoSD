@@ -67,6 +67,10 @@
             <artifactId>ognl</artifactId>
             <version>3.1.12</version>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
