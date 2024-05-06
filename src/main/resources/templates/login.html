@@ -26,8 +26,10 @@
                 </div>
                 <button>Log in</button>
 
+                <h1 th:if="${resultadoOperacao != null}" th:text=" ${resultadoOperacao} + '!'"></h1>
+
                 <!--
-                TODO: IMPLEMENTAR O BOTÃO DE REMEBER ME, FORGOT PASSWORD E REGISTER
+                TODO: IMPLEMENTAR O BOTÃO DE REMBEBER ME
 
                 <div class="remember">
                     <label for="">
