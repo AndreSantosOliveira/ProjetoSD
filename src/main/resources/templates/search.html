@@ -7,36 +7,35 @@
     <link rel="stylesheet" href="/search.css">
 </head>
 <body>
-    <div class="mainContainer">
+<div class="mainContainer">
 
-        <h1>Search Results</h1>
-        <p>Showing results for query: <strong th:text="${query}"></strong></p>
-        <!-- Display search results here -->
-        
-        <!-- Search Form -->
-        <form action="/search" method="GET">
-            <label for="query">Search:</label> <br>
-            <input type="text" id="query" name="query" placeholder="Input"/>
-            <button id="btn" type="submit">Search</button>
-        </form>
-        
-        <!-- Display Search Results -->
-        <div>
-            <ul>
+    <h1>Search Results</h1>
+    <p>Showing results for query: <strong th:text="${query}"></strong></p>
+    <!-- Display search results here -->
+
+    <!-- Search Form -->
+    <form action="/search" method="GET">
+        <label for="query">Search:</label> <br>
+        <input type="text" id="query" name="query" placeholder="Input"/>
+        <button id="btn" type="submit">Search</button>
+    </form>
+
+    <!-- Display Search Results -->
+    <div>
+        <ul>
+            <th:block th:if="${searchResults.isEmpty()}">
+                <p>Your search did not match any documents.</p>
+            </th:block>
+            <th:block th:unless="${searchResults.isEmpty()}">
                 <th:block th:each="result : ${searchResults}">
-                    <h3 th:href="${result.getPageTitle()}">[[${result.pageTitle}]]</h3>
-        
-                    <li>
-        
-                        <a th:href="${result.getURL()}" href=[[${result.url}]] target="_blank">[[${result.url}]]</a>
-        
-                    </li>
+                    <li th:if="${result != null}">
+                        <a th:if="${result.url != null}" th:href="${result.url}" th:text="${result.pageTitle.length() > 75 ? result.pageTitle.substring(0, 75) + '...' : result.pageTitle}" target="_blank"></a>                    </li>
                 </th:block>
-            </ul>
-        </div>
-
+            </th:block>
+        </ul>
     </div>
 
+</div>
 
 </body>
 </html>
