@@ -1,7 +1,7 @@
 /*
     ____  ____
    / ___||  _ \     Projeto de Sistemas Distribuídos
-   \___ \| | | |    Meta 1 - LEI FCTUC 2024
+   \___ \| | | |    Meta 2 - LEI FCTUC 2024
     ___) | |_| |    José Rodrigues - 2021235353
    |____/|____/     André Oliveira - 2021226714
 
@@ -27,8 +27,10 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -44,6 +46,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
 
     // Map to store the number of requests to each barrel
     Map<String, Integer> barrelRequestCount = new HashMap<>();
+
 
     /**
      * Default constructor for Gateway.
@@ -77,6 +80,8 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
             System.out.println("Exception in Gateway RMI: " + re);
         }
 
+        // Register WebSocketHandler
+        // Assuming you have a method like this to register WebSocketHandler
         // Connect to the BarrelManager via RMI
         int retryCount = 0;
         int maxRetries = 10;
@@ -179,6 +184,8 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
                 barrelRequestCount.put(barrelId, 1);
             }
         }
+
+//TODO        dynamicallyUpdate();
 
         return lista;
     }
@@ -303,6 +310,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     @Override
     public void heartBeat() {
     }
+
 
     /**
      * Adds a search to the top 10 searches.

@@ -1,7 +1,7 @@
 package common;/*
     ____  ____
    / ___||  _ \     Projeto de Sistemas Distribuídos
-   \___ \| | | |    Meta 1 - LEI FCTUC 2024
+   \___ \| | | |    Meta 2 - LEI FCTUC 2024
     ___) | |_| |    José Rodrigues - 2021235353
    |____/|____/     André Oliveira - 2021226714
 
@@ -62,8 +62,9 @@ public interface MetodosRMIBarrelManager extends Remote {
 
     /**
      * Copies Barrel content to another Barrel.
+     *
      * @param from barrel id source
-     * @param to barrel id destination
+     * @param to   barrel id destination
      * @return outcome of the operation
      * @throws RemoteException if an error occurs during remote method invocation.
      */

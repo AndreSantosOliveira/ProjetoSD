@@ -1,7 +1,7 @@
 /*
     ____  ____
    / ___||  _ \     Projeto de Sistemas Distribuídos
-   \___ \| | | |    Meta 1 - LEI FCTUC 2024
+   \___ \| | | |    Meta 2 - LEI FCTUC 2024
     ___) | |_| |    José Rodrigues - 2021235353
    |____/|____/     André Oliveira - 2021226714
 
@@ -156,7 +156,7 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
      * It then extracts the links from the document and sends them to the QueueManager.
      * It also sends the results to the ISB via multicast.
      *
-     * @param url the URL to crawl
+     * @param url       the URL to crawl
      * @param tentativa the number of attempts made to crawl the URL
      * @throws RemoteException if an error occurs during remote method invocation.
      */

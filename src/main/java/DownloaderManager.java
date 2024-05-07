@@ -1,7 +1,7 @@
 /*
     ____  ____
    / ___||  _ \     Projeto de Sistemas Distribuídos
-   \___ \| | | |    Meta 1 - LEI FCTUC 2024
+   \___ \| | | |    Meta 2 - LEI FCTUC 2024
     ___) | |_| |    José Rodrigues - 2021235353
    |____/|____/     André Oliveira - 2021226714
 
@@ -122,7 +122,7 @@ public class DownloaderManager implements Serializable {
      * This method sends a heartbeat to a downloader every 5 seconds to check if the downloader is alive.
      *
      * @param downloaderCon the connection to the downloader
-     * @throws RemoteException if an error occurs during remote method invocation.
+     * @throws RemoteException      if an error occurs during remote method invocation.
      * @throws InterruptedException if the thread is interrupted while sleeping.
      */
     private void heartbeat(Connection downloaderCon) throws RemoteException, InterruptedException {
@@ -145,7 +145,7 @@ public class DownloaderManager implements Serializable {
      * If the connection fails after 5 attempts, it returns null.
      *
      * @param descritorIPPorta the descriptor of the downloader to connect to
-     * @param retrySystemOff a flag to indicate if the retry system is off
+     * @param retrySystemOff   a flag to indicate if the retry system is off
      * @return the common.MetodosRMIDownloader object if the connection is successful, null otherwise.
      */
     private static MetodosRMIDownloader tentarLigarADownloader(Connection descritorIPPorta, boolean retrySystemOff) {
@@ -184,8 +184,8 @@ public class DownloaderManager implements Serializable {
      *
      * @param urlParaScrape the URL to scrape
      * @throws MalformedURLException if the URL is not in a valid format.
-     * @throws NotBoundException if the RMI name is not currently bound.
-     * @throws RemoteException if an error occurs during remote method invocation.
+     * @throws NotBoundException     if the RMI name is not currently bound.
+     * @throws RemoteException       if an error occurs during remote method invocation.
      */
     public void synchronizeDownloaders(String urlParaScrape) throws MalformedURLException, NotBoundException, RemoteException {
         if (getActiveDownloaders() == 0) {

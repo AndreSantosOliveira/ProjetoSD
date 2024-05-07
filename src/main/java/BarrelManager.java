@@ -1,7 +1,7 @@
 /*
     ____  ____
    / ___||  _ \     Projeto de Sistemas Distribuídos
-   \___ \| | | |    Meta 1 - LEI FCTUC 2024
+   \___ \| | | |    Meta 2 - LEI FCTUC 2024
     ___) | |_| |    José Rodrigues - 2021235353
    |____/|____/     André Oliveira - 2021226714
 
@@ -132,10 +132,10 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
      * Heartbeat system for the barrels.
      *
      * @param barrelCon common.Connection object of the barrel
-     * @throws RemoteException    if an error occurs during remote method invocation.
-     * @throws InterruptedException if an error occurs during thread sleep.
+     * @throws RemoteException       if an error occurs during remote method invocation.
+     * @throws InterruptedException  if an error occurs during thread sleep.
      * @throws MalformedURLException if an error occurs during URL creation.
-     * @throws NotBoundException if an error occurs during RMI binding.
+     * @throws NotBoundException     if an error occurs during RMI binding.
      */
     private void heartbeat(Connection barrelCon) throws RemoteException, InterruptedException, MalformedURLException, NotBoundException {
         while (true) {
@@ -156,13 +156,23 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
      * Reconnects to a barrel.
      *
      * @param barrelCon common.Connection object of the barrel
-     * @throws InterruptedException if an error occurs during thread sleep.
-     * @throws RemoteException    if an error occurs during remote method invocation.
+     * @throws InterruptedException  if an error occurs during thread sleep.
+     * @throws RemoteException       if an error occurs during remote method invocation.
      * @throws MalformedURLException if an error occurs during URL creation.
-     * @throws NotBoundException if an error occurs during RMI binding.
+     * @throws NotBoundException     if an error occurs during RMI binding.
      */
     private void reconnectToBarrel(Connection barrelCon) throws InterruptedException, RemoteException, MalformedURLException, NotBoundException {
         System.out.println("Trying to reconnect to Barrel " + barrelCon.getRMIName() + "...");
+
+        try {
+            // Invoke the search method on the remote Gateway service
+            MetodosRMIGateway metodosGateway = (MetodosRMIGateway) Naming.lookup("rmi://" + ConnectionsEnum.GATEWAY.getIP() + ":" + ConnectionsEnum.GATEWAY.getPort() + "/gateway");
+            // TODO metodosGateway.dynamicallyUpdate();
+        } catch (Exception e) {
+            // Handle any exceptions
+            e.printStackTrace();
+        }
+
         while (true) {
             Thread.sleep(5000);
             MetodosRMIBarrel barrel = tentarLigarABarrel(barrelCon, false);
@@ -210,6 +220,14 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
                 if (retryCount < maxRetries) {
                     System.out.println("Failed to connect to Barrel: " + descritorIPPorta.getRMIName() + " (" + retryCount + "/" + maxRetries + "). Retrying...");
                     // Sleep to avoid consecutive connection attempts
+
+                    try {
+                        // Invoke the search method on the remote Gateway service
+                        MetodosRMIGateway metodosGateway = (MetodosRMIGateway) Naming.lookup("rmi://" + ConnectionsEnum.GATEWAY.getIP() + ":" + ConnectionsEnum.GATEWAY.getPort() + "/gateway");
+                        // TODO  metodosGateway.dynamicallyUpdate();
+                    } catch (Exception ignored) {
+                    }
+
                     try {
                         Thread.sleep(1001);
                     } catch (InterruptedException ex) {
@@ -221,6 +239,13 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
             }
         }
         System.out.println("Failed to connect to Barrel: " + descritorIPPorta.getRMIName() + ". :(");
+
+        try {
+            // Invoke the search method on the remote Gateway service
+            MetodosRMIGateway metodosGateway = (MetodosRMIGateway) Naming.lookup("rmi://" + ConnectionsEnum.GATEWAY.getIP() + ":" + ConnectionsEnum.GATEWAY.getPort() + "/gateway");
+            // TODO metodosGateway.dynamicallyUpdate();
+        } catch (Exception ignored) {
+        }
         return null;
     }
 
@@ -335,7 +360,8 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
                 if (value != null) {
                     try {
                         value.shutdown(motive);
-                    } catch (RemoteException ignored) {}
+                    } catch (RemoteException ignored) {
+                    }
                 }
             }
         }

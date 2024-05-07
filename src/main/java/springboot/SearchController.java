@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.rmi.Naming;
+import java.util.Collections;
 import java.util.List;
 
 @Controller
@@ -26,9 +27,22 @@ public class SearchController {
             MetodosRMIGateway metodosGateway = null;
             metodosGateway = (MetodosRMIGateway) Naming.lookup("rmi://" + ConnectionsEnum.GATEWAY.getIP() + ":" + ConnectionsEnum.GATEWAY.getPort() + "/gateway");
 
-            List<URLData> searchResults = metodosGateway.search(query);
+            if (query.startsWith("index:")) {
+                String[] parts = query.split(":");
+                if (parts.length == 2) {
+                    // check if parts[1] has https
+                    if (parts[1].startsWith("https://")) {
+                        metodosGateway.indexURLString(parts[1]);
+                    } else {
+                        metodosGateway.indexURLString("https://" + parts[1]);
+                    }
+                    model.addAttribute("searchResults", Collections.singleton(new URLData(parts[1], parts[1] + " foi enviado para indexação.", parts[1])));
+                }
+            } else  {
+                List<URLData> searchResults = metodosGateway.search(query);
+                model.addAttribute("searchResults", searchResults);
+            }
 
-            model.addAttribute("searchResults", searchResults);
         } catch (Exception e) {
             // Handle any exceptions
             e.printStackTrace();
