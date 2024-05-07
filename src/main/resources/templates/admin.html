@@ -19,31 +19,16 @@
 
     <!-- Display statistics here -->
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/sockjs/1.1.4/sockjs.min.js"></script>
     <script>
-        const statisticsElement = document.getElementById('statistics');
-
-        // Create a new WebSocket connection
-        const socket = new WebSocket('ws://127.0.0.1:8080/websocket');
-
-        // Event listener for when the connection is established
-        socket.addEventListener('open', function () {
-            console.log('Connected to WebSocket server');
-        });
-
-        // Event listener for when a message is received from the WebSocket server
-        socket.addEventListener('message', function (event) {
-            console.log('Message from server:', event.data);
-            statisticsElement.innerText = event.data;
-        });
-
-        // Event listener for when an error occurs
-        socket.addEventListener('error', function (event) {
-            console.error('WebSocket error:', event);
-        });
-
-        // Event listener for when the connection is closed
-        socket.addEventListener('close', function () {
-            console.log('WebSocket connection closed');
+        var socket = new SockJS('/websocket-example');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function (frame) {
+            console.log('Connected: ' + frame);
+            stompClient.subscribe('/topic/greetings', function (greeting) {
+                showGreeting(JSON.parse(greeting.body).content);
+            });
         });
     </script>
 </div>
