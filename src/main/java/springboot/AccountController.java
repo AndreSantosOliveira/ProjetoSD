@@ -39,9 +39,9 @@ public class AccountController {
             int resultado = metodosGateway.autenticarCliente(username, password);
 
             if (resultado != -1) {
-                response.addCookie(new Cookie("username", resultado+""));
                 response.addCookie(new Cookie("username", username));
                 response.addCookie(new Cookie("password", password));
+                response.addCookie(new Cookie("accountType", resultado+""));
                 return "redirect:/";
             } else {
                 model.addAttribute("resultadoOperacao", "Invalid username or password!");
@@ -72,7 +72,14 @@ public class AccountController {
     }
 
     @PostMapping("/logout")
-    public String logout() {
+    public String logout(HttpServletResponse response) {
+        response.addCookie(new Cookie("accountType", "0"));
         return "redirect:/"; // Redirect to googol page
+    }
+
+    @GetMapping("/admin")
+    public String adminPage(@CookieValue(value = "accountType", defaultValue = "0") String accountType, Model model) {
+        model.addAttribute("tipoConta", accountType);
+        return "admin";
     }
 }

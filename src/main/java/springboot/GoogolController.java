@@ -18,10 +18,4 @@ public class GoogolController {
 
 		return "index";
 	}
-
-	@GetMapping("/statistics")
-	public String statistics() {
-		// Implement your statistics logic here
-		return "statistics";
-	}
 }
