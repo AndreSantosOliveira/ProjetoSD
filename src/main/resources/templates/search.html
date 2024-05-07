@@ -4,33 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Search Results</title>
+    <link rel="stylesheet" href="/search.css">
 </head>
 <body>
-<h1>Search Results</h1>
-<p>Showing results for query: <strong th:text="${query}"></strong></p>
-<!-- Display search results here -->
+    <div class="mainContainer">
 
-<!-- Search Form -->
-<form action="/search" method="GET">
-    <label for="query">Search:</label>
-    <input type="text" id="query" name="query" placeholder="Input"/>
-    <button type="submit">Search</button>
-</form>
+        <h1>Search Results</h1>
+        <p>Showing results for query: <strong th:text="${query}"></strong></p>
+        <!-- Display search results here -->
+        
+        <!-- Search Form -->
+        <form action="/search" method="GET">
+            <label for="query">Search:</label> <br>
+            <input type="text" id="query" name="query" placeholder="Input"/>
+            <button id="btn" type="submit">Search</button>
+        </form>
+        
+        <!-- Display Search Results -->
+        <div>
+            <ul>
+                <th:block th:each="result : ${searchResults}">
+                    <h3 th:href="${result.getPageTitle()}">[[${result.pageTitle}]]</h3>
+        
+                    <li>
+        
+                        <a th:href="${result.getURL()}" href=[[${result.url}]] target="_blank">[[${result.url}]]</a>
+        
+                    </li>
+                </th:block>
+            </ul>
+        </div>
 
-<!-- Display Search Results -->
-<div>
-    <ul>
-        <th:block th:each="result : ${searchResults}">
-            <h3 th:href="${result.getPageTitle()}">[[${result.pageTitle}]]</h3>
+    </div>
 
-            <li>
-
-                <a th:href="${result.getURL()}" href=[[${result.url}]] target="_blank">[[${result.url}]]</a>
-
-            </li>
-        </th:block>
-    </ul>
-</div>
 
 </body>
 </html>

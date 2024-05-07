@@ -4,22 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Googl</title>
+    <link rel="stylesheet" href="/index.css">
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        form {
-            text-align: center;
-        }
+    
     </style>
 </head>
 <body>
-<div>
+<div class="mainContainer">
     <th:block th:if="${isLoggedIn}"> <!-- Check if user is logged in -->
         <h1 th:text="'Welcome to Googol, ' + ${username} + '!'"></h1>
     </th:block>
@@ -28,28 +19,34 @@
         <h1>Welcome to Googol!</h1>
     </th:block>
 
-    <form action="/search" method="GET">
-        <input type="text" name="query" placeholder="Input">
-        <button type="submit">Pesquisar</button>
-    </form>
-    <form action="/admin" method="GET">
-        <button type="submit">Admin</button>
-    </form>
-
-    <th:block th:if="${isLoggedIn}"> <!-- Check if user is logged in -->
-        <form action="/logout" method="POST" id="logoutForm">
-            <!-- Check if user is logged in -->
-            <th:block th:if="${isLoggedIn}">
-                <button type="submit">Logout</button>
-            </th:block>
+        <form action="/search" method="GET" class="inputSearch">
+            <input id="inputForm" type="text" name="query" placeholder="Pesquise...">
+            <button id="searchBtn" type="submit">Pesquisar</button>
         </form>
-    </th:block>
+  
 
-    <th:block th:unless="${isLoggedIn}"> <!-- Check if user is not logged in -->
-        <form action="/login" method="GET">
-            <button type="submit">Login</button>
+
+    <div class="buttonsDiv">
+        <form action="/statistics" method="GET">
+            <button class="btn" type="submit">Statistics</button>
         </form>
-    </th:block>
+    
+        <th:block th:if="${isLoggedIn}"> <!-- Check if user is logged in -->
+            <form action="/logout" method="POST" id="logoutForm">
+                <!-- Check if user is logged in -->
+                <th:block th:if="${isLoggedIn}">
+                    <button class="btn" type="submit">Logout</button>
+                </th:block>
+            </form>
+        </th:block>
+    
+        <th:block th:unless="${isLoggedIn}"> <!-- Check if user is not logged in -->
+            <form action="/login" method="GET">
+                <button class="btn" type="submit">Login</button>
+            </form>
+        </th:block>
+    </div>
+   
 
 
 </div>
