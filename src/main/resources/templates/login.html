@@ -11,7 +11,7 @@
     <div class="form-box">
         <div class="form-value">
             <form action="/loginForm" method="POST">
-            <h2>Login</h2>
+                <h2>Login</h2>
 
                 <div class="inputbox">
                     <ion-icon name="mail-outline"></ion-icon>
@@ -26,16 +26,9 @@
                 </div>
                 <button>Log in</button>
 
-                <h1 th:if="${resultadoOperacao != null}" th:text=" ${resultadoOperacao} + '!'"></h1>
 
                 <!--
-                TODO: IMPLEMENTAR O BOTÃO DE REMBEBER ME
-
-                <div class="remember">
-                    <label for="">
-                        <input type="checkbox" >Remember Me
-                    </label>
-                </div>
+                TODO: IMPLEMENTAR FORGOT PASSWORD E REGISTER
 
                 <div class="forget">
                     <p>Forgot your Password? <a href="">Recover Password</a></p>
@@ -46,6 +39,9 @@
                 </div>
                 -->
 
+                <div class="result-message" th:if="${resultadoOperacao != null}">
+                    <h1 th:text=" ${resultadoOperacao} "></h1>
+                </div>
             </form>
         </div>
     </div>

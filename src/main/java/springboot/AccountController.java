@@ -44,7 +44,7 @@ public class AccountController {
                 response.addCookie(new Cookie("password", password));
                 return "redirect:/";
             } else {
-                model.addAttribute("resultadoOperacao", "Invalid username or password.");
+                model.addAttribute("resultadoOperacao", "Invalid username or password!");
                 return "login";
             }
 
