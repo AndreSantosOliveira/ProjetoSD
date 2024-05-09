@@ -54,7 +54,7 @@ public class ClienteRMI implements Serializable, Remote {
      * @param sublistSize size of the smaller lists
      * @return a list of lists
      */
-    public static List<List<URLData>> separateList(List<URLData> inputList, int sublistSize) {
+    private static List<List<URLData>> separateList(List<URLData> inputList, int sublistSize) {
         List<List<URLData>> result = new ArrayList<>();
 
         for (int i = 0; i < inputList.size(); ++i) {
