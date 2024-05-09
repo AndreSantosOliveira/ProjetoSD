@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Googl</title>
-    <link rel="stylesheet" href="/index.css">
+    <link rel="stylesheet" href="/homepage.css">
     <style>
-    
+
     </style>
 </head>
 <body>
@@ -19,18 +19,17 @@
         <h1>Welcome to Googol!</h1>
     </th:block>
 
-        <form action="/search" method="GET" class="inputSearch">
-            <input id="inputForm" type="text" name="query" placeholder="Pesquise...">
-            <button id="searchBtn" type="submit">Pesquisar</button>
-        </form>
-  
+    <form action="/search" method="GET" class="inputSearch">
+        <input id="inputForm" type="text" name="query" placeholder="Pesquise...">
+        <button id="searchBtn" type="submit">Pesquisar</button>
+    </form>
 
 
     <div class="buttonsDiv">
         <form action="/admin" method="GET">
             <button class="btn" type="submit">Admin</button>
         </form>
-    
+
         <th:block th:if="${isLoggedIn}"> <!-- Check if user is logged in -->
             <form action="/logout" method="POST" id="logoutForm">
                 <!-- Check if user is logged in -->
@@ -39,14 +38,13 @@
                 </th:block>
             </form>
         </th:block>
-    
+
         <th:block th:unless="${isLoggedIn}"> <!-- Check if user is not logged in -->
             <form action="/login" method="GET">
                 <button class="btn" type="submit">Login</button>
             </form>
         </th:block>
     </div>
-   
 
 
 </div>
@@ -58,9 +56,16 @@
     }
 
     // Attach the clearCookie function to the logout form submission
-    document.getElementById("logoutForm").addEventListener("submit", function(event) {
+    document.getElementById("logoutForm").addEventListener("submit", function (event) {
         clearCookie(); // Clear the cookie when the form is submitted
     });
+
+    // Disable Pesquisar button when no input is given
+    document.getElementById("inputForm").addEventListener("input", function (event) {
+        const searchBtn = document.getElementById("searchBtn");
+        searchBtn.disabled = event.target.value === "";
+    });
+
 </script>
 
 </body>

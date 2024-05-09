@@ -86,3 +86,11 @@ a:hover {
     font-size: medium;
     font-family: Dialog, sans-serif;
 }
+
+/* Return button */
+.return-button {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    z-index: 9999;
+}

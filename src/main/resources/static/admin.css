@@ -1,0 +1,50 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+
+.result-message1 {
+    text-align: center;
+    margin-top: 300px;
+}
+.result-message2 {
+    text-align: center;
+    margin-top: 50px;
+}
+
+h1 {
+    color: #028181;
+}
+
+p {
+    color: #028181;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #028181;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: #036161;
+}
+
+#statistics {
+    color: #333;
+    margin-top: 20px;
+}
+
+/* Return button */
+.return-button {
+    position: absolute;
+    top: 30px;
+    left: 20px;
+    z-index: 9999;
+}

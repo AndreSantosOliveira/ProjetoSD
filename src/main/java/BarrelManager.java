@@ -273,7 +273,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
     @Override
     public Tuple<String, List<URLData>> searchInput(String pesquisa) throws RemoteException {
         if (Objects.equals(getActiveBarrels(), "\nNone.\n"))
-            return new Tuple<>("none", Collections.singletonList(new URLData("Please wait...", "Trying to reconnect to the barrels..", -1)));
+            return new Tuple<>("none", Collections.singletonList(new URLData("Please wait...", "Trying to reconnect to the barrels...", -1)));
 
         String id = "none";
         Map<String, String> urlTitulo = new HashMap<>();
@@ -309,7 +309,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
                 return searchInput(pesquisa);
             }
 
-            return new Tuple<>(id, Collections.singletonList(new URLData("Please wait...", "Trying to reconnect to the barrels..", -1)));
+            return new Tuple<>(id, Collections.singletonList(new URLData("Please wait...", "Trying to reconnect to the barrels...", -1)));
         }
     }
 

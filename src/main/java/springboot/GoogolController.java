@@ -16,6 +16,6 @@ public class GoogolController {
 		model.addAttribute("isLoggedIn", !username.equals("-"));
 		model.addAttribute("username", username);
 
-		return "index";
+		return "homepage";
 	}
 }
