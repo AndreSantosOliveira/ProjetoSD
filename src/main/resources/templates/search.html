@@ -30,14 +30,14 @@
                 <th:block th:each="result : ${searchResults}">
                     <li th:if="${result != null}">
                         <a th:if="${result.url != null}">
-                            <span th:if="${!result.pageTitle.startsWith('New url (')}" th:href="${result.url}"
+                            <a th:if="${!result.pageTitle.startsWith('New url (')}" th:href="${result.url}"
                                   th:text="${result.pageTitle.length() > 75 ? result.pageTitle.substring(0, 75) + '...' : result.pageTitle}"
-                                  target="_blank"></span>
+                                  target="_blank"></a>
                         </a>
 
 
                         <!-- Style this -->
-                        <span th:unless="${!result.pageTitle.startsWith('New url (')}" th:text="${result.pageTitle}"
+                        <span th:if="${result.pageTitle.startsWith('New url (')}" th:text="${result.pageTitle}"
                               class="new-url"></span>
 
                     </li>
