@@ -1,4 +1,4 @@
-package springboot;
+package springboot.websocket;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;

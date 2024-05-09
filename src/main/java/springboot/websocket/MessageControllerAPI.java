@@ -1,4 +1,4 @@
-package springboot;
+package springboot.websocket;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -8,12 +8,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api")
-public class MessageController {
+public class MessageControllerAPI {
 
     private final MessageSender messageSender;
 
     @Autowired
-    public MessageController(MessageSender messageSender) {
+    public MessageControllerAPI(MessageSender messageSender) {
         this.messageSender = messageSender;
     }
 

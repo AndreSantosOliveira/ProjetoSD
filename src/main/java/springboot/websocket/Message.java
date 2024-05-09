@@ -1,4 +1,4 @@
-package springboot;
+package springboot.websocket;
 
 public record Message(String content) {
 }

@@ -45,8 +45,7 @@ public class SearchController {
 
         try {
             // Invoke the search method on the remote Gateway service
-            MetodosRMIGateway metodosGateway = null;
-            metodosGateway = (MetodosRMIGateway) Naming.lookup("rmi://" + ConnectionsEnum.GATEWAY.getIP() + ":" + ConnectionsEnum.GATEWAY.getPort() + "/gateway");
+            MetodosRMIGateway metodosGateway = (MetodosRMIGateway) Naming.lookup("rmi://" + ConnectionsEnum.GATEWAY.getIP() + ":" + ConnectionsEnum.GATEWAY.getPort() + "/gateway");
 
             // If request is to index
             if (query.startsWith("index:")) {
