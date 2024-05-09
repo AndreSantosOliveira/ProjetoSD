@@ -61,7 +61,7 @@ public class SearchController {
                 }
             } else {
                 List<URLData> searchResults = new ArrayList<>();
-
+                int totalPages = 0;
                 if (!query.isEmpty()) {
                     // Extract results
                     List<URLData> aux = metodosGateway.search(query);
@@ -69,11 +69,14 @@ public class SearchController {
                     List<List<URLData>> aux2 = separateList(aux, 10);
 
                     if (!aux2.isEmpty()) {
+                        // Get the total number of pages
+                        totalPages = aux2.size();
+
                         // Get the results corresponding to the requested page
                         searchResults = aux2.get(page);
                     }
                 }
-
+                model.addAttribute("totalPages", totalPages);
                 model.addAttribute("query", query);
                 model.addAttribute("page", page);
                 model.addAttribute("searchResults", searchResults);

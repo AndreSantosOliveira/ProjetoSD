@@ -94,3 +94,21 @@ a:hover {
     left: 30px;
     z-index: 9999;
 }
+
+/* Pagination buttons */
+.pagination {
+    align-content: center;
+}
+
+.prev {
+    position: absolute;
+    left: 389px;
+    bottom: 40px;
+}
+
+.next {
+    position: absolute;
+    right: 550px;
+    bottom: 40px;
+}
+

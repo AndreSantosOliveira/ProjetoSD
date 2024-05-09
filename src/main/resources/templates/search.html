@@ -39,6 +39,7 @@
                                th:text="${result.pageTitle.length() > 75 ? result.pageTitle.substring(0, 75) + '...' : result.getPageTitle() + (result.getRelevance() != -1 ? ' (' + result.getRelevance() + ' references)' : '')                }"
                                target="_blank"></a>
                         </a>
+
                     </li>
 
 
@@ -47,8 +48,24 @@
                        class="new-url"></p>
 
                 </th:block>
+
             </th:block>
         </ul>
+    </div>
+
+    <!-- Pagination buttons -->
+    <div class="pagination">
+        <form action="/search" method="GET" class="prev" th:if="${page > 0}">
+            <input type="hidden" name="query" th:value="${query}"/>
+            <input type="hidden" name="page" th:value="${page - 1}"/>
+            <button type="submit">Previous</button>
+        </form>
+
+        <form action="/search" method="GET" class="next" th:if="${page < totalPages - 1}">
+            <input type="hidden" name="query" th:value="${query}"/>
+            <input type="hidden" name="page" th:value="${page + 1}"/>
+            <button type="submit">Next</button>
+        </form>
     </div>
 
     <form action="/" method="GET" class="return-button">
