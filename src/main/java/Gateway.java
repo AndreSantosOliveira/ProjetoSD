@@ -200,7 +200,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
 
         try {
             HttpPost request = new HttpPost("http://localhost:8080/api/send-message");
-            StringEntity params = new StringEntity(getAdministrativeStatistics());
+            StringEntity params = new StringEntity(getAdministrativeStatistics().replaceAll("\n", "<br>"));
             request.addHeader("content-type", "application/json");
             request.setEntity(params);
             httpClient.execute(request);
