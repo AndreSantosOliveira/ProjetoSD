@@ -12,14 +12,21 @@ import common.MetodosRMIBarrelManager;
 import common.MetodosRMIGateway;
 import common.Tuple;
 import common.URLData;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Serializable;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.Socket;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -147,7 +154,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     @Override
-    public List<URLData> search(String words) throws RemoteException {
+    public List<URLData> search(String words) throws IOException {
         if (metodosBarrelManager == null) {
             return Collections.singletonList(new URLData("BarrelManager is not connected to the Gateway. Something went wrong.", "Please try again later", -1));
         }
@@ -185,10 +192,31 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
             }
         }
 
-//TODO        dynamicallyUpdate();
+        dynamicallyUpdate();
 
         return lista;
     }
+
+    @Override
+    public void dynamicallyUpdate() throws IOException {
+        System.out.println("Sending message to update the statistics.");
+
+        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+
+        try {
+            HttpPost request = new HttpPost("http://localhost:8080/api/send-message");
+            StringEntity params = new StringEntity(getAdministrativeStatistics());
+            request.addHeader("content-type", "application/json");
+            request.setEntity(params);
+            httpClient.execute(request);
+
+        } catch (Exception ex) {
+            // handle exception here
+        } finally {
+            httpClient.close();
+        }
+    }
+
 
     @Override
     public void saveBarrelsContent() throws RemoteException, MalformedURLException, NotBoundException {

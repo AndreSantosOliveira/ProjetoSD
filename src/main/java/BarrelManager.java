@@ -167,7 +167,7 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         try {
             // Invoke the search method on the remote Gateway service
             MetodosRMIGateway metodosGateway = (MetodosRMIGateway) Naming.lookup("rmi://" + ConnectionsEnum.GATEWAY.getIP() + ":" + ConnectionsEnum.GATEWAY.getPort() + "/gateway");
-            // TODO metodosGateway.dynamicallyUpdate();
+            metodosGateway.dynamicallyUpdate();
         } catch (Exception e) {
             // Handle any exceptions
             e.printStackTrace();
@@ -180,6 +180,15 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
                 System.out.println("Reconnected to Barrel " + barrelCon.getRMIName() + "!");
                 //barrels.put(barrelCon, barrel);
                 //find a barrel with different barrelCon
+
+                try {
+                    // Invoke the search method on the remote Gateway service
+                    MetodosRMIGateway metodosGateway = (MetodosRMIGateway) Naming.lookup("rmi://" + ConnectionsEnum.GATEWAY.getIP() + ":" + ConnectionsEnum.GATEWAY.getPort() + "/gateway");
+                    metodosGateway.dynamicallyUpdate();
+                } catch (Exception e) {
+                    // Handle any exceptions
+                    e.printStackTrace();
+                }
 
                 for (Connection connection : barrels.keySet()) {
                     if (!connection.equals(barrelCon)) {
@@ -224,8 +233,9 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
                     try {
                         // Invoke the search method on the remote Gateway service
                         MetodosRMIGateway metodosGateway = (MetodosRMIGateway) Naming.lookup("rmi://" + ConnectionsEnum.GATEWAY.getIP() + ":" + ConnectionsEnum.GATEWAY.getPort() + "/gateway");
-                        // TODO  metodosGateway.dynamicallyUpdate();
+                        metodosGateway.dynamicallyUpdate();
                     } catch (Exception ignored) {
+                        ignored.printStackTrace();
                     }
 
                     try {
@@ -243,8 +253,9 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         try {
             // Invoke the search method on the remote Gateway service
             MetodosRMIGateway metodosGateway = (MetodosRMIGateway) Naming.lookup("rmi://" + ConnectionsEnum.GATEWAY.getIP() + ":" + ConnectionsEnum.GATEWAY.getPort() + "/gateway");
-            // TODO metodosGateway.dynamicallyUpdate();
+            metodosGateway.dynamicallyUpdate();
         } catch (Exception ignored) {
+            ignored.printStackTrace();
         }
         return null;
     }

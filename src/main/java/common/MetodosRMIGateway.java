@@ -39,7 +39,7 @@ public interface MetodosRMIGateway extends Remote {
      * @return a list of common.URLData objects that match the search input
      * @throws java.rmi.RemoteException if an error occurs during remote method invocation.
      */
-    List<URLData> search(String words) throws java.rmi.RemoteException;
+    List<URLData> search(String words) throws IOException;
 
     /**
      * Saves the content of the barrels.
@@ -96,5 +96,6 @@ public interface MetodosRMIGateway extends Remote {
      */
     void heartBeat() throws RemoteException;
 
+    void dynamicallyUpdate() throws IOException;
 
 }
