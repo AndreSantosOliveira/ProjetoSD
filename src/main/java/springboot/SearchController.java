@@ -43,6 +43,8 @@ public class SearchController {
     @GetMapping("/search")
     public String search(@RequestParam(name = "query", defaultValue = "") String query, @RequestParam(name = "page", defaultValue = "0") int page, Model model) {
         try {
+            int totalPages = 0;
+
             // Invoke the search method on the remote Gateway service
             MetodosRMIGateway metodosGateway = (MetodosRMIGateway) Naming.lookup("rmi://" + ConnectionsEnum.GATEWAY.getIP() + ":" + ConnectionsEnum.GATEWAY.getPort() + "/gateway");
 
@@ -57,11 +59,13 @@ public class SearchController {
                     }
                     metodosGateway.indexURLString(parts[1]);
 
+                    model.addAttribute("totalPages", totalPages);
+                    model.addAttribute("query", query);
+                    model.addAttribute("page", page);
                     model.addAttribute("searchResults", Collections.singleton(new URLData(parts[1], "New url (" + parts[1] + ") indexed.", parts[1])));
                 }
             } else {
                 List<URLData> searchResults = new ArrayList<>();
-                int totalPages = 0;
                 if (!query.isEmpty()) {
                     // Extract results
                     List<URLData> aux = metodosGateway.search(query);
