@@ -1,0 +1,22 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    text-align: center;
+    margin-top: 300px;
+}
+
+h1 {
+    color: rgb(2, 129, 129);
+    margin-top: 50px;
+}
+
+.welcome-message {
+    font-size: 42px;
+    margin-top: 32px;
+}
+
+.account-type {
+    font-size: 32px;
+    color: #666;
+    margin-top: 20px;
+}
