@@ -1,8 +1,10 @@
 # Projeto de Sistemas Distribuídos
+Projeto realizado no ãmbito da cadeira de Sistemas Distribuidos na Faculdade de Ciências e Tecnologias da Universidade de Coimbra (FCTUC).
 
 #### Meta 2 - LEI FCTUC 2024
 
-José Rodrigues (2021235353) e André Oliveira (2021226714)
+André Oliveira (2021226714)
+José Rodrigues (2021235353) 
 
 # Setup
 
