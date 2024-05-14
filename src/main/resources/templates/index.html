@@ -26,6 +26,7 @@
 
 
     <div class="buttonsDiv">
+        <button id="AIStatus" class="btn" type="submit">AI Status</button>
 
         <form action="/gato" method="GET">
             <button class="btn" type="submit">Cat</button>
@@ -55,21 +56,71 @@
 </div>
 
 <script>
+
     // Function to clear the 'username' cookie
     function clearCookie() {
         document.cookie = "username=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     }
 
     // Attach the clearCookie function to the logout form submission
-    document.getElementById("logoutForm").addEventListener("submit", function (event) {
-        clearCookie(); // Clear the cookie when the form is submitted
-    });
+    var doc = document.getElementById("logoutForm");
+    if (doc != null) {
+        doc.addEventListener("submit", function (event) {
+            clearCookie(); // Clear the cookie when the form is submitted
+        });
+    }
 
     // Disable Pesquisar button when no input is given
     document.getElementById("inputForm").addEventListener("input", function (event) {
         const searchBtn = document.getElementById("searchBtn");
         searchBtn.disabled = event.target.value === "";
     });
+
+
+    async function makeChatCompletionRequest() {
+        const url = 'https://api.openai.com/v1/chat/completions';
+        const headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer sk-proj-3iFBOKdx0bHmRmaCzgLDT3BlbkFJgCWDI80A6O9cy12LmqKf'
+        };
+        const data = {
+            "model": "gpt-3.5-turbo",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a poetic assistant, skilled in explaining complex programming concepts with creative flair."
+                },
+                {
+                    "role": "user",
+                    "content": "Compose a poem that explains the concept of recursion in programming."
+                }
+            ]
+        };
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const responseData = await response.json();
+        return responseData;
+    }
+
+    makeChatCompletionRequest()
+        .then(data => {
+            document.getElementById("AIStatus").innerText = "AI Status: OK";
+            console.log(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById("AIStatus").innerText = "AI Status: 401 Unauthorized";
+            console.log(data);
+        });
 
 </script>
 

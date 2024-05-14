@@ -14,15 +14,17 @@ body {
 
 /* Container styles */
 .mainContainer {
-    max-width: 800px;
+    max-width: 100%; /* Adjusted for responsiveness */
     margin: 0 auto;
     padding: 20px;
+    box-sizing: border-box;
 }
 
 /* Heading styles */
 h1 {
     margin-bottom: 20px;
     color: rgb(2, 129, 129);
+    font-size: 1.5rem; /* Adjusted for responsiveness */
 }
 
 p {
@@ -40,7 +42,7 @@ label {
 }
 
 input[type="text"] {
-    width: 70%;
+    width: 100%; /* Adjusted for responsiveness */
     padding: 8px;
     margin-top: 5px;
 }
@@ -89,26 +91,19 @@ a:hover {
 
 /* Return button */
 .return-button {
-    position: absolute;
-    top: 30px;
-    left: 30px;
+    position: fixed; /* Adjusted for mobile */
+    top: 20px; /* Adjusted for mobile */
+    left: 20px; /* Adjusted for mobile */
     z-index: 9999;
 }
 
 /* Pagination buttons */
 .pagination {
-    align-content: center;
+    text-align: center; /* Adjusted for mobile */
 }
 
-.prev {
-    position: absolute;
-    left: 389px;
-    bottom: 40px;
-}
-
+.prev,
 .next {
-    position: absolute;
-    right: 550px;
-    bottom: 40px;
+    display: block; /* Adjusted for mobile */
+    margin: 10px auto; /* Adjusted for mobile */
 }
-
