@@ -3,12 +3,16 @@ package springboot;
 import common.ConnectionsEnum;
 import common.MetodosRMIGateway;
 import common.URLData;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -29,7 +33,7 @@ public class AccountController {
     // Login Action
     @PostMapping("/loginForm")
     public String loginForm(@RequestParam("username") String username,
-                        @RequestParam("password") String password, HttpServletResponse response, Model model) {
+                            @RequestParam("password") String password, HttpServletResponse response, Model model) {
 
         try {
             // Invoke the search method on the remote Gateway service
@@ -41,7 +45,7 @@ public class AccountController {
             if (resultado != -1) {
                 response.addCookie(new Cookie("username", username));
                 response.addCookie(new Cookie("password", password));
-                response.addCookie(new Cookie("accountType", resultado+""));
+                response.addCookie(new Cookie("accountType", resultado + ""));
                 return "redirect:/";
             } else {
                 model.addAttribute("resultadoOperacao", "Invalid username or password!");
@@ -81,5 +85,11 @@ public class AccountController {
     public String adminPage(@CookieValue(value = "accountType", defaultValue = "0") String accountType, Model model) {
         model.addAttribute("tipoConta", accountType);
         return "admin";
+    }
+
+    @GetMapping("/gato")
+    public String gato(Model model) {
+        model.addAttribute("imageUrl", "https://cataas.com/cat");
+        return "gato";
     }
 }

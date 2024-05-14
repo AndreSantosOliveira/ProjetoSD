@@ -1,0 +1,41 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    color: #028181;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    margin-top: 20px;
+}
+
+/* Return button */
+.return-button {
+    font-size: small;
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    z-index: 9999;
+
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #028181;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: #036161;
+}

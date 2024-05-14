@@ -21,14 +21,19 @@
 
     <form action="/search" method="GET" class="inputSearch">
         <input id="inputForm" type="text" name="query" placeholder="Pesquise...">
-        <button id="searchBtn" type="submit">Pesquisar</button>
+        <button id="searchBtn" type="submit">Search</button>
     </form>
 
 
     <div class="buttonsDiv">
+
+        <form action="/gato" method="GET">
+            <button class="btn" type="submit">Cat</button>
+        </form>
         <form action="/admin" method="GET">
             <button class="btn" type="submit">Admin</button>
         </form>
+
 
         <th:block th:if="${isLoggedIn}"> <!-- Check if user is logged in -->
             <form action="/logout" method="POST" id="logoutForm">

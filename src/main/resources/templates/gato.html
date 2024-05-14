@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Gato</title>
+    <link rel="stylesheet" href="/gato.css">
+
+</head>
+<body>
+<h1>GATO</h1>
+<img th:src="${imageUrl}" alt="Random Cat Image"/>
+
+<form action="/" method="GET" class="return-button">
+    <button type="submit"><</button>
+</form>
+
+</body>
+</html>
