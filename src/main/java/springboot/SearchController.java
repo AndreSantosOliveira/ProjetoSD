@@ -9,10 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.rmi.Naming;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Controller
 public class SearchController {
@@ -49,8 +46,8 @@ public class SearchController {
             MetodosRMIGateway metodosGateway = (MetodosRMIGateway) Naming.lookup("rmi://" + ConnectionsEnum.GATEWAY.getIP() + ":" + ConnectionsEnum.GATEWAY.getPort() + "/gateway");
 
             // If request is to index
-            if (query.startsWith("index:")) {
-                String[] parts = query.split(":");
+            if (query.startsWith("index>")) {
+                String[] parts = query.split(">");
                 if (parts.length == 2) {
                     // check if parts[1] has https
                     if (!parts[1].startsWith("https://")) {
@@ -63,6 +60,57 @@ public class SearchController {
                     model.addAttribute("query", query);
                     model.addAttribute("page", page);
                     model.addAttribute("searchResults", Collections.singleton(new URLData(parts[1], "New url (" + parts[1] + ") indexed.", parts[1])));
+                } else {
+                    model.addAttribute("totalPages", totalPages);
+                    model.addAttribute("query", query);
+                    model.addAttribute("page", page);
+                    model.addAttribute("searchResults", Collections.singleton(new URLData("Invalid URL", "Invalid URL, please insert a valid url to index.", "Invalid URL")));
+                }
+            } else if (query.startsWith("list>")) {
+                String[] splitOption = query.split(">");
+
+
+                if (splitOption.length == 2) {
+                    String pesquisaLista = String.join(" ", Arrays.copyOfRange(splitOption, 1, splitOption.length));
+
+                    if (pesquisaLista.isEmpty()) {
+                        model.addAttribute("totalPages", totalPages);
+                        model.addAttribute("query", query);
+                        model.addAttribute("page", page);
+                        model.addAttribute("searchResults", Collections.singleton(new URLData("Invalid URL", "Invalid URL. Please enter a valid URL to list.", "Invalid URL")));
+                    }
+
+                    if (!pesquisaLista.startsWith("https://")) {
+                        pesquisaLista = "https://" + pesquisaLista;
+                    }
+
+                    List<String> links = metodosGateway.linksListForURL(pesquisaLista);
+                    List<URLData> linkDataList = new ArrayList<>();
+
+                    if (links.isEmpty()) {
+                        model.addAttribute("totalPages", totalPages);
+                        model.addAttribute("query", query);
+                        model.addAttribute("page", page);
+                        model.addAttribute("searchResults", Collections.singleton(new URLData("Invalid URL", "No links found for this URL.", "Invalid URL")));
+                    } else {
+                        links.sort(String::compareTo);
+                        linkDataList.add(new URLData("P", "Links that reference: " + pesquisaLista, "P"));
+                        int i = 0;
+                        for (String link : links) {
+                            linkDataList.add(new URLData(link,  i + 1 + ". " + link + " ignore", link));
+                            System.out.println("links " + link);
+                            i++;
+                        }
+                        model.addAttribute("totalPages", totalPages);
+                        model.addAttribute("query", query);
+                        model.addAttribute("page", page);
+                        model.addAttribute("searchResults", linkDataList);
+                    }
+                } else {
+                    model.addAttribute("totalPages", totalPages);
+                    model.addAttribute("query", query);
+                    model.addAttribute("page", page);
+                    model.addAttribute("searchResults", Collections.singleton(new URLData("Invalid URL", "Invalid URL, please insert a valid url to list.", "Invalid URL")));
                 }
             } else {
                 List<URLData> searchResults = new ArrayList<>();
@@ -86,7 +134,8 @@ public class SearchController {
                 model.addAttribute("searchResults", searchResults);
             }
 
-        } catch (Exception e) {
+        } catch (
+                Exception e) {
             // Handle any exceptions
             e.printStackTrace();
             model.addAttribute("errorMessage", "An error occurred during search.");
