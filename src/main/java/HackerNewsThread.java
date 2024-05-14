@@ -30,7 +30,7 @@ public class HackerNewsThread extends Thread {
         while (true) {
             try {
                 fetchTopStories();
-                Thread.sleep(300000); // Wait for 5 minutes (300,000 milliseconds) before checking again
+                Thread.sleep(300000); // esperar 5m
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
