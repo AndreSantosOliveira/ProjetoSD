@@ -23,32 +23,35 @@
     <!-- Display Search Results -->
     <div>
         <ul>
-            <th:block th:if="${searchResults.isEmpty() && !query.isEmpty()}">
-                <p>Your search did not match any documents.</p>
-            </th:block>
-            <th:block th:if="${query.isEmpty()}">
-                <p>Please enter a search query.</p>
+            <th:block th:if="${searchResults.isEmpty()}">
+                <p th:if="${!query.isEmpty()}">Your search did not match any documents.</p>
+                <p th:if="${query.isEmpty()}">Please enter a search query.</p>
             </th:block>
 
-            <th:block th:if="${!searchResults.isEmpty() && !query.isEmpty()}">
+            <th:block th:if="${!searchResults.isEmpty()}">
                 <th:block th:each="result : ${searchResults}">
                     <li th:if="${result != null}">
-                        <a th:if="${result.url != null}">
-                            <a th:if="${!result.pageTitle.startsWith('New url (') && !result.pageTitle.contains('Trying')}"
-                               th:href="${result.url}"
-                               th:text="${result.pageTitle.length() > 75 ? result.pageTitle.substring(0, 75) + '...' : result.getPageTitle() + (result.getRelevance() != -1 ? ' (' + result.getRelevance() + ' references)' : '')                }"
-                               target="_blank"></a>
-                        </a>
+                        <a th:if="${result.url != null && !result.pageTitle.startsWith('New url (') && !result.pageTitle.contains('Trying') && !result.pageTitle.startsWith('Invalid URL')&& !result.pageTitle.startsWith('No links found')&& !result.pageTitle.startsWith('Links that reference') && !result.pageTitle.endsWith('ignore')}"
+                           th:href="${result.url}"
+                           th:text="${result.pageTitle.length() > 75 ? result.pageTitle.substring(0, 75) + '...' : result.getPageTitle() + (result.getRelevance() != -1 ? ' (' + result.getRelevance() + ' references)' : '')}"
+                           target="_blank"></a>
 
+                        <p th:if="${result.pageTitle.startsWith('New url (') || result.pageTitle.contains('Trying') || result.pageTitle.startsWith('Invalid URL')|| result.pageTitle.startsWith('No links found')}"
+                           th:text="${result.getPageTitle()}"
+                           class="new-url"></p>
+
+                        <ul class="new-url" th:if="${result.pageTitle.startsWith('Links that reference')}"
+                            th:each="linkData : ${searchResults}">
+                            <li th:if="${linkData.pageTitle.startsWith('Links that reference')}"
+                                th:text="${linkData.pageTitle}"></li>
+                            <li th:if="${!linkData.pageTitle.startsWith('Links that reference')}">
+                                <a th:href="${linkData.url}"
+                                   th:text="${linkData.pageTitle.endsWith('ignore') ? (linkData.pageTitle.length() > 80 ? linkData.pageTitle.substring(0, linkData.pageTitle.length() - 6) + '...' : linkData.pageTitle.substring(0, linkData.pageTitle.length() - 6)) : (linkData.pageTitle.length() > 75 ? linkData.pageTitle.substring(0, 75) + '...' : linkData.pageTitle)}"
+                                   target="_blank"></a>
+                            </li>
+                        </ul>
                     </li>
-
-
-                    <p th:if="${result.pageTitle.startsWith('New url (') || result.pageTitle.contains('Trying') }"
-                       th:text="${result.getPageTitle()}"
-                       class="new-url"></p>
-
                 </th:block>
-
             </th:block>
         </ul>
     </div>
