@@ -3,7 +3,7 @@ Projeto realizado no ãmbito da cadeira de Sistemas Distribuidos na Faculdade de
 
 #### Meta 2 - LEI FCTUC 2024
 
-André Oliveira (2021226714)<br/>José Rodrigues (2021235353) 
+André Oliveira  (2021226714)<br/>José Rodrigues (2021235353) 
 
 # Setup
 
