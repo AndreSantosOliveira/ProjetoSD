@@ -78,6 +78,10 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         try {
             Gateway gateway = new Gateway();
             LocateRegistry.createRegistry(ConnectionsEnum.GATEWAY.getPort()).rebind("gateway", gateway);
+
+            // thread para indexar top 30 stories do hacker news
+            HackerNewsThread hackerNewsThread = new HackerNewsThread(gateway);
+            hackerNewsThread.start();
         } catch (IOException re) {
             System.out.println("Exception in Gateway RMI: " + re);
         }
