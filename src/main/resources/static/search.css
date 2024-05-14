@@ -14,17 +14,15 @@ body {
 
 /* Container styles */
 .mainContainer {
-    max-width: 100%; /* Adjusted for responsiveness */
+    max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-    box-sizing: border-box;
 }
 
 /* Heading styles */
 h1 {
     margin-bottom: 20px;
     color: rgb(2, 129, 129);
-    font-size: 1.5rem; /* Adjusted for responsiveness */
 }
 
 p {
@@ -42,7 +40,7 @@ label {
 }
 
 input[type="text"] {
-    width: 100%; /* Adjusted for responsiveness */
+    width: 70%;
     padding: 8px;
     margin-top: 5px;
 }
@@ -91,19 +89,26 @@ a:hover {
 
 /* Return button */
 .return-button {
-    position: fixed; /* Adjusted for mobile */
-    top: 20px; /* Adjusted for mobile */
-    left: 20px; /* Adjusted for mobile */
+    position: absolute;
+    top: 30px;
+    left: 30px;
     z-index: 9999;
 }
 
 /* Pagination buttons */
 .pagination {
-    text-align: center; /* Adjusted for mobile */
+    align-content: center;
 }
 
-.prev,
-.next {
-    display: block; /* Adjusted for mobile */
-    margin: 10px auto; /* Adjusted for mobile */
+.prev {
+    position: absolute;
+    left: 389px;
+    bottom: 40px;
 }
+
+.next {
+    position: absolute;
+    right: 550px;
+    bottom: 40px;
+}
+

@@ -75,3 +75,15 @@ body {
 .inputSearch input::placeholder {
     padding: 20px;
 }
+
+/* AI status */
+.gpt {
+    background-color: rgb(2, 129, 129);
+    color: #fff;
+    border: none;
+    font-size: small;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+}
+
