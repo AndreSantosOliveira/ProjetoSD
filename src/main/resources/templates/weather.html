@@ -16,6 +16,13 @@
     <p>Temperature: <span th:text="${temperature}"></span> °C</p>
     <p>Humidity: <span th:text="${humidity}"></span>%</p>
     <p>Condition: <span th:text="${condition}"></span></p>
+
+    <th:block th:if="${!fromHomepage}">
+        <form action="/" method="GET" class="return-button">
+            <button type="submit"><</button>
+        </form>
+    </th:block>
+
 </div>
 <script>
     // Function to get the user's geolocation
