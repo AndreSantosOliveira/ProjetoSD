@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Weather</title>
+    <th:block th:if="${!fromHomepage}">
+        <link rel="stylesheet" href="/weather.css">
+    </th:block>
+    <th:block th:if="${fromHomepage}">
+        <link rel="stylesheet" href="/weather-from-homepage.css">
+    </th:block>
+</head>
+<body>
+<div class="content">
+    <h1><span th:text="${city}"></span></h1>
+    <p>Temperature: <span th:text="${temperature}"></span> °C</p>
+    <p>Humidity: <span th:text="${humidity}"></span>%</p>
+    <p>Condition: <span th:text="${condition}"></span></p>
+</div>
+<script>
+    // Function to get the user's geolocation
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showWeather);
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+
+    // Function to pass geolocation to backend and show weather
+    function showWeather(position) {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        // Prevent default form submission behavior
+        event.preventDefault();
+
+        // Make a GET request to the /weather endpoint with latitude and longitude parameters
+        window.location.href = "/weather?latitude=" + latitude + "&longitude=" + longitude;
+    }
+
+    // Call the getLocation function when the page loads to fetch the user's geolocation
+    window.onload = getLocation;
+</script>
+
+
+</body>
+</html>
