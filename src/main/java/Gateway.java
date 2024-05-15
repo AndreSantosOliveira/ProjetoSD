@@ -14,6 +14,19 @@ import common.MetodosRMIWebServerSocket;
 import common.Tuple;
 import common.URLData;
 
+
+import java.util.*;
+
+import common.*;
+
+import org.apache.http.client.methods.HttpPost;
+
+import org.apache.http.entity.StringEntity;
+
+import org.apache.http.impl.client.CloseableHttpClient;
+
+import org.apache.http.impl.client.HttpClientBuilder;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -190,6 +203,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         }
 
         dynamicallyUpdate();
+        getAdministrativeStatistics();
 
         return lista;
     }
@@ -198,9 +212,32 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     public void dynamicallyUpdate() throws IOException, NotBoundException {
         System.out.println("Sending message to update the statistics.");
 
-        MetodosRMIWebServerSocket metodsoWebSocketRMI = (MetodosRMIWebServerSocket) Naming.lookup("rmi://" + ConnectionsEnum.WEBSERVER_SOCKET_RMI.getIP() + ":" + ConnectionsEnum.WEBSERVER_SOCKET_RMI.getPort() + "/websocketrmi");
+        MetodosRMIWebServerSocket metodosWebSocketRMI = null;
+        int maxRetries = 5; // Maximum number of retries
+        int retryDelay = 1000; // Delay between retries in milliseconds
 
-        metodsoWebSocketRMI.enviarAtualizacaoParaWebSockets(getAdministrativeStatistics().replaceAll("\n", "<br>"));
+        for (int i = 0; i < maxRetries; i++) {
+            try {
+                metodosWebSocketRMI = (MetodosRMIWebServerSocket) Naming.lookup("rmi://" + ConnectionsEnum.WEBSERVER_SOCKET_RMI.getIP() + ":" + ConnectionsEnum.WEBSERVER_SOCKET_RMI.getPort() + "/websocketrmi");
+                // If the connection is successful, break the loop
+                break;
+            } catch (Exception e) {
+                // If the connection fails, print an error message and wait before retrying
+                System.out.println("Failed to connect to WebServerSocketRMI (attempt " + (i + 1) + "/" + maxRetries + "). Retrying...");
+                try {
+                    Thread.sleep(retryDelay);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+
+// If the connection is still null after all retries, print an error message
+        if (metodosWebSocketRMI == null) {
+            System.out.println("Failed to connect to WebServerSocketRMI after " + maxRetries + " attempts.");
+        } else {
+            metodosWebSocketRMI.enviarAtualizacaoParaWebSockets(getAdministrativeStatistics().replaceAll("\n", "<br>"));
+        }
     }
 
 
@@ -212,6 +249,38 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     //-----------------------------------------ADMIN STUFF-----------------------------------------
 
     final Map<String, Integer> top10Searches = new HashMap<>();
+    // =====================RMI CALLBACK=============================
+
+    static HashSet<MetodosClienteRMI> clients = new HashSet<MetodosClienteRMI>();
+
+
+    @Override
+
+    public void subscribeClient(MetodosClienteRMI c) throws RemoteException {
+        // Insert the client into the HashSet
+        clients.add(c);
+    }
+
+
+    @Override
+
+    public void unsubscribeClient(MetodosClienteRMI c) throws RemoteException {
+        clients.remove(c);
+    }
+
+
+    @Override
+
+    public int findClient(MetodosClienteRMI c) throws RemoteException {
+        for (MetodosClienteRMI client : clients) {
+            if (client.equals(c)) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    // =======================================================
 
     /**
      * Gets the administrative statistics.
@@ -222,35 +291,31 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
      */
     @Override
     public String getAdministrativeStatistics() throws RemoteException {
-        return "\nTop 10 searches:\n" +
-                getTopSearches() +
-                getActiveBarrels() +
-                getAverageResponseTimes() +
-                "\n";
+
+        // Return the top 10 searches, the active barrels, and the average response times to all subscribed clients
+        for (MetodosClienteRMI client : clients) {
+            client.print_on_client("\nTop 10 searches:\n" +
+                    getTopSearches() +
+                    getActiveBarrels() +
+                    getAverageResponseTimes() +
+                    "\n");
+        }
+        return ">";
     }
 
     private String getTopSearches() {
-        return top10Searches.isEmpty() ? "No searches yet.\n" :
-                top10Searches.entrySet().stream()
-                        .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                        .map(entry -> entry.getKey() + ": " + entry.getValue() + "\n")
-                        .collect(Collectors.joining());
+        return top10Searches.isEmpty() ? "No searches yet.\n" : top10Searches.entrySet().stream().sorted(Map.Entry.<String, Integer>comparingByValue().reversed()).map(entry -> entry.getKey() + ": " + entry.getValue() + "\n").collect(Collectors.joining());
     }
 
     private String getActiveBarrels() throws RemoteException {
         if (metodosBarrelManager == null) {
             return "BarrelManager is not connected. Something went wrong.";
         }
-        return "\nActive Barrels:" +
-                metodosBarrelManager.getActiveBarrels() + "\n";
+        return "\nActive Barrels:" + metodosBarrelManager.getActiveBarrels() + "\n";
     }
 
     private String getAverageResponseTimes() {
-        return "Average Barrel Response Time:\n" +
-                (barrelResponseTime.isEmpty() ? "No response times recorded yet." :
-                        barrelResponseTime.entrySet().stream()
-                                .map(entry -> String.format(" - %s -> %.2fs", entry.getKey(), (entry.getValue() / barrelRequestCount.get(entry.getKey())) / 1000))
-                                .collect(Collectors.joining("\n")));
+        return "Average Barrel Response Time:\n" + (barrelResponseTime.isEmpty() ? "No response times recorded yet." : barrelResponseTime.entrySet().stream().map(entry -> String.format(" - %s -> %.2fs", entry.getKey(), (entry.getValue() / barrelRequestCount.get(entry.getKey())) / 1000)).collect(Collectors.joining("\n")));
     }
 
     @Override

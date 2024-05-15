@@ -98,4 +98,15 @@ public interface MetodosRMIGateway extends Remote {
 
     void dynamicallyUpdate() throws IOException, NotBoundException;
 
+
+    // RMI Callback stuff
+
+    public void subscribeClient(MetodosClienteRMI c) throws RemoteException;
+
+
+    public void unsubscribeClient(MetodosClienteRMI c) throws RemoteException;
+
+
+    public int findClient(MetodosClienteRMI c) throws RemoteException;
+
 }

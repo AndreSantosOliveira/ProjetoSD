@@ -10,6 +10,7 @@
 import common.ConnectionsEnum;
 import common.MetodosRMIGateway;
 import common.URLData;
+import common.MetodosClienteRMI;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -19,6 +20,9 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.RMIClientSocketFactory;
+import java.rmi.server.RMIServerSocketFactory;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -31,7 +35,12 @@ import java.util.Scanner;
  * ClienteRMI is responsible for creating a new RMI registry for the client, connecting to the Gateway via RMI and
  * sending commands to the Queue.
  */
-public class ClienteRMI implements Serializable, Remote {
+public class ClienteRMI extends UnicastRemoteObject implements MetodosClienteRMI, Remote, Serializable {
+
+    @Override
+    public void print_on_client(String s) throws RemoteException {
+        System.out.println(s);
+    }
 
     //-1 -> não logado
     //0 -> user
@@ -140,7 +149,7 @@ public class ClienteRMI implements Serializable, Remote {
                     try {
                         Thread.sleep(1000);
                         if (finalMetodosGateway != null)
-                            finalMetodosGateway.getAdministrativeStatistics();
+                            finalMetodosGateway.findClient((MetodosClienteRMI) clienteRMI);
                     } catch (RemoteException | InterruptedException e) {
                         System.out.println("Gateway went offline. Exiting...");
                         System.exit(0);
@@ -185,7 +194,7 @@ public class ClienteRMI implements Serializable, Remote {
 
                     String[] splitOption = command.split(" ");
 
-                    if (splitOption.length < 2 && !splitOption[0].equals("help") && !splitOption[0].equals("exit") && !splitOption[0].equals("list") && !splitOption[0].equals("admin") && !splitOption[0].equals("save") && !splitOption[0].equals("clear") && !splitOption[0].equals("cls") && !splitOption[0].equals("shutdown") && !splitOption[0].equals("logout")) {
+                    if (splitOption.length < 2 && !splitOption[0].equals("help") && !splitOption[0].equals("exit") && !splitOption[0].equals("list") && !splitOption[0].equals("admin") && !splitOption[0].equals("save") && !splitOption[0].equals("clear") && !splitOption[0].equals("cls") && !splitOption[0].equals("shutdown") && !splitOption[0].equals("logout") && !splitOption[0].equals("subscribe") && !splitOption[0].equals("unsubscribe")) {
                         System.out.println("Invalid option. For additional information type 'help'");
                         continue;
                     }
@@ -364,9 +373,24 @@ public class ClienteRMI implements Serializable, Remote {
 
                             System.out.println();
                             break;
-
+                        case "subscribe":
+                            if (admin == 1 && metodosGateway.findClient((MetodosClienteRMI) clienteRMI) == 0) {
+                                metodosGateway.subscribeClient((MetodosClienteRMI) clienteRMI);
+                                System.out.println("Subscribed to the admin server.");
+                            } else {
+                                System.out.println("You do not have permission to perform this action.");
+                            }
+                            break;
+                        case "unsubscribe":
+                            if (admin == 1 && metodosGateway.findClient((MetodosClienteRMI) clienteRMI) == 1) {
+                                metodosGateway.unsubscribeClient((MetodosClienteRMI) clienteRMI);
+                                System.out.println("Unsubscribed from the admin server.");
+                            } else {
+                                System.out.println("You do not have permission to perform this action.");
+                            }
+                            break;
                         case "admin":
-                            if (admin == 1) {
+                            if (admin == 1 && metodosGateway.findClient((MetodosClienteRMI) clienteRMI) == 1) {
                                 System.out.println(metodosGateway.getAdministrativeStatistics());
                             } else {
                                 System.out.println("You do not have permission to perform this action.");
@@ -411,9 +435,13 @@ public class ClienteRMI implements Serializable, Remote {
         System.out.println("copy <from> <to> - Copies the content of one barrel to another");
         System.out.println("clear/cls - Clears the console");
         System.out.println("save - Saves the content of the barrels");
+        System.out.println("subscribe - Subscribes to the server");
+        System.out.println("unsubscribe - Unsubscribes from the server");
         System.out.println("admin - Displays administrative statistics");
         System.out.println("shutdown - Shuts down all components");
         System.out.println("logout - Logs out of the system");
         System.out.println("exit - Exits the system");
     }
+
+
 }
