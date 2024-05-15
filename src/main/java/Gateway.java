@@ -300,7 +300,11 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
                     getAverageResponseTimes() +
                     "\n");
         }
-        return ">";
+        return "\nTop 10 searches:\n" +
+                getTopSearches() +
+                getActiveBarrels() +
+                getAverageResponseTimes() +
+                "\n";
     }
 
     private String getTopSearches() {

@@ -391,7 +391,7 @@ public class ClienteRMI extends UnicastRemoteObject implements MetodosClienteRMI
                             break;
                         case "admin":
                             if (admin == 1 && metodosGateway.findClient((MetodosClienteRMI) clienteRMI) == 1) {
-                                System.out.println(metodosGateway.getAdministrativeStatistics());
+                                metodosGateway.getAdministrativeStatistics();
                             } else {
                                 System.out.println("You do not have permission to perform this action.");
                             }
