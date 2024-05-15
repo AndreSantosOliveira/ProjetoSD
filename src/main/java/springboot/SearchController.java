@@ -1,5 +1,14 @@
 package springboot;
 
+/*
+    ____  ____
+   / ___||  _ \     Projeto de Sistemas Distribuídos
+   \___ \| | | |    Meta 2 - LEI FCTUC 2024
+    ___) | |_| |    José Rodrigues - 2021235353
+   |____/|____/     André Oliveira - 2021226714
+
+*/
+
 import common.ConnectionsEnum;
 import common.MetodosRMIGateway;
 import common.URLData;
@@ -97,7 +106,7 @@ public class SearchController {
                         linkDataList.add(new URLData("P", "Links that reference: " + pesquisaLista, "P"));
                         int i = 0;
                         for (String link : links) {
-                            linkDataList.add(new URLData(link,  i + 1 + ". " + link + " ignore", link));
+                            linkDataList.add(new URLData(link, i + 1 + ". " + link + " ignore", link));
                             System.out.println("links " + link);
                             i++;
                         }

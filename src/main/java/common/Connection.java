@@ -1,4 +1,5 @@
-package common;/*
+package common;
+/*
     ____  ____
    / ___||  _ \     Projeto de Sistemas Distribuídos
    \___ \| | | |    Meta 2 - LEI FCTUC 2024

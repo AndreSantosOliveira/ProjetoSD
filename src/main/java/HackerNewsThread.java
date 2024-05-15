@@ -1,3 +1,12 @@
+/*
+    ____  ____
+   / ___||  _ \     Projeto de Sistemas Distribuídos
+   \___ \| | | |    Meta 2 - LEI FCTUC 2024
+    ___) | |_| |    José Rodrigues - 2021235353
+   |____/|____/     André Oliveira - 2021226714
+
+*/
+
 import common.ConnectionsEnum;
 import common.URLData;
 import org.json.JSONObject;
@@ -14,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 
 public class HackerNewsThread extends Thread {
 

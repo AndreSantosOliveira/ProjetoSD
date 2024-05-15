@@ -1,5 +1,14 @@
 package springboot.websocket;
 
+/*
+    ____  ____
+   / ___||  _ \     Projeto de Sistemas Distribuídos
+   \___ \| | | |    Meta 2 - LEI FCTUC 2024
+    ___) | |_| |    José Rodrigues - 2021235353
+   |____/|____/     André Oliveira - 2021226714
+
+*/
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;

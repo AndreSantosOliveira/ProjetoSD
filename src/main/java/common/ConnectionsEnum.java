@@ -1,4 +1,5 @@
-package common;/*
+package common;
+/*
     ____  ____
    / ___||  _ \     Projeto de Sistemas Distribuídos
    \___ \| | | |    Meta 2 - LEI FCTUC 2024
@@ -20,7 +21,7 @@ import java.io.Serializable;
 public enum ConnectionsEnum implements Serializable {
 
     // Enumerations representing different types of connections
-    MULTICAST, GATEWAY, QUEUE_MANAGER, BARREL_MANAGER, DOWNLOAD_MANAGER;
+    MULTICAST, GATEWAY, QUEUE_MANAGER, BARREL_MANAGER, DOWNLOAD_MANAGER, WEBSERVER_SOCKET_RMI;
 
     // The IP address of the connection
     private String IP;

@@ -10,19 +10,21 @@ package springboot.websocket;
 */
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
-public class MessageSender {
+import java.io.Serializable;
+
+@Service
+public class MessageSenderService implements Serializable {
 
     private final MessagingController messagingController;
 
     @Autowired
-    public MessageSender(MessagingController messagingController) {
+    public MessageSenderService(MessagingController messagingController) {
         this.messagingController = messagingController;
     }
 
-    public void enviarAtualizacaoParaWebSockets(String msg) {
+    public void atualizarWebSockets(String msg) {
         Message message = new Message(msg);
         messagingController.sendMessageToAll(message);
     }

@@ -1,23 +1,26 @@
 package springboot;
 
+/*
+    ____  ____
+   / ___||  _ \     Projeto de Sistemas Distribuídos
+   \___ \| | | |    Meta 2 - LEI FCTUC 2024
+    ___) | |_| |    José Rodrigues - 2021235353
+   |____/|____/     André Oliveira - 2021226714
+
+*/
+
 import common.ConnectionsEnum;
 import common.MetodosRMIGateway;
-import common.URLData;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.client.RestTemplate;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.rmi.Naming;
-import java.util.List;
 import java.util.Objects;
 
 @Controller

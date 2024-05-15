@@ -1,4 +1,6 @@
-package common;/*
+package common;
+
+/*
     ____  ____
    / ___||  _ \     Projeto de Sistemas Distribuídos
    \___ \| | | |    Meta 2 - LEI FCTUC 2024
@@ -6,8 +8,6 @@ package common;/*
    |____/|____/     André Oliveira - 2021226714
 
 */
-
-import org.springframework.web.socket.WebSocketSession;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -39,7 +39,7 @@ public interface MetodosRMIGateway extends Remote {
      * @return a list of common.URLData objects that match the search input
      * @throws java.rmi.RemoteException if an error occurs during remote method invocation.
      */
-    List<URLData> search(String words) throws IOException;
+    List<URLData> search(String words) throws IOException, NotBoundException;
 
     /**
      * Saves the content of the barrels.
@@ -96,6 +96,6 @@ public interface MetodosRMIGateway extends Remote {
      */
     void heartBeat() throws RemoteException;
 
-    void dynamicallyUpdate() throws IOException;
+    void dynamicallyUpdate() throws IOException, NotBoundException;
 
 }
