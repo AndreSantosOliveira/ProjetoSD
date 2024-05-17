@@ -1,4 +1,6 @@
-package common;/*
+package common;
+
+/*
     ____  ____
    / ___||  _ \     Projeto de Sistemas Distribuídos
    \___ \| | | |    Meta 2 - LEI FCTUC 2024
@@ -11,16 +13,17 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 /**
- * common.MetodosRMIDownloader interface extends Remote.
+ * The MetodosRMIDownloader interface extends the Remote interface.
  * This interface defines the methods that a Downloader object must implement.
- * These methods allow the Downloader to crawl a URL and check if it is busy.
+ * These methods allow the Downloader to crawl a URL, check if it is busy, shut down the Downloader, and get the Downloader ID.
  */
 public interface MetodosRMIDownloader extends Remote {
 
     /**
      * Crawls a URL.
      *
-     * @param url the URL to crawl
+     * @param url       the URL to crawl
+     * @param tentativa the attempt number
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     void crawlURL(String url, int tentativa) throws RemoteException;
@@ -41,9 +44,10 @@ public interface MetodosRMIDownloader extends Remote {
     void shutdown() throws RemoteException;
 
     /**
-     * Gets the downloder ID.
+     * Gets the Downloader ID.
      *
-     * @return downloader id
+     * @return the Downloader ID
+     * @throws RemoteException if an error occurs during remote method invocation.
      */
     String getDownloaderID() throws RemoteException;
 }

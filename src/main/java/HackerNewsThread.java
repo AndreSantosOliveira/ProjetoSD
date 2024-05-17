@@ -24,17 +24,30 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * HackerNewsThread class extends Thread and is responsible for fetching top stories from Hacker News.
+ * It fetches the top stories every 5 minutes and sends the details to ISB via multicast.
+ */
 
 public class HackerNewsThread extends Thread {
 
     private Gateway gateway;
 
+    /**
+     * Constructor for the HackerNewsThread class.
+     *
+     * @param gateway the Gateway object to be used by this thread
+     */
     public HackerNewsThread(Gateway gateway) {
         this.gateway = gateway;
     }
 
     private Set<String> topStoryIds = new HashSet<>();
 
+    /**
+     * The run method is called when the thread is started.
+     * It fetches the top stories every 5 minutes.
+     */
     @Override
     public void run() {
         while (true) {
@@ -47,6 +60,10 @@ public class HackerNewsThread extends Thread {
         }
     }
 
+    /**
+     * Fetches the top stories from Hacker News.
+     * It fetches the top 30 stories and sends the details of new stories to ISB via multicast.
+     */
     private void fetchTopStories() {
         try {
             URL url = new URL("https://hacker-news.firebaseio.com/v0/topstories.json");
@@ -78,6 +95,12 @@ public class HackerNewsThread extends Thread {
         }
     }
 
+    /**
+     * Fetches the details of a story from Hacker News.
+     *
+     * @param storyId the ID of the story to fetch
+     * @throws IOException if an error occurs during I/O operations
+     */
     private void fetchStoryDetails(int storyId) throws IOException {
         URL url = new URL("https://hacker-news.firebaseio.com/v0/item/" + storyId + ".json");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();

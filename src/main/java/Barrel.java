@@ -255,7 +255,7 @@ public class Barrel extends UnicastRemoteObject implements MetodosRMIBarrel, Ser
             }
 
         } catch (IOException e) { //there are strings that arrive cut off..
-            // e.printStackTrace();
+            //e.printStackTrace();
             //System.out.println("Error receiving multicast message: " + e.getMessage());
         }
     }

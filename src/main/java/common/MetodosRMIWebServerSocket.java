@@ -1,4 +1,5 @@
 package common;
+
 /*
     ____  ____
    / ___||  _ \     Projeto de Sistemas Distribuídos
@@ -12,12 +13,18 @@ import java.io.IOException;
 import java.rmi.Remote;
 
 /**
- * common.MetodosRMIGateway interface extends Remote.
- * This interface defines the methods that a Gateway object must implement.
- * These methods allow the Gateway to index a URL, search for URLs based on input, and list indexed pages.
+ * The MetodosRMIWebServerSocket interface extends the Remote interface.
+ * This interface defines the methods that a WebServerSocket object must implement.
+ * These methods allow the WebServerSocket to send updates to WebSockets.
  */
 public interface MetodosRMIWebServerSocket extends Remote {
 
+    /**
+     * Sends an update to WebSockets.
+     *
+     * @param msg the message to be sent
+     * @throws IOException if an error occurs during the operation.
+     */
     void enviarAtualizacaoParaWebSockets(String msg) throws IOException;
 
 }

@@ -20,8 +20,6 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
-import java.rmi.server.RMIClientSocketFactory;
-import java.rmi.server.RMIServerSocketFactory;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
@@ -148,8 +146,7 @@ public class ClienteRMI extends UnicastRemoteObject implements MetodosClienteRMI
                 while (true) {
                     try {
                         Thread.sleep(1000);
-                        if (finalMetodosGateway != null)
-                            finalMetodosGateway.findClient((MetodosClienteRMI) clienteRMI);
+                        finalMetodosGateway.findClient((MetodosClienteRMI) clienteRMI);
                     } catch (RemoteException | InterruptedException e) {
                         System.out.println("Gateway went offline. Exiting...");
                         System.exit(0);

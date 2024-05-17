@@ -1,4 +1,5 @@
 package common;
+
 /*
     ____  ____
    / ___||  _ \     Projeto de Sistemas Distribuídos
@@ -14,8 +15,8 @@ import java.io.IOException;
 import java.io.Serializable;
 
 /**
- * common.ConnectionsEnum is an enumeration that represents different types of connections.
- * Each connection is associated with a common.Connection object that contains the IP address and port number.
+ * The ConnectionsEnum enumeration represents different types of connections.
+ * Each connection is associated with a Connection object that contains the IP address and port number.
  * This enumeration provides methods to get the IP address and port number, print initialization status, and convert the connection to a string.
  */
 public enum ConnectionsEnum implements Serializable {
@@ -29,7 +30,7 @@ public enum ConnectionsEnum implements Serializable {
     private int port;
 
     /**
-     * Constructor for common.ConnectionsEnum.
+     * Constructor for ConnectionsEnum.
      * This constructor loads the IP address and port number from the connections.txt file.
      */
     ConnectionsEnum() {

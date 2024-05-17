@@ -208,6 +208,17 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         return lista;
     }
 
+    /**
+     * Dynamically updates the administrative statistics.
+     * <p>
+     * This method is used to send a message to update the administrative statistics.
+     * It attempts to connect to the WebServerSocketRMI and sends the updated statistics.
+     * If the connection fails, it retries up to a maximum number of times.
+     * If the connection is still null after all retries, it prints an error message.
+     *
+     * @throws IOException       if an error occurs during I/O operations.
+     * @throws NotBoundException if an attempt is made to lookup or unbind in the registry a name that has no associated binding.
+     */
     @Override
     public void dynamicallyUpdate() throws IOException, NotBoundException {
         System.out.println("Sending message to update the statistics.");
@@ -232,7 +243,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
             }
         }
 
-// If the connection is still null after all retries, print an error message
+        // If the connection is still null after all retries, print an error message
         if (metodosWebSocketRMI == null) {
             System.out.println("Failed to connect to WebServerSocketRMI after " + maxRetries + " attempts.");
         } else {
@@ -240,12 +251,20 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         }
     }
 
-
+    /**
+     * Saves the content of all barrels.
+     * <p>
+     * This method is used to save the content of all barrels managed by the BarrelManager.
+     * It calls the saveBarrelsContent method on the BarrelManager.
+     *
+     * @throws RemoteException       if an error occurs during remote method invocation.
+     * @throws MalformedURLException if a malformed URL has occurred.
+     * @throws NotBoundException     if an attempt is made to lookup or unbind in the registry a name that has no associated binding.
+     */
     @Override
     public void saveBarrelsContent() throws RemoteException, MalformedURLException, NotBoundException {
         metodosBarrelManager.saveBarrelsContent();
     }
-
     //-----------------------------------------ADMIN STUFF-----------------------------------------
 
     final Map<String, Integer> top10Searches = new HashMap<>();
@@ -254,23 +273,46 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     static HashSet<MetodosClienteRMI> clients = new HashSet<MetodosClienteRMI>();
 
 
+    /**
+     * Subscribes a client to the Gateway.
+     * <p>
+     * This method is used to add a client to the list of subscribed clients.
+     * It inserts the client into the HashSet of clients.
+     *
+     * @param c the client to subscribe
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
     @Override
-
     public void subscribeClient(MetodosClienteRMI c) throws RemoteException {
         // Insert the client into the HashSet
         clients.add(c);
     }
 
-
+    /**
+     * Unsubscribes a client from the Gateway.
+     * <p>
+     * This method is used to remove a client from the list of subscribed clients.
+     * It removes the client from the HashSet of clients.
+     *
+     * @param c the client to unsubscribe
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
     @Override
-
     public void unsubscribeClient(MetodosClienteRMI c) throws RemoteException {
         clients.remove(c);
     }
 
-
+    /**
+     * Finds a client in the list of subscribed clients.
+     * <p>
+     * This method is used to check if a client is in the list of subscribed clients.
+     * It iterates over the HashSet of clients and checks if the client is present.
+     *
+     * @param c the client to find
+     * @return 1 if the client is found, 0 otherwise
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
     @Override
-
     public int findClient(MetodosClienteRMI c) throws RemoteException {
         for (MetodosClienteRMI client : clients) {
             if (client.equals(c)) {
@@ -279,7 +321,6 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
         }
         return 0;
     }
-
     // =======================================================
 
     /**

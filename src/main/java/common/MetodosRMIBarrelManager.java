@@ -1,11 +1,4 @@
-package common;/*
-    ____  ____
-   / ___||  _ \     Projeto de Sistemas Distribuídos
-   \___ \| | | |    Meta 2 - LEI FCTUC 2024
-    ___) | |_| |    José Rodrigues - 2021235353
-   |____/|____/     André Oliveira - 2021226714
-
-*/
+package common;
 
 import java.net.MalformedURLException;
 import java.rmi.NotBoundException;
@@ -14,9 +7,10 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 /**
- * common.MetodosRMIBarrel interface extends Remote.
- * This interface defines the methods that a Barrel object must implement.
- * These methods allow the Barrel to archive URLs and search for URLs based on input.
+ * The MetodosRMIBarrelManager interface extends the Remote interface.
+ * This interface defines the methods that a BarrelManager object must implement.
+ * These methods allow the BarrelManager to archive URLs, search for URLs based on input, save the content of the barrels to a file,
+ * get the active barrels, shut down the barrels, list indexed pages of a specific URL, and copy barrel content to another barrel.
  */
 public interface MetodosRMIBarrelManager extends Remote {
 
@@ -24,7 +18,7 @@ public interface MetodosRMIBarrelManager extends Remote {
      * Searches for URLs based on input.
      *
      * @param url the input to search for
-     * @return a list of common.URLData objects that match the search input
+     * @return a tuple containing the original URL and a list of URLData objects that match the search input
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     Tuple<String, List<URLData>> searchInput(String url) throws RemoteException;
@@ -32,7 +26,9 @@ public interface MetodosRMIBarrelManager extends Remote {
     /**
      * Saves the content of the barrels to a file.
      *
-     * @throws RemoteException if an error occurs during remote method invocation.
+     * @throws RemoteException       if an error occurs during remote method invocation.
+     * @throws MalformedURLException if the specified URL is not formatted correctly.
+     * @throws NotBoundException     if an attempt is made to lookup or unbind in the registry a name that has no associated binding.
      */
     void saveBarrelsContent() throws RemoteException, MalformedURLException, NotBoundException;
 
@@ -53,9 +49,10 @@ public interface MetodosRMIBarrelManager extends Remote {
     void shutdownBarrels(String motive) throws RemoteException;
 
     /**
-     * Lists indexed pages of a specific.
+     * Lists indexed pages of a specific URL.
      *
-     * @return a list of common.URLData objects representing the indexed pages
+     * @param url the URL to list indexed pages for
+     * @return a list of strings representing the indexed pages
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     List<String> linksListForURL(String url) throws RemoteException;
@@ -63,9 +60,9 @@ public interface MetodosRMIBarrelManager extends Remote {
     /**
      * Copies Barrel content to another Barrel.
      *
-     * @param from barrel id source
-     * @param to   barrel id destination
-     * @return outcome of the operation
+     * @param from the ID of the source barrel
+     * @param to   the ID of the destination barrel
+     * @return a string representing the outcome of the operation
      * @throws RemoteException if an error occurs during remote method invocation.
      */
     String copyBarrel(String from, String to) throws RemoteException;

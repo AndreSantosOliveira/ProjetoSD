@@ -9,5 +9,12 @@ package springboot.websocket;
 
 */
 
+/**
+ * The Message record represents a message with a content.
+ * This is a record, a special kind of class in Java that is a transparent carrier for immutable data.
+ * Records can be thought of as nominal tuples.
+ *
+ * @param content the content of the message
+ */
 public record Message(String content) {
 }

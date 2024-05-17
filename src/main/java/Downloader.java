@@ -236,10 +236,7 @@ public class Downloader extends UnicastRemoteObject implements MetodosRMIDownloa
                 System.out.println("Error while trying to scrape data -> " + e.getMessage());
                 crawlURL(url, tentativa + 1);
             }
-            /*
-            queueManager.println(url);
-            System.out.println("Re-added " + url + " to the queue.");
-            */
+
         }
     }
 

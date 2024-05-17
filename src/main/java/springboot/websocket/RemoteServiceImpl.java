@@ -16,17 +16,36 @@ import org.springframework.stereotype.Service;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
+/**
+ * The RemoteServiceImpl class is responsible for implementing the MetodosRMIWebServerSocket interface.
+ * It extends UnicastRemoteObject, allowing its instances to be sent in RMI calls.
+ * This class is annotated with @Service, meaning it is a service provider in the Spring framework.
+ * It uses the MessageSender to send updates to WebSockets.
+ */
 @Service
 public class RemoteServiceImpl extends UnicastRemoteObject implements MetodosRMIWebServerSocket {
 
+    // The MessageSender used to send updates
     private final MessageSender messageSender;
 
+    /**
+     * Constructs a new RemoteServiceImpl with the provided MessageSender.
+     *
+     * @param messageSender the MessageSender used to send updates
+     * @throws RemoteException if an RMI error occurs
+     */
     @Autowired
     protected RemoteServiceImpl(MessageSender messageSender) throws RemoteException {
         super();
         this.messageSender = messageSender;
     }
 
+    /**
+     * Sends an update to WebSockets.
+     * It uses the MessageSender to send the provided string as an update to all WebSockets.
+     *
+     * @param msg the update to be sent
+     */
     @Override
     public void enviarAtualizacaoParaWebSockets(String msg) {
         messageSender.enviarAtualizacaoParaWebSockets(msg);

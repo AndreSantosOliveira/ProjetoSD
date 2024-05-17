@@ -14,7 +14,6 @@ import common.MetodosRMIBarrelManager;
 import common.MetodosRMIGateway;
 import common.Tuple;
 import common.URLData;
-import org.unbescape.xml.XmlEscapeType;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -40,7 +39,7 @@ import java.util.stream.Collectors;
 public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
 
     // Map to store barrels
-    private Map<Connection, MetodosRMIBarrel> barrels = new HashMap<>();
+    private final Map<Connection, MetodosRMIBarrel> barrels = new HashMap<>();
 
     static BarrelManager barrelManager;
 
@@ -160,9 +159,8 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
      * @throws InterruptedException  if an error occurs during thread sleep.
      * @throws RemoteException       if an error occurs during remote method invocation.
      * @throws MalformedURLException if an error occurs during URL creation.
-     * @throws NotBoundException     if an error occurs during RMI binding.
      */
-    private void reconnectToBarrel(Connection barrelCon) throws InterruptedException, RemoteException, MalformedURLException, NotBoundException {
+    private void reconnectToBarrel(Connection barrelCon) throws InterruptedException, RemoteException, MalformedURLException {
         System.out.println("Trying to reconnect to Barrel " + barrelCon.getRMIName() + "...");
 
         try {
@@ -239,8 +237,8 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
                         metodosGateway.dynamicallyUpdate();
                         metodosGateway.getAdministrativeStatistics();
 
-                    } catch (Exception ignored) {
-                        ignored.printStackTrace();
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
                     }
 
                     try {
@@ -261,8 +259,8 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
             metodosGateway.dynamicallyUpdate();
             metodosGateway.getAdministrativeStatistics();
 
-        } catch (Exception ignored) {
-            ignored.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -320,6 +318,15 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         }
     }
 
+    /**
+     * Saves the content of all barrels.
+     * <p>
+     * This method is used to save the content of all barrels managed by the BarrelManager.
+     * It iterates over all barrels and calls the saveBarrelContent method on each barrel.
+     * If an Exception is thrown during the saving of a barrel's content, it prints an error message and continues with the next barrel.
+     *
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
     @Override
     public void saveBarrelsContent() throws RemoteException {
         synchronized (barrels) {
@@ -334,6 +341,17 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         }
     }
 
+    /**
+     * Retrieves the active barrels.
+     * <p>
+     * This method is used to retrieve the active barrels managed by the BarrelManager.
+     * It iterates over all barrels and tries to get the ID of each barrel.
+     * If a RemoteException is thrown during the retrieval of a barrel's ID, it is ignored and the method continues with the next barrel.
+     * It returns a formatted string containing the RMI names and addresses of the active barrels, or a message indicating that there are no active barrels.
+     *
+     * @return a String representing the active barrels
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
     @Override
     public String getActiveBarrels() throws RemoteException {
         // Count the number of active barrels
@@ -354,6 +372,18 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         return ctr == 0 ? "\nNone.\n" : sb.toString();
     }
 
+    /**
+     * Retrieves a list of links for a given URL.
+     * <p>
+     * This method is used to retrieve a list of links for a given URL from the barrels managed by the BarrelManager.
+     * It iterates over all barrels until it finds a functional one and calls the linksListForURL method on it.
+     * If a RemoteException is thrown during the retrieval of links, it prints an error message and continues with the next barrel.
+     * If no functional barrels are found, it returns an empty list.
+     *
+     * @param url the URL for which to retrieve the list of links
+     * @return a List of Strings representing the links for the given URL
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
     @Override
     public List<String> linksListForURL(String url) throws RemoteException {
         synchronized (barrels) {
@@ -371,6 +401,17 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         return Collections.emptyList();
     }
 
+    /**
+     * Shuts down all barrels.
+     * <p>
+     * This method is used to shut down all barrels managed by the BarrelManager.
+     * It iterates over all barrels and calls the shutdown method on each barrel.
+     * If a RemoteException is thrown during the shutdown of a barrel, it is ignored and the method continues with the next barrel.
+     * After all barrels have been shut down, it prints a message indicating that the BarrelManager is shutting down.
+     *
+     * @param motive the reason for shutting down the barrels
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
     @Override
     public void shutdownBarrels(String motive) throws RemoteException {
         synchronized (barrels) {
@@ -403,6 +444,19 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
         return null;
     }
 
+    /**
+     * Copies the contents of one barrel to another.
+     * <p>
+     * This method is used to copy the contents of one barrel (identified by the 'from' parameter) to another barrel (identified by the 'to' parameter).
+     * It first checks if the 'to' barrel exists and is online. If not, it returns an error message.
+     * Then it checks if the 'from' barrel exists and is online. If not, it returns an error message.
+     * If both barrels exist and are online, it calls the copyBarrelContents method on the 'from' barrel, passing the 'to' barrel as a parameter.
+     *
+     * @param from the RMI name of the barrel from which to copy the contents
+     * @param to   the RMI name of the barrel to which to copy the contents
+     * @return a String message indicating the result of the operation
+     * @throws RemoteException if an error occurs during remote method invocation.
+     */
     @Override
     public String copyBarrel(String from, String to) throws RemoteException {
         // get the barrels

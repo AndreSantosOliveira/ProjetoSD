@@ -20,8 +20,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.rmi.Naming;
 import java.util.*;
 
+/**
+ * The SearchController class is responsible for handling search-related requests.
+ * It is annotated with @Controller, meaning it is a controller in the Spring framework.
+ */
 @Controller
 public class SearchController {
+
 
     /**
      * Splits a larger list into smaller lists.
@@ -46,6 +51,15 @@ public class SearchController {
         return result;
     }
 
+    /**
+     * Handles GET requests to the "/search" endpoint.
+     * It performs a search based on the provided query and page number, and then returns the search page.
+     *
+     * @param query the search query provided in the request
+     * @param page  the page number provided in the request
+     * @param model the Model to which attributes will be added
+     * @return the name of the search page
+     */
     @GetMapping("/search")
     public String search(@RequestParam(name = "query", defaultValue = "") String query, @RequestParam(name = "page", defaultValue = "0") int page, Model model) {
         try {

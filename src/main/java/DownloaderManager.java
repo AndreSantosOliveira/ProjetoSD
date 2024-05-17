@@ -311,6 +311,13 @@ public class DownloaderManager implements Serializable {
         }
     }
 
+    /**
+     * Shuts down all downloaders and terminates the program.
+     * <p>
+     * This method iterates over all downloaders managed by the DownloaderManager and calls the shutdown method on each downloader.
+     * If a RemoteException is thrown during the shutdown of a downloader, it is ignored and the method continues with the next downloader.
+     * After all downloaders have been shut down, it terminates the program using System.exit(0).
+     */
     private void shutdownDownloaders() {
         // Shutdown all downloaders
         synchronized (downloaders) {
