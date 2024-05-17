@@ -21,7 +21,7 @@
 
     <form action="/search" method="GET" class="inputSearch">
         <input id="inputForm" type="text" name="query" placeholder="Pesquise...">
-        <button id="searchBtn" type="submit">Search</button>
+        <button class="btn" id="searchBtn" type="submit">Search</button>
     </form>
 
 
@@ -83,12 +83,15 @@
     });
 
 
-    async function makeChatCompletionRequest() {
+    async function testGPT() {
+
         const url = 'https://api.openai.com/v1/chat/completions';
         const headers = {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer sk-proj-3iFBOKdx0bHmRmaCzgLDT3BlbkFJgCWDI80A6O9cy12LmqKf'
         };
+
+        // Dummy data to test the API connection
         const data = {
             "model": "gpt-3.5-turbo",
             "messages": [
@@ -113,11 +116,10 @@
             throw new Error(`HTTP error! Status: ${response.status}`);
         }
 
-        const responseData = await response.json();
-        return responseData;
+        return await response.json();
     }
 
-    makeChatCompletionRequest()
+    testGPT()
         .then(data => {
             document.getElementById("AIStatus").innerText = "AI Status: OK";
             console.log(data);

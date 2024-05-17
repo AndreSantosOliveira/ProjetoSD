@@ -1,9 +1,11 @@
 # Projeto de Sistemas Distribuídos
-Projeto realizado no ãmbito da cadeira de Sistemas Distribuidos na Faculdade de Ciências e Tecnologias da Universidade de Coimbra (FCTUC).
+
+Projeto realizado no ãmbito da cadeira de Sistemas Distribuidos na Faculdade de Ciências e Tecnologias da Universidade
+de Coimbra (FCTUC).
 
 #### Meta 2 - LEI FCTUC 2024
 
-André Oliveira  (2021226714)<br/>José Rodrigues (2021235353) 
+André Oliveira  (2021226714)<br/>José Rodrigues (2021235353)
 
 # Setup
 
@@ -25,7 +27,19 @@ André Oliveira  (2021226714)<br/>José Rodrigues (2021235353)
 
 Nota: Todos os ficheiros de configuração devem estar na pasta src/main/java/
 
-## Executar o Programa
+# Executar o Programa
 
 Depois de definidos os dados nos ficheiros de configuração, executar o BarrelManager, Barrel(s), DownloadManager,
-Downloader(s), QueueManager, Gateway, ClienteRMI(s).
+Downloader(s), QueueManager, Gateway, ClienteRMI(s) e WebServer com as portas respetivas definidas nos ficheiros de
+configuração.
+
+# URLs Web disponíveis
+
+- http://localhost:8080/ -> Página inicial
+- http://localhost:8080/search?query="yourSearchHere" -> Lista de clientes
+- http://127.0.0.1:8080/login -> Página de login
+- http://127.0.0.1:8080/account -> Página de conta
+- http://127.0.0.1:8080/admin -> Página de administração
+- http://127.0.0.1:8080/gato -> Página de gatos
+- http://127.0.0.1:8080/weather?city="yourLocationHere" -> Página de meteorologia, onde "yourLocationHere" é a
+  cidade/pais pretendida
