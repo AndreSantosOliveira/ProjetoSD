@@ -1,9 +1,7 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.rmi.RemoteException;
@@ -47,11 +45,9 @@ public class QueueManagerTest {
      * It runs the QueueManager, Downloader, and DownloaderManager in separate threads and checks if the connection is successful.
      */
     @Test
-    public void shouldConnectToDownloadManagerSuccessfully() throws IOException {
+    public void shouldConnectToDownloadManagerSuccessfully() {
         // Run QueueManager in a thread separately
-        new Thread(() -> {
-            QueueManager.main(new String[0]);
-        }).start();
+        new Thread(() -> QueueManager.main(new String[0])).start();
 
         // Run dl1 in a thread separately
         new Thread(() -> {

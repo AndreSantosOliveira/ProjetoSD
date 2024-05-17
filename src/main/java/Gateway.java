@@ -19,14 +19,6 @@ import java.util.*;
 
 import common.*;
 
-import org.apache.http.client.methods.HttpPost;
-
-import org.apache.http.entity.StringEntity;
-
-import org.apache.http.impl.client.CloseableHttpClient;
-
-import org.apache.http.impl.client.HttpClientBuilder;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -91,7 +83,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
             LocateRegistry.createRegistry(ConnectionsEnum.GATEWAY.getPort()).rebind("gateway", gateway);
 
             // thread para indexar top 30 stories do hacker news
-            HackerNewsThread hackerNewsThread = new HackerNewsThread(gateway);
+            HackerNewsThread hackerNewsThread = new HackerNewsThread();
             hackerNewsThread.start();
         } catch (IOException re) {
             System.out.println("Exception in Gateway RMI: " + re);
@@ -216,11 +208,10 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
      * If the connection fails, it retries up to a maximum number of times.
      * If the connection is still null after all retries, it prints an error message.
      *
-     * @throws IOException       if an error occurs during I/O operations.
-     * @throws NotBoundException if an attempt is made to lookup or unbind in the registry a name that has no associated binding.
+     * @throws IOException if an error occurs during I/O operations.
      */
     @Override
-    public void dynamicallyUpdate() throws IOException, NotBoundException {
+    public void dynamicallyUpdate() throws IOException {
         System.out.println("Sending message to update the statistics.");
 
         MetodosRMIWebServerSocket metodosWebSocketRMI = null;
@@ -270,7 +261,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     final Map<String, Integer> top10Searches = new HashMap<>();
     // =====================RMI CALLBACK=============================
 
-    static HashSet<MetodosClienteRMI> clients = new HashSet<MetodosClienteRMI>();
+    static HashSet<MetodosClienteRMI> clients = new HashSet<>();
 
 
     /**

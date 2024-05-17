@@ -31,15 +31,11 @@ import java.util.Set;
 
 public class HackerNewsThread extends Thread {
 
-    private Gateway gateway;
 
     /**
      * Constructor for the HackerNewsThread class.
-     *
-     * @param gateway the Gateway object to be used by this thread
      */
-    public HackerNewsThread(Gateway gateway) {
-        this.gateway = gateway;
+    public HackerNewsThread() {
     }
 
     private Set<String> topStoryIds = new HashSet<>();

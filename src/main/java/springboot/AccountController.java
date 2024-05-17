@@ -50,7 +50,7 @@ public class AccountController {
      * @param username the username provided in the request
      * @param password the password provided in the request
      * @param response the HttpServletResponse to which cookies will be added
-     * @param model the Model to which attributes will be added
+     * @param model    the Model to which attributes will be added
      * @return the name of the page to which the user will be redirected
      */
     @PostMapping("/loginForm")
@@ -59,8 +59,7 @@ public class AccountController {
 
         try {
             // Invoke the search method on the remote Gateway service
-            MetodosRMIGateway metodosGateway = null;
-            metodosGateway = (MetodosRMIGateway) Naming.lookup("rmi://" + ConnectionsEnum.GATEWAY.getIP() + ":" + ConnectionsEnum.GATEWAY.getPort() + "/gateway");
+            MetodosRMIGateway metodosGateway = (MetodosRMIGateway) Naming.lookup("rmi://" + ConnectionsEnum.GATEWAY.getIP() + ":" + ConnectionsEnum.GATEWAY.getPort() + "/gateway");
 
             int resultado = metodosGateway.autenticarCliente(username, password);
 
@@ -87,9 +86,9 @@ public class AccountController {
      * Handles GET requests to the "/account" endpoint.
      * It returns the account page if the user is logged in, or redirects to the login page if the user is not logged in.
      *
-     * @param username the username cookie value
+     * @param username    the username cookie value
      * @param accountType the account type cookie value
-     * @param model the Model to which attributes will be added
+     * @param model       the Model to which attributes will be added
      * @return the name of the page to which the user will be redirected
      */
     @GetMapping("/account")
@@ -123,7 +122,7 @@ public class AccountController {
      * It returns the admin page.
      *
      * @param accountType the account type cookie value
-     * @param model the Model to which attributes will be added
+     * @param model       the Model to which attributes will be added
      * @return the name of the admin page
      */
     @GetMapping("/admin")

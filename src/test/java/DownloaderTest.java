@@ -104,9 +104,7 @@ class DownloaderTest {
         Downloader.queueManager = mockPrintWriter;
 
         // Run queueManager concurently with test downloader
-        new Thread(() -> {
-            QueueManager.main(new String[0]);
-        }).start();
+        new Thread(() -> QueueManager.main(new String[0])).start();
 
         // Act
         boolean result = downloader.socketDownloadManagerToQueue();

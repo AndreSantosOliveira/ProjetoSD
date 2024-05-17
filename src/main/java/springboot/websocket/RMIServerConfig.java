@@ -68,7 +68,7 @@ public class RMIServerConfig {
         try {
             // unexport the object if it already exists
             UnicastRemoteObject.unexportObject(remoteService, true);
-        } catch (java.rmi.NoSuchObjectException e) {
+        } catch (java.rmi.NoSuchObjectException ignored) {
         }
 
         RmiServiceExporter exporter = new RmiServiceExporter();
