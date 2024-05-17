@@ -12,10 +12,15 @@ package springboot;
 import common.ConnectionsEnum;
 import common.MetodosRMIGateway;
 import common.URLData;
+import org.json.JSONObject;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
 
 import java.rmi.Naming;
 import java.util.*;
@@ -78,12 +83,13 @@ public class SearchController {
                         parts[1] = "https://" + parts[1];
                     }
                     metodosGateway.indexURLString(parts[1]);
-
+                    model.addAttribute("descriptions", Collections.emptyList());
                     model.addAttribute("totalPages", totalPages);
                     model.addAttribute("query", query);
                     model.addAttribute("page", page);
                     model.addAttribute("searchResults", Collections.singleton(new URLData(parts[1], "New url (" + parts[1] + ") indexed.", parts[1])));
                 } else {
+                    model.addAttribute("descriptions", Collections.emptyList());
                     model.addAttribute("totalPages", totalPages);
                     model.addAttribute("query", query);
                     model.addAttribute("page", page);
@@ -97,6 +103,7 @@ public class SearchController {
                     String pesquisaLista = String.join(" ", Arrays.copyOfRange(splitOption, 1, splitOption.length));
 
                     if (pesquisaLista.isEmpty()) {
+                        model.addAttribute("descriptions", Collections.emptyList());
                         model.addAttribute("totalPages", totalPages);
                         model.addAttribute("query", query);
                         model.addAttribute("page", page);
@@ -111,6 +118,7 @@ public class SearchController {
                     List<URLData> linkDataList = new ArrayList<>();
 
                     if (links.isEmpty()) {
+                        model.addAttribute("descriptions", Collections.emptyList());
                         model.addAttribute("totalPages", totalPages);
                         model.addAttribute("query", query);
                         model.addAttribute("page", page);
@@ -124,19 +132,23 @@ public class SearchController {
                             System.out.println("links " + link);
                             i++;
                         }
+                        model.addAttribute("descriptions", Collections.emptyList());
                         model.addAttribute("totalPages", totalPages);
                         model.addAttribute("query", query);
                         model.addAttribute("page", page);
                         model.addAttribute("searchResults", linkDataList);
                     }
                 } else {
+                    model.addAttribute("descriptions", Collections.emptyList());
                     model.addAttribute("totalPages", totalPages);
                     model.addAttribute("query", query);
                     model.addAttribute("page", page);
                     model.addAttribute("searchResults", Collections.singleton(new URLData("Invalid URL", "Invalid URL, please insert a valid url to list.", "Invalid URL")));
                 }
+
             } else {
                 List<URLData> searchResults = new ArrayList<>();
+                List<String> descriptions = new ArrayList<>();
                 if (!query.isEmpty()) {
                     // Extract results
                     List<URLData> aux = metodosGateway.search(query);
@@ -147,10 +159,42 @@ public class SearchController {
                         // Get the total number of pages
                         totalPages = aux2.size();
 
+
                         // Get the results corresponding to the requested page
                         searchResults = aux2.get(page);
+
+                        for (URLData result : searchResults) {
+                            if (descriptions.isEmpty()) {
+                                try {
+                                    // Fetch descriptions for each URL
+                                    RestTemplate restTemplate = new RestTemplate();
+                                    String apiKey = "82bad2ccb57f6a0b725638efe88c51c7";
+
+                                    String apiUrl = "https://api.linkpreview.net?key=" + apiKey + "&q=" + result.getURL();
+                                    ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
+                                    JSONObject json = new JSONObject(response.getBody());
+                                    String description = json.optString("description", "No description available.");
+                                    if (description.length() > 100) {
+                                        description = description.substring(0, 100) + "...";
+                                    }
+                                    descriptions.add(description);
+                                } catch (HttpClientErrorException e) {
+                                    if (e.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS) {
+                                        descriptions.add("Too many requests / rate limit exceeded.");
+                                    } else {
+                                        // Rethrow the exception if it's not a Too Many Requests error
+                                        descriptions.add("");
+                                        throw e;
+                                    }
+                                }
+                            } else {
+                                descriptions.add("");
+                            }
+                        }
                     }
                 }
+
+                model.addAttribute("descriptions", descriptions);
                 model.addAttribute("totalPages", totalPages);
                 model.addAttribute("query", query);
                 model.addAttribute("page", page);
