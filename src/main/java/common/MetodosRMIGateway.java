@@ -118,7 +118,7 @@ public interface MetodosRMIGateway extends Remote {
      * @param c the client to subscribe
      * @throws RemoteException if an error occurs during remote method invocation.
      */
-    public void subscribeClient(MetodosClienteRMI c) throws RemoteException;
+    void subscribeClient(MetodosClienteRMI c) throws RemoteException;
 
     /**
      * Unsubscribes a client from the Gateway.
@@ -126,7 +126,7 @@ public interface MetodosRMIGateway extends Remote {
      * @param c the client to unsubscribe
      * @throws RemoteException if an error occurs during remote method invocation.
      */
-    public void unsubscribeClient(MetodosClienteRMI c) throws RemoteException;
+    void unsubscribeClient(MetodosClienteRMI c) throws RemoteException;
 
     /**
      * Finds a client in the Gateway.
@@ -135,6 +135,6 @@ public interface MetodosRMIGateway extends Remote {
      * @return an integer representing the index of the client in the list of clients, or -1 if the client is not found
      * @throws RemoteException if an error occurs during remote method invocation.
      */
-    public int findClient(MetodosClienteRMI c) throws RemoteException;
+    int findClient(MetodosClienteRMI c) throws RemoteException;
 
 }

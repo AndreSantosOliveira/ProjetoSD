@@ -92,7 +92,6 @@ public class SearchController {
             } else if (query.startsWith("list>")) {
                 String[] splitOption = query.split(">");
 
-
                 if (splitOption.length == 2) {
                     String pesquisaLista = String.join(" ", Arrays.copyOfRange(splitOption, 1, splitOption.length));
 
@@ -157,8 +156,7 @@ public class SearchController {
                 model.addAttribute("searchResults", searchResults);
             }
 
-        } catch (
-                Exception e) {
+        } catch (Exception e) {
             // Handle any exceptions
             e.printStackTrace();
             model.addAttribute("errorMessage", "An error occurred during search.");

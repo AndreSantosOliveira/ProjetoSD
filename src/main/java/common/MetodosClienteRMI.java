@@ -16,6 +16,6 @@ public interface MetodosClienteRMI extends Remote {
      * @param s the string to be printed
      * @throws RemoteException if the remote invocation fails
      */
-    public void print_on_client(String s) throws RemoteException;
+    void print_on_client(String s) throws RemoteException;
 
 }

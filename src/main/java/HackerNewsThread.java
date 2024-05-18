@@ -77,7 +77,7 @@ public class HackerNewsThread extends Thread {
             reader.close();
             connection.disconnect();
 
-            String[] currentTopStoryIds = response.toString().replaceAll("[\\[\\]\"]", "").split(",");
+            String[] currentTopStoryIds = response.toString().replaceAll("[\\[\\]]", "").split(",");
 
             for (int i = 0; i < Math.min(30, currentTopStoryIds.length); i++) {
                 String storyId = currentTopStoryIds[i];

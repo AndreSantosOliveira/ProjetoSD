@@ -259,6 +259,7 @@ public class Gateway extends UnicastRemoteObject implements MetodosRMIGateway, S
     //-----------------------------------------ADMIN STUFF-----------------------------------------
 
     final Map<String, Integer> top10Searches = new HashMap<>();
+
     // =====================RMI CALLBACK=============================
 
     static HashSet<MetodosClienteRMI> clients = new HashSet<>();
