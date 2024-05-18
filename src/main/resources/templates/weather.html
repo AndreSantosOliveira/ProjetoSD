@@ -19,37 +19,64 @@
 
     <th:block th:if="${!fromHomepage}">
         <form action="/" method="GET" class="return-button">
-            <button type="submit    "><</button>
+            <button type="submit"><</button>
         </form>
     </th:block>
 
 </div>
-<script>
-    // Function to get the user's geolocation
-    function getLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(showWeather);
-        } else {
-            alert("Geolocation is not supported by this browser.");
+<script th:inline="javascript">
+    const fromHomepage = [[${fromHomepage}]];
+
+    if (fromHomepage === true) {
+        const THROTTLE_INTERVAL = 2000;
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showWeather);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
         }
+
+        function showWeather(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            const lastRequestTime = localStorage.getItem('lastWeatherRequestTime');
+            const currentTime = new Date().getTime();
+
+            if (!lastRequestTime || (currentTime - lastRequestTime > THROTTLE_INTERVAL)) {
+                const apiKey = 'e41ae573abe0413ebc8151613241505';
+                const apiUrl = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${latitude},${longitude}`;
+
+                fetch(apiUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.location) {
+                            const location = data.location;
+                            const city = location.name;
+
+                            // Update the last request time
+                            localStorage.setItem('lastWeatherRequestTime', currentTime);
+
+                            // Redirect to /weather endpoint with city parameter
+                            window.location.href = `/weather?city=${city}&fromHomepage=true`;
+                        } else {
+                            alert("Location not found");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching location data:", error);
+                        alert("Error fetching location data.");
+                    });
+            } else {
+                console.log('Weather request throttled. Please wait before making another request.');
+            }
+        }
+
+        window.onload = getLocation;
     }
-
-    // Function to pass geolocation to backend and show weather
-    function showWeather(position) {
-        const latitude = position.coords.latitude;
-        const longitude = position.coords.longitude;
-
-        // Prevent default form submission behavior
-        event.preventDefault();
-
-        // Make a GET request to the /weather endpoint with latitude and longitude parameters
-        window.location.href = "/weather?latitude=" + latitude + "&longitude=" + longitude;
-    }
-
-    // Call the getLocation function when the page loads to fetch the user's geolocation
-    window.onload = getLocation;
 </script>
-
 
 </body>
 </html>

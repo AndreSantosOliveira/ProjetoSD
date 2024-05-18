@@ -183,7 +183,6 @@ public class SearchController {
                                     } else {
                                         // Rethrow the exception if it's not a Too Many Requests error
                                         descriptions.add("");
-                                        throw e;
                                     }
                                 }
                             } else {
