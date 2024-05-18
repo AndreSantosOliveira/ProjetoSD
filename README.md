@@ -36,7 +36,8 @@ configuração.
 # URLs Web disponíveis
 
 - http://localhost:8080/ -> Página inicial
-- http://localhost:8080/search?query="yourSearchHere" -> Lista de clientes
+- http://localhost:8080/search?query="yourSearchHere" -> Lista de resultados de pesquisa, onde "yourSearchHere" é a
+  pesquisa pretendida
 - http://127.0.0.1:8080/login -> Página de login
 - http://127.0.0.1:8080/account -> Página de conta
 - http://127.0.0.1:8080/admin -> Página de administração
