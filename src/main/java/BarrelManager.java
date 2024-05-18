@@ -24,11 +24,7 @@ import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -387,18 +383,26 @@ public class BarrelManager implements MetodosRMIBarrelManager, Serializable {
     @Override
     public List<String> linksListForURL(String url) throws RemoteException {
         synchronized (barrels) {
-            for (MetodosRMIBarrel value : barrels.values()) {
-                if (value != null) {
-                    try {
-                        return value.linksListForURL(url);
-                    } catch (RemoteException e) {
-                        System.out.println("Error searching for links list for URL: " + url + " -> " + e.getMessage());
-                    }
+            boolean found = false;
+
+            for (Connection connection : barrels.keySet()) {
+                try {
+                    MetodosRMIBarrel res = (MetodosRMIBarrel) Naming.lookup("rmi://" + connection.getIP() + ":" + connection.getPorta() + "/" + connection.getRMIName());
+                    found = true;
+                    return res.linksListForURL(url);
+                } catch (MalformedURLException | NotBoundException | RemoteException e) {
+                    System.out.println("Error searching for links list for URL: " + url + " -> " + e.getMessage());
                 }
-                break; // we only need one functional barrels
+                if (found)
+                    break; // we only need one functional barrels
             }
+
         }
-        return Collections.emptyList();
+        // list with an error message in index 0
+        List<String> errorList = new ArrayList<>();
+        errorList.add(0, "Trying to reconnect to the barrels...");
+
+        return errorList;
     }
 
     /**

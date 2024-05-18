@@ -35,7 +35,9 @@
                            th:href="${result.url}"
                            th:text="${result.pageTitle.length() > 75 ? result.pageTitle.substring(0, 75) + '...' : result.getPageTitle() + (result.getRelevance() != -1 ? ' (' + result.getRelevance() + ' references)' : '')}"
                            target="_blank"></a>
-                        <p th:if="${descriptions[iter.index] != ''}" th:text="${descriptions[iter.index]}"></p>
+                        <th:block th:if="${!descriptions.isEmpty()}">
+                            <p th:if="${descriptions[iter.index] != ''}" th:text="${descriptions[iter.index]}"></p>
+                        </th:block>
 
                         <p th:if="${result.pageTitle.startsWith('New url (') || result.pageTitle.contains('Trying') || result.pageTitle.startsWith('Invalid URL')|| result.pageTitle.startsWith('No links found')}"
                            th:text="${result.getPageTitle()}"

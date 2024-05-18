@@ -361,6 +361,11 @@ public class ClienteRMI extends UnicastRemoteObject implements MetodosClienteRMI
                                 break;
                             }
 
+                            if (links.size() == 1 && links.get(0).equals("Trying to reconnect to the barrels...")) {
+                                System.out.println("Trying to reconnect to the barrels....");
+                                break;
+                            }
+
                             links.sort(String::compareTo);
                             System.out.println("Links that reference: " + pesquisaLista);
 

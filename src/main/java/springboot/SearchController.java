@@ -122,6 +122,12 @@ public class SearchController {
                         model.addAttribute("query", query);
                         model.addAttribute("page", page);
                         model.addAttribute("searchResults", Collections.singleton(new URLData("Invalid URL", "No links found for this URL.", "Invalid URL")));
+                    } else if (links.size() == 1 && links.get(0).equals("Trying to reconnect to the barrels...")) {
+                        model.addAttribute("descriptions", Collections.emptyList());
+                        model.addAttribute("totalPages", totalPages);
+                        model.addAttribute("query", query);
+                        model.addAttribute("page", page);
+                        model.addAttribute("searchResults", Collections.singleton(new URLData("Invalid URL", "Trying to reconnect to the barrels...", "Invalid URL")));
                     } else {
                         links.sort(String::compareTo);
                         linkDataList.add(new URLData("P", "Links that reference: " + pesquisaLista, "P"));
@@ -158,35 +164,38 @@ public class SearchController {
                         // Get the total number of pages
                         totalPages = aux2.size();
 
-
                         // Get the results corresponding to the requested page
                         searchResults = aux2.get(page);
+                        if (!searchResults.get(0).pageTitle.equals("Trying to reconnect to the barrels...")) {
+                            for (URLData result : searchResults) {
+                                if (descriptions.isEmpty()) {
+                                    try {
+                                        // Fetch descriptions for each URL
+                                        RestTemplate restTemplate = new RestTemplate();
+                                        String apiKey = "82bad2ccb57f6a0b725638efe88c51c7";
 
-                        for (URLData result : searchResults) {
-                            if (descriptions.isEmpty()) {
-                                try {
-                                    // Fetch descriptions for each URL
-                                    RestTemplate restTemplate = new RestTemplate();
-                                    String apiKey = "82bad2ccb57f6a0b725638efe88c51c7";
-
-                                    String apiUrl = "https://api.linkpreview.net?key=" + apiKey + "&q=" + result.getURL();
-                                    ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
-                                    JSONObject json = new JSONObject(response.getBody());
-                                    String description = json.optString("description", "No description available.");
-                                    if (description.length() > 100) {
-                                        description = description.substring(0, 100) + "...";
+                                        String apiUrl = "https://api.linkpreview.net?key=" + apiKey + "&q=" + result.getURL();
+                                        ResponseEntity<String> response = restTemplate.getForEntity(apiUrl, String.class);
+                                        JSONObject json = new JSONObject(response.getBody());
+                                        String description = json.optString("description", "No description available.");
+                                        if (description.length() > 100) {
+                                            description = description.substring(0, 100) + "...";
+                                        }
+                                        descriptions.add(description);
+                                    } catch (HttpClientErrorException e) {
+                                        if (e.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS) {
+                                            descriptions.add("Too many requests / rate limit exceeded.");
+                                        } else {
+                                            descriptions.add("");
+                                        }
+                                    } catch (Exception e) {
+                                        // descriptions is an empty list
+                                        descriptions = Collections.emptyList();
+                                        break;
                                     }
-                                    descriptions.add(description);
-                                } catch (HttpClientErrorException e) {
-                                    if (e.getStatusCode() == HttpStatus.TOO_MANY_REQUESTS) {
-                                        descriptions.add("Too many requests / rate limit exceeded.");
-                                    } else {
-                                        // Rethrow the exception if it's not a Too Many Requests error
-                                        descriptions.add("");
-                                    }
+                                } else {
+                                    descriptions.add("");
                                 }
-                            } else {
-                                descriptions.add("");
                             }
                         }
                     }
